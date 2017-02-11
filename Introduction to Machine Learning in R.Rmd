@@ -1,7 +1,7 @@
 ---
 title: "Introduction to Machine Learning in R"
-author: "Evan Muzzall and Chris Kennedy"
-date: "2/5/2017"
+author: "Evan Muzzall"
+date: "2/13/2017"
 output: html_document
 ---
 
@@ -13,15 +13,19 @@ knitr::opts_chunk$set(echo = TRUE)
 #####1. Pre-introduction - package installation
 Be sure you have installed and libraried the following packages:
 ```{r, eval=FALSE}
-install.packages(c("car", "caret","class","gbm", "ggplot2", "gmodels", "pROC", "randomForest","rpart","SuperLearner"), dependencies=TRUE)
+install.packages(c("car", "caret","class","gbm", "ggplot2", "gmodels", "parallel", "pROC", "randomForest", "RhpcBLASctl", "rpart","SuperLearner"), dependencies=TRUE)
+```
+```{r}
 library(car)
 library(caret)
 library(class)
 library(gbm)
 library(ggplot2)
 library(gmodels)
+library(parallel)
 library(pROC)
 library(randomForest)
+library(RhpcBLASctl)
 library(rpart)
 library(SuperLearner)
 ```
@@ -37,125 +41,128 @@ The "Turing Test" sought to examine a computer's ability to use natural language
 [Turing AM. 1950. Computing Machinery and Intelligence. _Mind_ 59:433-460](http://www.jstor.org/stable/pdf/2251299.pdf)  
 [Saygin AP, Cicekli I, Akman V. 2003 Turing Test: 50 Years Later. The Turing Test, pp. 23-78. Springer Netherlands](http://cogprints.org/1925/2/tt50.ps)  
 
-In the 1950s, Arthur Samuel demonstrated how a computer program could learn the rules of checkers, begin to think ahead, and beat a human checkers player in a relatively short period of time. In his seminal 1959 paper, Arthur Samuel defined "machine learning" as the ability for a machine to learn without having to be programmed by a human. That is, it could adapt to relatively simple rules for increasingly strategized endgames.  
+Also in the 1950s, Arthur Samuel demonstrated how a computer program could learn the rules of checkers, begin to think ahead, and beat a human player in a relatively short period of time. In his seminal 1959 paper, Arthur Samuel defined "machine learning" as the ability for a machine to learn without having to be programmed by a human. That is, it could adapt to relatively simple rules for increasingly strategized endgames.  
 
 [Arthur Samuel biography](http://infolab.stanford.edu/pub/voy/museum/samuel.html)  
 [Samuels, A. 1959. Some Studies in Machine Learning Using the Game of Checkers. _IBM Journal of Research and Development_](http://ucelinks.cdlib.org:8888/sfx_local?sid=google&auinit=AL&aulast=Samuel&atitle=Some+studies+in+machine+learning+using+the+game+of+checkers&id=doi:10.1147/rd.33.0210&title=IBM+Journal+of+Research+and+Development&volume=3&issue=3&date=1959&spage=210&issn=0018-8646)  
 
-In 1958, Frank Rosenblatt developed the perceptron, or the first neural network for study of the brain. 
+In 1958, Frank Rosenblatt developed the perceptron, or the first neural network for study of the brain.  
 
 [Frank Rosenblatt biography](http://csis.pace.edu/~ctappert/srd2011/rosenblatt-contributions.htm)
 [Rosenblatt F. 1958. The perceptron: A probabilistic model for information storage and organization in the brain. _Psychological Review_ 65:386-408](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
 
-Machine learning in the 1960s, 1970s, and 1980s saw a variety of developments in algorithm creation and application, pattern recognition, and explanation based learning. The 1990s witnessed a data and application-driven approach, and the 21st century has focused into adaptation and abstraction as well as reinforcement learning and virtual reality.  
+Machine learning in the 1960s, 1970s, and 1980s saw a variety of developments in algorithm creation and application, pattern recognition, and explanation based learning. The 1990s witnessed a data and application-driven approach, and the 21st century has focused on adaptation and abstraction as well as reinforcement learning and virtual reality.  
 
 Once thought to be exclusive to computer science, the modern strength of machine learning lies in its breadth of application. It is now used to provide ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight) for research, problem solving, and decision making in technological industries, business, language, the social and biological sciences, and humanities.  
 
 [Dig into Machine Learning with this interactive chart to learn more](http://sge.wonderville.ca/machinelearning/history/history.html)  
 
 #3. Machine learning algorithms
-Machine learning algorithm selection depends on the nature of the problem being investigated. For the purposes of this workshop, algorithms are generally divided into three types: supervised, unspervised, and reinforcement learners. We will focus on supervised learning methods for this workshop. Visit the below links for an introduction to unsupervised and reinforcement learning:
+Machine learning algorithm selection depends on the nature of the problem being investigated. Algorithms are generally divided into three types: supervised, unspervised, and reinforcement - we will focus on supervised learning methods for this workshop. Classification and regression are examples of supervised learning.  
+
+Supervised machine learning algorithms learn a target funciton _f_ that best maps to a response/target/outcome/dependent variable "Y" based on independent/predictor variable(s) "X". It then tries to predict Y based on new data for X. However, these predictions are influenced by three types of error: bias, variance, and irreducible error. See [An Introduction to Statistical Learning, pp. 18, 33-37.](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) for definitions.  
+
+Unsupervised machine learning algorithms only utilize predictor variables (X) and no Y response variable. The goal is to instead discern the underlying structure of the data. Clustering and ordination techniques are examples of unsupervised learning. Visit the below links for introductions to unsupervised and reinforcement learning:
 
 [Ghahramani Z. 2004. Unsupervised Learning. In _Advanced Lectures on Machine Learning LNIAI 3176,_ edited by Bousquet O, Raetsch G, von Luxburg, pp. 72-112. New York: Springer Verlag](http://www.inf.ed.ac.uk/teaching/courses/pmr/docs/ul.pdf)
 
 [Sutton RS, Barto AG. 2012. Reinforcement Learning: An Introduction. Cambridge, MA: The MIT Press](http://people.inf.elte.hu/lorincz/Files/RL_2006/SuttonBook.pdf))  
 
-Supervised machine learning algorithms learn a target funciton _f_ that best maps to a response variable (Y) based on predictor variable(s) (X). It figures how to estimate Y based on new data for X. However, these predictions are influenced by three types of error: bias, variance, and irreducible error. See [James et al., pp. 18, 33-37.](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) for definitions.  
-
-This is often done by first splitting a dataset into "training" and "test" datasets. A training dataset usually consists of a majority portion of the original dataset to LEARN THE MODEL. The remaining portion of the dataset is then designated to the test dataset, WHICH IS USED AS A HOLDOUT FOR PERFORMANCE ON PREDICTED VALUES.
-
-It is common practice to "train" a model to the "training dataset" so that it can learn the target function _f_. Then, the model is fitted to the "test dataset" to see how it performs. The accuracy of the prediction on the test dataset is then gauged. 
-
-Classification and regression are examples of supervised learning.  (move this up)
-
-Unsupervised machine learning algorithms only utilize predictor variables (X) and no Y response variable. The goal is to instead discern the underlying structure of the data. Clustering and ordination techniques are examples of unsupervised learning.  (move this up)
-
-> *A short way to remember this*: if you have a Y response variable that you are trying to predict using X predictor variables, you would probably consider a Supervised learning method. If you lack a Y response variable and only seek to investigate the data distribution found with X input variables, you would likely choose an Unsupervised learning method.  (move this up)
+> *A short way to remember this*: if you have a Y response variable that you are trying to predict using X predictor variables, you are probably using a supervised method.  If you lack a Y response variable and only seek to investigate the data distribution found with X input variables, you would likely choose an Unsupervised learning method.  (move this up)
 
 See Chapters 1 and 2 from [An Introduction to Statistical Learning](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) for an introduction to Supervised learning, and see Chapter 10 for an overview of Unsupervised learning.  
 
 #####3. Machine learning algorithms - classification or regression?
-In supervised machine learning, classification and regression are the most common approaches. Classification should be used when your target Y variable is discrete, such as...
+In supervised machine learning, classification and regression are common distinctions. Classification should be used when your target Y variable is discrete. Examples might include predicting a binary Y outcome variable such as "yes, no", or a multilevel outcome variable such as highest level of school completed ("primary, secondary, college, graduate").  
 
-Regression should be used when the target Y variable is continuous, such as ...
+Regression can be used when the target Y variable is continuous. Examples could include predicting income, gdp, housing prices, distance, height, and weight of a country, person, place, or thing.  
 
 #####3. Machine learning algorithms - research design
-ADD MORE VERBIAGE ABOUT WHAT THE PRACTICAL APPLICATION OF THESE AUTHORS.
-
-Before performing machine learning in R, one must consider the nature of the problem being investigated. Some supervised examples include:  
+It should again be emphasized that a major strength of machine learning is its pratical application for investigative research. Before performing machine learning in R, one must consider the nature of the problem being investigated. Some examples include:  
 
 In business, a real estate agent might want to predict the price of houses in a neighborhood based on their different individual features, proximity to schools, and tax and crime rates of the area.  
 
-[Ahmed EH, Moustafa MN. 2016. House price estimation from visual and textual features Proceedings of the 8th International Joint Conference on Computational Intelligence doi:10.5220/0006040700620068](https://arxiv.org/pdf/1609.08399.pdf)
+[Ahmed EH, Moustafa MN. 2016. House price estimation from visual and textual features Proceedings of the 8th International Joint Conference on Computational Intelligence doi:10.5220/0006040700620068](https://arxiv.org/pdf/1609.08399.pdf)  
 
 In the biological sciences, a climate scientist might use past and present weather data to try and predict future weather patterns. 
 
-[Feng QY, Vasile R, Segond M, Gozolchiani A, Wang Y, Abel M, Havlin S, Bunde A, Dijkstra HA. 2016. ClimateLearn: A machine-learning approach for climate prediction using network measures. _Geoscientific Model Development_ doi:10.5194/gmd-2015-273](http://www.geosci-model-dev-discuss.net/gmd-2015-273/gmd-2015-273.pdf)
+[Feng QY, Vasile R, Segond M, Gozolchiani A, Wang Y, Abel M, Havlin S, Bunde A, Dijkstra HA. 2016. ClimateLearn: A machine-learning approach for climate prediction using network measures. _Geoscientific Model Development_ doi:10.5194/gmd-2015-273](http://www.geosci-model-dev-discuss.net/gmd-2015-273/gmd-2015-273.pdf)  
 
 In the social sciences, a researcher might choose to predict voter turnout based on the number of people currently registered to vote and preliminary polling numbers.  
 
-[Nickerson DW, Rogers T. 2014. Political Campaigns and Big Data. Journal of Economic Perspectives 28:51-74](http://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.28.2.51)
+[Nickerson DW, Rogers T. 2014. Political Campaigns and Big Data. Journal of Economic Perspectives 28:51-74](http://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.28.2.51)  
 
-ADD PUBLIC HEALTH EXAMPLE
+In publich health, machine learning applications are useful to predict outbreaks of infectious disease.  
 
-In the humanities, a researcher might want to reconstruct the relationships of prominent figures in historical texts. (REWORD)
+[Colubri A, Silver T, Fradet T, Retzepi K, Fry B, Sabeti P. Transforming Clinical Data into Actionable Prognosis Models: Machine-Learning Framework and Field-Deployable App to Predict Outcome of Ebola Patients. PLoS Neglected Tropical Diseases 10: e0004549. doi:10.1371/journal.pntd.0004549 ](http://journals.plos.org/plosntds/article?id=10.1371/journal.pntd.0004549)  
 
-[Argamon S, Olsen M. 2009. Words, Patterns and Documents: Experiments in Machine Learning and Text Analysis. Digital Humanities Quarterly 3(2)](http://www.digitalhumanities.org/dhq/vol/3/2/000041/000041.html)
-[Horton R, Morrissey R, Olsen M, Roe G, Voyer R. 2009. Mining Eighteenth Century Ontologies: Machine Learning and Knowledge Classification in the Encyclopédie. Digital Humanities Quarterly 3(2)](http://www.digitalhumanities.org/dhq/vol/3/2/000044/000044.html)
+Text analysis and social network analysis figure heavily into humanities research. Text analysis might seek to extract central themes from a variety of texts, or investigating word usage differences and relationships between principal authors.  
+
+[Argamon S, Olsen M. 2009. Words, Patterns and Documents: Experiments in Machine Learning and Text Analysis. Digital Humanities Quarterly 3(2)](http://www.digitalhumanities.org/dhq/vol/3/2/000041/000041.html)  
+[Horton R, Morrissey R, Olsen M, Roe G, Voyer R. 2009. Mining Eighteenth Century Ontologies: Machine Learning and Knowledge Classification in the Encyclopédie. Digital Humanities Quarterly 3(2)](http://www.digitalhumanities.org/dhq/vol/3/2/000044/000044.html)  
+
+
+#####3. Machine learning algorithms - data preprocessing
+Once an appropriate algorithm is selected and implemented, a common first step for many supervised algorithms is to split a dataset into "training" and "test" datasets. A training dataset usually consists of a majority portion of the original dataset so that the algorithm can learn the model. The remaining portion of the dataset is then designated to the test dataset, which is used to evaluate the model performance as the target function is mapped to the new data.  
 
 #####3. Machine learning algorithms - performance metrics
-Once an appropriate algorithm is designed and implemented, its performance on new data should be gauged. If an algorithm performs poorly on a training dataset, it could be said to be _underfit_ because it could not discern the relationships between the X and Y variables. A model is said to be _overfit_ if it performs well on the training dataset but poorly on the test dataset because it was not able to learn the mapping funciton well enough to be able to generalize to new data.  
+Once a model is trained on a "training" dataset, its performance on new data should be gauged - the "test" set is handy for accomplishing this. If an algorithm performs poorly on a training dataset, it could be said to be _underfit_ because it could not discern the relationships between the X and Y variables. A model is said to be _overfit_ if it performs well on the training dataset but poorly on the test dataset because it was not able to learn the mapping funciton well enough to be able to generalize to new data.  
 
-Performance metrics are generally measured via accuracy, true positive/true negative rates, area under the ROC curve, and cross-validation.  
+Some common performance metrics include accuracy, true positive/true negative rates, area under the ROC curve, and cross-validation. See the below links for more information:  
 
 [Jason Brownlee - How to Evaluate Machine Learning Algorithms](http://machinelearningmastery.com/how-to-evaluate-machine-learning-algorithms/)  
+
 [Jason Brownlee - Assessing and Comparing Classifier Performance with ROC Curves](http://machinelearningmastery.com/assessing-comparing-classifier-performance-roc-curves-2/)  
-[James - ROC, pp.147-149](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf)
 
-[R-bloggers - cross validation example](https://www.r-bloggers.com/cross-validation-for-predictive-analytics-using-r/)
+[An Introduction to Statistical Learning - ROC, pp.147-149](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf)  
 
-[Rob J. Hyndman - CV](http://robjhyndman.com/hyndsight/crossvalidation/)
+[R-bloggers - cross validation example](https://www.r-bloggers.com/cross-validation-for-predictive-analytics-using-r/)  
+
+[Rob J. Hyndman - Why every statistician should know about cross-validation](http://robjhyndman.com/hyndsight/crossvalidation/)  
 
 #4. Load and split the Mroz dataset
-We will use the "Mroz" dataset from the ["car" R package](https://cran.r-project.org/web/packages/car/car.pdf). The Mroz dataset contains informaiton about women's participation in the workforce in 1975. 
+Let's get started!  
+
+We will use the "Mroz" dataset from the ["car" R package](https://cran.r-project.org/web/packages/car/index.html) for the examples in this workshop. The Mroz dataset contains informaiton about women's participation in the workforce in 1975. Be sure to run `?Mroz` to read the descriptions of the eight variables. The original research article can be found here:  
+
+[Mroz TA. 1987. The sensitivity of an empirical model of married women's hours of work to economic and statistical assumptions. _Econometrica_ 55:765-799](http://eml.berkeley.edu/~cle/e250a_f13/mroz-paper.pdf)
+
+In this workshop, our goal is to predict whether or not we can use the other variables in this dataset to predict if a woman participated in labor force in 1975.
 ```{r}
 library(car)
 data(Mroz)
-?Mroz
-str(Mroz)
+?Mroz # read variable descriptions
+str(Mroz) # 753 rows and 8 columns
 ```
 
-The original research article can be found here:
-[Mroz TA. 1987. The sensitivity of an empirical model of married women's hours of work to economic and statistical assumptions. _Econometrica_ 55:765-799](http://eml.berkeley.edu/~cle/e250a_f13/mroz-paper.pdf)
-
-Now, let's make copies of the dataset because we need to specify the format of some of the imputs for some of the examples:
+Now, let's make copies of the dataset because we need to coerce some datatypes to ensure the k-Nearest Neighbors and linear regression examples work correctly:
 ```{r}
-Mroz_knn <- Mroz # k-Nearest Neighbors example
-Mroz_reg <- Mroz # regression example
+Mroz_knn <- Mroz # dataset for k-Nearest Neighbors example
+Mroz_reg <- Mroz # dataset for regression example
 ```
 
 #5. k-Nearest Neighbor (kNN)
-The k-Nearest Neighbor algorithm is a good starting point for introducing machine learning because it makes no assumptions about the underlying distribution of the data. kNN uses the characteristics of the points around it to determine how to classify the point in question. For this example, point distances are measured via Euclidean distance. 
+The k-Nearest Neighbor (kNN) algorithm is a good starting point for introducing machine learning because it makes no assumptions about the underlying distribution of the data. To classify a data point, kNN uses the characteristics of the points around it to determine how to classify it. For this example, point distances are measured via Euclidean distance.  
 
-"k" is the number of neighbors used to classify the point. Choosing a proper "k" is integral to finding the best-performing model. *Large k-values* might be bad because then the largest sample size would win because it would get the most votes. *Small k-values* are bad because results will become sensitive to the influence of outliers while disregarding the influences of other neighboring points.  
+"k" is the number of neighbors used to classify the point. Choosing a proper "k" is integral to finding the best-performing model. *Large k-values* might be bad because then the largest class size would win regardless of the points around it because the point would essentially be classified due to imbalanced sizes. *Small k-values* are bad because results will become sensitive to the influence of outliers while disregarding the proper influences of other neighboring points.  
 
-#####5. k-Nearest Neighbor (kNN)
-(INSERT PROBLEM STATEMENT - we want to predict "lpf" or women's participation in the workforce)
-
-First we must preprocess the data so that factor types are coerced to integer type:
+#####5. k-Nearest Neighbor (kNN) - data preprocessing
+In order to get our selected function to work (`knn()` from the "class" R package), we must first preprocess the data so that factor types are coerced to integer type:
 ```{r}
 str(Mroz_knn)
 Mroz_knn$wc <- ifelse(Mroz_knn$wc=="no", 1L, 0L)
 Mroz_knn$hc <- ifelse(Mroz_knn$hc=="no", 1L, 0L)
 str(Mroz_knn)
 ```
-`L` is used to coerce numeric data to integer type. 
+`L` is used to coerce numeric data to integer type.  
 
-Now, let's split the dataset 70% will be assigned to the training dataset, while the remaining 30% will be ascribed to the test dataset. 
+Because you know that for classification our outcome Y variable must be discrete, remember that "lfp" is left as "Factor" type.  
+
+Now, let's split the dataset. 70% will be assigned to the training dataset, while the remaining 30% will be ascribed to the test dataset. 
 ```{r}
 library(caret)
 set.seed(1)
-split_knn <- createDataPartition(Mroz_knn$lfp, p=0.70, list=FALSE)
+split_knn <- createDataPartition(Mroz_knn$lfp, p=0.70, list=FALSE) # create a stratified random split
 train_knn <- Mroz_knn[split_knn, ] # partition training dataset
 test_knn <- Mroz_knn[-split_knn, ] # partition test dataset
 
@@ -163,21 +170,21 @@ train_labels_knn <- train_knn[,1] # partition training Y variable vector
 test_labels_knn <- test_knn[,1] # partition test Y variable vector 
 ```
 
-We now have training and test datasets and vector labels to use below.  
+We now have training and test datasets and vector labels to use in the kNN example below.  
 
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset:
 ```{r}
 round(sqrt(nrow(train_knn)),2) # 22.98
 ```
 
-Fit the model. Our goal is to predict the classification accuracy of our Y variable (no/yes whether or not a woman participated in the workforce) based on the other X predictor variables:
+Fit the model! Our goal is to predict the classification accuracy of our Y variable (no/yes whether or not a woman participated in the workforce) based on the other seven X predictor variables:
 ```{r}
 library(class)
 set.seed(1)
 Mroz_pred_knn <- knn(train=train_knn[,-1], test=test_knn[,-1], cl=train_labels_knn, k=23, prob=TRUE)
 ```
 
-Let's examine a contingency table and use accuracy as our performance metric to see how well the kNN algorithm predicted "No" and "Yes":
+We can now examine a contingency table and use accuracy as our performance metric to see how well the kNN algorithm predicted "No" and "Yes":
 ```{r}
 library(gmodels)
 CrossTable(x=test_labels_knn, y=Mroz_pred_knn, 
@@ -186,17 +193,83 @@ CrossTable(x=test_labels_knn, y=Mroz_pred_knn,
            prop.c=FALSE,
            prop.t=FALSE)
 ```
-How did it do? Although accuracy was the performance metric used in this example, others could be applied. Furthermore, kNN regression can also be implemented.  
+How did it do? Although accuracy was the performance metric used in this example, others could be applied. 
 
-ADD A PART ABOUT IMPROVING PERFORMANCE METRICS HERE:
+#####5. k-Nearest Neighbor (kNN) - improving performance metrics
+Two common ways of improving kNN performanc are to 1) standardize the data so that scale does not unduly influence classification, and 2) change the k-value. 
+
+#####5. k-Nearest Neighbor (kNN) - improving performance metrics - 1) scale the data
+First, make a copy of the "Mroz_knn" dataset. Second, scale it to means equal to 0 and standard deviations equal to 1. 
+```{r}
+Mroz_knn_scaled <- Mroz_knn
+Mroz_knn_scaled[,-1] <- scale(Mroz_knn[,-1], center=TRUE, scale=TRUE)
+head(Mroz_knn_scaled, n=20)
+```
+
+Now, 1) split the data again, 2) fit the model again, and 3) examine the accuracy of predictions in the contingency table (again).  
+1) split the data again
+```{r}
+library(caret)
+set.seed(1)
+split_knn_scaled <- createDataPartition(Mroz_knn_scaled$lfp, p=0.70, list=FALSE) # create a stratified random split
+train_knn_scaled <- Mroz_knn_scaled[split_knn_scaled, ] # partition training dataset
+test_knn_scaled <- Mroz_knn_scaled[-split_knn_scaled, ] # partition test dataset
+
+train_labels_knn_scaled <- train_knn_scaled[,1] # partition training Y variable vector
+test_labels_knn_scaled <- test_knn_scaled[,1] # partition test Y variable vector 
+```
+
+2) fit the model again
+```{r}
+library(class)
+set.seed(1)
+Mroz_pred_knn_scaled <- knn(train=train_knn_scaled[,-1], test=test_knn_scaled[,-1], cl=train_labels_knn_scaled, k=23, prob=TRUE)
+```
+
+3) examine the accuracy of predictions in the contingency table (again)
+```{r}
+library(gmodels)
+CrossTable(x=test_labels_knn_scaled, y=Mroz_pred_knn_scaled, 
+           prop.chisq=FALSE,
+           prop.r=FALSE,
+           prop.c=FALSE,
+           prop.t=FALSE)
+```
+What happened?  
+
+#####5. k-Nearest Neighbor (kNN) - improving performance metrics - 2) change the k-value
+It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. First, let's tidy the transformed "Mroz_knn_scaled" data ...
+```{r}
+grp <- Mroz_knn_scaled$lfp
+X <- Mroz_knn_scaled[,-1]
+k <- length(unique(grp))
+dat <- data.frame(grp, X)
+n <- nrow(X)
+n_train <- round(n*2/3)
+
+set.seed(1)
+train_plot <- sample(1:n,n_train)
+```
+
+... and then plot the cross-validated errors:
+```{r}
+library(chemometrics)
+#pdf("kNN classification.pdf", 9, 6)
+knn_k <- knnEval(X, grp, train_plot, 
+                 knnvec=seq(1,50, by=1), 
+                 legpo="bottomright", las=2)
+title("kNN classification")
+#dev.off()
+```
 
 ###Challenge 1  
-What happens to the predictive accuracy when k=2 and k=36?  
+1. What happens to the predictive accuracy when k=2, k=3, k=40, and k=50?  
+2. Using this same dataset, how might you construct a kNN regression model?  
 
 #6. Linear regression
-Regression is used when the target Y variable is continuous. There are many different forms of regression ranging from simple to very complex. For this example, we will use simple linear regression. 
+Regression can be used when the target Y variable is continuous. There are many different forms of regression ranging from simple to mind-bendingly complex. For this example, we will use simple linear regression.  
 
-Thus, we will coerce all factors to numeric data types:
+Remember that for simple linear regression, we should coerce all data to numeric data types (even our Y response variable):
 ```{r}
 str(Mroz_reg)
 Mroz_reg$lfp <- ifelse(Mroz_reg$lfp=="no", 1L, 0L)
@@ -205,23 +278,25 @@ Mroz_reg$hc <- ifelse(Mroz_reg$hc=="no", 1L, 0L)
 str(Mroz_reg)
 ```
 
-Now, we can fit a model that attempts to predict the Y variable log wage rate ("lwg") via the other X predictor variables. Mean squred error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
+Now, we can fit a model that attempts to predict the binary Y variable labor force participation ("lfp") via the other X predictor variables. Mean squred error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
 ```{r}
-Mroz_reg_model <- lm(lwg ~ ., data=Mroz_reg) # fit the model
+Mroz_reg_model <- lm(lfp ~ ., data=Mroz_reg) # fit the model
 
 reg_pred <- predict(Mroz_reg_model, Mroz_reg) # calculate predictions
 
-(MSE <- mean((Mroz_reg$lwg - reg_pred)^2)) # calculate MSE 
+(MSE <- mean((Mroz_reg$lfp - reg_pred)^2)) # calculate MSE 
 ```
 
 ### Challenge 2
-What happens to the MSE when we try to predict "age" and "lfp"? 
+1) Why might it be inappropriate to predict binary "1" and "0" Y response variables?  
+2) What happens to MSE when we try to predict "age" and "lwg"?  
 
-#6. Decision trees
-Decision trees are recursive partitioning methods that attempt to classify data by dividing it into subsets based on other variables. Let's see how a tree-based method classifies women's participation in the workforce using the other variables as predictors:
+#7. Decision trees
+Decision trees are recursive partitioning methods that attempt to classify data by dividing it into subsets according to a Y output variable based on the other X predictor variables. Let's see how a tree-based method classifies women's participation in the workforce:
 ```{r}
 library(rpart)
 Mroz_dt <- rpart(lfp ~ ., data=Mroz, method="class")  # note: choose method="anova" for a regression tree
+                                                      # also see the "control=" argument in the help files
 
 printcp(Mroz_dt) # print the results
 
@@ -229,21 +304,27 @@ plotcp(Mroz_dt) # plot the cross-validated results
 
 summary(Mroz_dt) # print results, variable importance, and summary of splits
 
+#pdf("classification tree.pdf", 6,6)
 par(mar=c(0,0,1,0))
-plot(Mroz_dt, uniform=TRUE, main="Mroz classificaiton tree")
+plot(Mroz_dt, uniform=TRUE, main="Mroz classification tree")
 text(Mroz_dt, use.n=FALSE, all=TRUE, cex=0.75)
+#dev.off()
 ```
 
 Here, each node shows the cutoff for each of the predictors and how it contributed to the split. Pruning methods also exist to avoid overfitting the data. 
 
 ### Challenge 3
-Make a decision tree that tries to classify something other than "lfp".
+1) Make a decision tree that tries to classify something other than "lfp".
+2) What are the "minsplit=" and "cp=" hyperparameters within the "control=" parameter? How might you go about figuring out what these are?  
+HINT: the syntax might look like this: `control <- rpart.control(minsplit=20, cp=0.01)`  
 
-#6. Random forests
-Random forests are recursive partitioning methods that use multiple decision trees for ensemble predictions for regression and classificaiton. Unlike decision trees, by default results generally do not require pruning and include accuracy and variable importance information. Furthermore, at each random forest tree split, only a small portion of the predictors are used (rather than the full suite).  
+#8. Random forests
+Random forests also are recursive partitioning methods that use multiple decision trees for ensemble predictions for classification and regression. Unlike decision trees, by default results generally do not require pruning and include accuracy and variable importance information. Furthermore, at each random forest tree split, only a small portion of the predictors are used (rather than the full suite).  
 
-The decision tree method did not require us to split the data into training and test sets. Let us split it now! 
+The decision tree method did not require us to split the data into training and test sets. Let us split it now! Note that mixed-data types can be used:
 ```{r}
+str(Mroz)
+
 library(caret)
 set.seed(1)
 split_rf <- createDataPartition(Mroz$lfp, p=0.70, list=FALSE)
@@ -251,15 +332,15 @@ train_rf <- Mroz[split_rf,]
 test_rf <- Mroz[-split_rf,]
 ```
 
-Now, let's fit a model that tries to predict the number of women who participated in the labor force in 1985. 
+Now, let's fit a model that tries to predict the number of women who participated in the labor force in 1975 again using the other seven variables as our X predictors: 
 ```{r}
 library(randomForest)
 set.seed(1)
 rf1 <- randomForest(lfp ~ ., 
                     data=train_rf, 
-                    ntree=500, # ntree = 
-                    mtry=2, # mtry = 
-                    importance=TRUE) # importance = 
+                    ntree=500, # ntree = number of trees
+                    mtry=2, # mtry = number of variables randomly sampled as candidates at each split
+                    importance=TRUE) # importance = we want the importance of predictors to be assessed
 
 rf1
 ```
@@ -269,11 +350,11 @@ Check the accuracy of the training set like this:
 (164+231)/nrow(train_rf) # 0.748
 ```
 
-We can also examine relative variable importance in table and graph form:
+We can also examine accuracy and relative variable importance in table and graph form:
 ```{r}
-rf1$importance
-barchart(rf1$importance, main="rf barchart", col="blue", border="black")
-dotplot(rf1$importance, main="rf dotplot", col=c(1,4))
+rf1$importance # accuracy table
+barchart(rf1$importance, main="rf barchart", col="turquoise", border="black") # barchart
+dotplot(rf1$importance, main="rf dotplot", col=c(1,4)) # dot plot
 ```
 
 Now, the goal is to see how the model performs on the test dataset:
@@ -287,62 +368,120 @@ Check the accuracy of the test set:
 ```{r}
 (62+100)/nrow(test_rf) # 0.72
 ```
-How did it do? 
+How did it do? Are our data overfit or underfit? Are the accuracies for the training and test sets similar?  
 
 # Challenge 4
-Select another Y variable to predict and evaluate performance on the train_rf and test_rf. Does your accuracy increase/decrease/stay the same? 
+1. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. What happens to the fit of the model when another variable is chosen?  
 
 #8. Boosting
-From [Freund and Schapire 1999](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf). 
-"Boosting is a general method for improving the accuracy of any given learning algorithm" and originated in the AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing which are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  
+"Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  
 
-The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not have to try as hard to predict them.  
+The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
 
-However, the cases that the model has difficulty predicting are _upweighted_ so that the model tries more assertively to predict them. This continues for multiple "boosting" iterations. A resample-based performance measure is produced at each iteration. Error is measured on the weak learners so that even performing slightly better than random guessing improves accuracy fast (p.2). This method can drive down generalization error thus preventing overfitting (p. 5). While it is susceptible to noise, it is robust to outlier detection.  
+However, the cases that the model has difficulty predicting are _upweighted_ so that the model tries more assertively to predict them. This continues for multiple "boosting iterations", with a resample-based performance measure produced at each iteration. Error is measured on the weak learners so that even performing slightly better than random guessing improves accuracy fast (p.2). This method can drive down generalization error thus preventing overfitting (p. 5). While it is susceptible to noise, it is robust to outlier detection. (from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf).  
 
-Split the data
+Split the data:
 ```{r}
-split_gbm <- createDataPartition(Mroz$lfp, p=0.75, list=FALSE)
+split_gbm <- createDataPartition(Mroz$lfp, p=0.70, list=FALSE)
 train_gbm <- Mroz[split_gbm,]
 test_gbm <- Mroz[-split_gbm,]
 ```
 
-Rather than testing a single model at a time, it is useful to compare tuning parameters within a single model. Bootstrapp is the default resampling method, but we want cross-validation. We also want to specify different tuning parameters. 
-```{r}
-control <- trainControl(method="repeatedcv",#
-	repeats=5, #
-	classProbs=TRUE, #
-	summaryFunction=twoClassSummary) #
+Rather than testing only a single model at a time, it is useful to compare tuning parameters within that single model. Bootstrap is the default resampling method, but we want cross-validation. We also want to specify different tuning parameters.  
 
-grid <- expand.grid(n.trees=seq(1,2000, by=50), #
-	interaction.depth=c(1, 3, 5), #
-	shrinkage=c(0.01, 0.05, 0.1), #
-	n.minobsinnode=10) #
+Let us first create two objects - `control` and `grid`. `control` will allow us to tune the cross-validated performance metric, while `grid` let's us evaluate the model with different characteristics: 
+```{r}
+control <- trainControl(method="repeatedcv", # choose 10-fold repeated measure cross-validation as our performance metric (instead of the default "bootstrap")
+	repeats=5, # we want 5 repeats 
+	classProbs=TRUE, # instruct R to produce the class probabilities
+	summaryFunction=twoClassSummary) # indicate that our response is binary
+
+grid <- expand.grid(n.trees=seq(0,2000, by=50), # define the number of boosting iterations
+	interaction.depth=c(1, 3, 5), # select the number of splits
+	shrinkage=c(0.01, 0.05, 0.1), # set different learning rates
+	n.minobsinnode=10) # ascribe the number of observations in a cluster to commence a split
 ```
 
-Fit the model:
+Fit the model. However, note that we are now using the area under the ROC curve as our performance metric. This can be graphed for quick interpretation later: 
 ```{r}
 set.seed(1)
 gbm1 <- train(lfp ~ ., data=train_gbm,
-	method="gbm",
-	metric="ROC",
-	trControl=control,
-	tuneGrid=grid,
-	verbose=FALSE)
-gbm1$times
+	method="gbm", # we specify a gbm - "gradient boosted machine"
+	metric="ROC", # indicate "ROC" as our performance metric
+	trControl=control, # insert our control object into the "trControl" parameter
+	tuneGrid=grid, # insert our grid object into the "tuneGrid" parameter
+	verbose=FALSE) # don't print lengthy complicated stuff
+
+gbm1$times # see how long this algorithm took to complete
 
 gbm1 # produce model summary table
 
-summary(gbm1, las=2) # plot variable relative influence     #######why are axis labels not printing here?
+summary(gbm1, las=2) # plot variable importance     ####### why are axis labels not printing here?
 
+gbm.pred <- predict(gbm1, test_gbm) # generate predicted values
+
+gbm.prob <- predict(gbm1, test_gbm, type="prob") # generate class probabilities
+
+rocCurve <- roc(response=test_gbm$lfp, # define ROC characteristics
+	predictor = gbm.prob[, "yes"],
+	levels = rev(levels(test_gbm$lfp)),
+	auc=TRUE, ci=TRUE)
+
+#pdf("gbm AUC.pdf", 9, 6)
+plot(rocCurve, print.thres="best", main="GBM", col="blue") # plot AUC
+#dev.off()
+
+#pdf("gbm tuning comparison.pdf", 9, 6)
 ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons") # plot the CV ROC accuracy of the tuned models
+#dev.off()
 ```
 
-
 #9. Ensemble methods
-... quick SuperLerner overview
-Now with ensemble methods we can compare all of these algorithms simultaneously! 
-- kNN, lm, decision tree, random forest, and gbm. 
-This is an efficient way to see which method performs the best! 
+The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms/an algorithm with differently tuned parameters.  
+
+Let's see how the five algorithms you learned in this workshop (kNN, linear regression, decision tree, random forest, and gradient boosted machine) compare to each other and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!
+
+Check out the different algorithm wrappers offered by SuperLearner:
+```{r}
+listWrappers()
+```
+
+Prepare and split the data:
+```{r}
+library(caret)
+set.seed(1)
+
+data <- Mroz_knn_scaled
+str(data)
+
+split_SL <- createDataPartition(data$lfp, p=0.70, list=FALSE) # create a stratified random split
+train_SL <- data[split_SL, ] # partition training dataset
+
+train_SL <- sample(train_SL[274:336,]) # choose less rows to speed up model fitting
+
+Y <- ifelse(train_SL$lfp=="yes", 1, 0) # designate Y outcome variable
+
+train_SL <- train_SL[,-1] # remove Y outcome variable
+
+SL_library <- c("SL.mean", "SL.gbm", "SL.knn", "SL.glm", "SL.rpart", "SL.randomForest")
+```
+
+Fit the ensemble:
+```{r}
+library(SuperLearner)
+set.seed(1, "L'Ecuyer-CMRG") #
+CV_SL <- CV.SuperLearner(Y=Y, X=train_SL, SL.library=SL_library, family=binomial(), parallel="multicore")
+CV_SL$time
+```
+
+Risk will be the performance estimate. The lower the risk, the fewer errors the model makes in its prediction. The coefficient displays the importance of each algorithm in the overall ensemble. View and plot results:
+```{r}
+summary(CV_SL)
+
+plot(CV_SL) + theme_bw()
+
+ggsave("SuperLearner.pdf")
+```
 
 #####Acknowledgements
+Patty Frontiera  
