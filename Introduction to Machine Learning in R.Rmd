@@ -436,6 +436,11 @@ ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons") # plot the CV ROC a
 #dev.off()
 ```
 
+### Challenge 5
+1. Load the "iris" dataset  
+2. Fit a GBM model where "Species" is your Y variable.  
+3. What challenges do you encounter when trying to do so?  
+
 #9. Ensemble methods
 The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms/an algorithm with differently tuned parameters.  
 
@@ -483,5 +488,6 @@ plot(CV_SL) + theme_bw()
 ggsave("SuperLearner.pdf")
 ```
 
-#####Acknowledgements
-Patty Frontiera  
+### Challenge 6. 
+???
+
