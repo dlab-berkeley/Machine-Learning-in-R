@@ -208,6 +208,7 @@ CrossTable(x = test_labels_knn, y = Mroz_pred_knn,
 How did it do? Although accuracy was the performance metric used in this example, others could be applied. 
 
 ##### 5. k-Nearest Neighbor (kNN) - improving performance metrics
+
 Two common ways of improving kNN performance are to 1) standardize the data so that scale does not unduly influence classification, and 2) change the k-value. 
 
 ##### 5. k-Nearest Neighbor (kNN) - improving performance metrics - 1) scale the data
@@ -255,6 +256,7 @@ CrossTable(x=test_labels_knn_scaled, y=Mroz_pred_knn_scaled,
 What happened?  
 
 ##### 5. k-Nearest Neighbor (kNN) - improving performance metrics - 2) change the k-value
+
 It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. First, let's tidy the transformed "Mroz_knn_scaled" data ...
 ```{r}
 grp <- Mroz_knn_scaled$lfp
@@ -383,6 +385,9 @@ table(rf_pred, test_rf$lfp)
 Check the accuracy of the test set:
 ```{r}
 (62+100)/nrow(test_rf) # 0.72
+
+# Or without hard-coding the table counts:
+mean(rf_pred == test_rf$lfp)
 ```
 How did it do? Are our data overfit or underfit? Are the accuracies for the training and test sets similar?  
 
