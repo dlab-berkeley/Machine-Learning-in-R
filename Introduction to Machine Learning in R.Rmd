@@ -161,8 +161,10 @@ The k-Nearest Neighbor (kNN) algorithm is a good starting point for introducing 
 In order to get our selected function to work (`knn()` from the "class" R package), we must first preprocess the data so that factor types are coerced to integer type:
 ```{r}
 str(Mroz_knn)
-Mroz_knn$wc <- ifelse(Mroz_knn$wc == "yes", 1L, 0L)
-Mroz_knn$hc <- ifelse(Mroz_knn$hc == "yes", 1L, 0L)
+
+Y_knn <- Mroz_knn$lfp
+Mroz_knn <- data.frame(model.matrix( ~ . - 1, subset(Mroz_knn, select = -lfp))) # this is a good boiler-plate way to convert factors to indicators ("one-hot encoding")
+
 str(Mroz_knn)
 ```
 `L` is used to denote that a number is specifically an integer rather than  a more general numeric type (real-valued).
@@ -312,10 +314,10 @@ MSE
 2) What happens to MSE when we try to predict "age" and "lwg"?  
 
 #7. Decision trees
-Decision trees are recursive partitioning methods that attempt to classify data by dividing it into subsets according to a Y output variable based on the other X predictor variables. Let's see how a tree-based method classifies women's participation in the workforce:
+Decision trees are recursive partitioning methods that attempt to classify data by dividing it into subsets according to a Y output variable based on the other X predictor variables. Let's see how a tree-based method classifies women's participation in the workforce. Let's use 
 ```{r}
 library(rpart)
-Mroz_dt <- rpart(lfp ~ ., data=Mroz, method="class")  # note: choose method="anova" for a regression tree
+Mroz_dt <- rpart(Y_knn ~ ., data=Mroz_knn, method="class")  # note: choose method="anova" for a regression tree
                                                       # also see the "control=" argument in the help files
 
 printcp(Mroz_dt) # print the results
