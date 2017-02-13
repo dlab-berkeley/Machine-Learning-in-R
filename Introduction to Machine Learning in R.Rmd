@@ -163,11 +163,11 @@ In order to get our selected function to work (`knn()` from the "class" R packag
 str(Mroz_knn)
 
 Y_knn <- Mroz_knn$lfp
-Mroz_knn <- data.frame(model.matrix( ~ . - 1, subset(Mroz_knn, select = -lfp))) # this is a good boiler-plate way to convert factors to indicators ("one-hot encoding")
+Mroz_knn <- data.frame(model.matrix( ~ ., subset(Mroz_knn, select = -lfp))) # this is a good boiler-plate way to convert factors to indicators ("one-hot encoding")
 
 str(Mroz_knn)
 ```
-`L` is used to denote that a number is specifically an integer rather than  a more general numeric type (real-valued).
+`L` is used to denote that a number is specifically an integer rather than a more general numeric type (real-valued).
 
 Because you know that for classification our outcome Y variable must be discrete, remember that "lfp" is left as "factor" type.  
 
@@ -228,7 +228,7 @@ Now, 1) split the data again, 2) fit the model again, and 3) examine the accurac
 ```{r}
 library(caret)
 set.seed(1)
-split_knn_scaled <- createDataPartition(Mroz_knn_scaled$lfp, p = 0.70, list = FALSE) # create a stratified random split
+split_knn_scaled <- createDataPartition(Y_knn, p = 0.70, list = FALSE) # create a stratified random split
 train_knn_scaled <- Mroz_knn_scaled[split_knn_scaled, ] # partition training dataset
 test_knn_scaled <- Mroz_knn_scaled[-split_knn_scaled, ] # partition test dataset
 
