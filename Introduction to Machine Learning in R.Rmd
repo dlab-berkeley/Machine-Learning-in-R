@@ -57,6 +57,10 @@ Machine learning in the 1960s, 1970s, and 1980s saw a variety of developments in
 
 Once thought to be exclusive to computer science, the modern strength of machine learning lies in its breadth of application. It is now used to provide ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight) for research, problem solving, and decision making in technological industries, business, language, the social and biological sciences, and humanities.  
 
+Abstraction and adaptation have become core components of reinforcement learning, and social dilemmas are being modeled like never before! [Leibo JZ, Zambaldi V, Lanctot M, Marecki J, Graepel T. 2017. Multi-agent Reinforcement Learning in Sequential Social Dilemmas. Proceedings of the 16th International Conference  on  Autonomous  Agents  and  Multiagent Systems](https://storage.googleapis.com/deepmind-media/papers/multi-agent-rl-in-ssd.pdf)  
+
+[Gathering gameplay](https://www.youtube.com/watch?v=he8_V0BvbWg)  
+
 [Dig into Machine Learning with this interactive chart to learn more](http://sge.wonderville.ca/machinelearning/history/history.html)  
 
 # 3. Machine learning algorithms
@@ -71,7 +75,7 @@ Unsupervised machine learning algorithms only utilize predictor variables (X) an
 
 [Sutton RS, Barto AG. 2012. Reinforcement Learning: An Introduction. Cambridge, MA: The MIT Press](http://people.inf.elte.hu/lorincz/Files/RL_2006/SuttonBook.pdf))  
 
-> *A short way to remember this*: if you have a Y response variable that you are trying to predict using X predictor variables, you are probably using a supervised method.  If you lack a Y response variable and only seek to investigate the data distribution found with X input variables, you would likely choose an Unsupervised learning method.  (move this up)
+> *A short way to remember this*: if you have a Y response variable that you are trying to predict using X predictor variables, you are probably using a supervised method.  If you lack a Y response variable and only seek to investigate the data distribution found with X input variables, you would likely choose an Unsupervised learning method.  
 
 See Chapters 1 and 2 from [An Introduction to Statistical Learning](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) for an introduction to Supervised learning, and see Chapter 10 for an overview of Unsupervised learning.  
 
@@ -103,7 +107,6 @@ Text analysis and social network analysis figure heavily into humanities researc
 
 [Argamon S, Olsen M. 2009. Words, Patterns and Documents: Experiments in Machine Learning and Text Analysis. Digital Humanities Quarterly 3(2)](http://www.digitalhumanities.org/dhq/vol/3/2/000041/000041.html)  
 [Horton R, Morrissey R, Olsen M, Roe G, Voyer R. 2009. Mining Eighteenth Century Ontologies: Machine Learning and Knowledge Classification in the Encyclopédie. Digital Humanities Quarterly 3(2)](http://www.digitalhumanities.org/dhq/vol/3/2/000044/000044.html)  
-
 
 ##### 3. Machine learning algorithms - data preprocessing
 
@@ -158,8 +161,8 @@ The k-Nearest Neighbor (kNN) algorithm is a good starting point for introducing 
 In order to get our selected function to work (`knn()` from the "class" R package), we must first preprocess the data so that factor types are coerced to integer type:
 ```{r}
 str(Mroz_knn)
-Mroz_knn$wc <- ifelse(Mroz_knn$wc == "no", 1L, 0L)
-Mroz_knn$hc <- ifelse(Mroz_knn$hc == "no", 1L, 0L)
+Mroz_knn$wc <- ifelse(Mroz_knn$wc == "yes", 1L, 0L)
+Mroz_knn$hc <- ifelse(Mroz_knn$hc == "yes", 1L, 0L)
 str(Mroz_knn)
 ```
 `L` is used to denote that a number is specifically an integer rather than  a more general numeric type (real-valued).
@@ -268,12 +271,11 @@ train_plot <- sample(1:n,n_train)
 ... and then plot the cross-validated errors:
 ```{r}
 library(chemometrics)
-#pdf("kNN classification.pdf", 9, 6)
 knn_k <- knnEval(X, grp, train_plot, 
                  knnvec=seq(1,50, by=1), 
                  legpo="bottomright", las=2)
 title("kNN classification")
-#dev.off()
+ggsave("kNN classification.png")
 ```
 
 ### Challenge 1  
@@ -286,9 +288,9 @@ Regression can be used when the target Y variable is continuous. There are many 
 Remember that for simple linear regression, we should coerce all data to numeric data types (even our Y response variable):
 ```{r}
 str(Mroz_reg)
-Mroz_reg$lfp <- ifelse(Mroz_reg$lfp=="no", 1L, 0L)
-Mroz_reg$wc <- ifelse(Mroz_reg$wc=="no", 1L, 0L)
-Mroz_reg$hc <- ifelse(Mroz_reg$hc=="no", 1L, 0L)
+Mroz_reg$lfp <- ifelse(Mroz_reg$lfp=="yes", 1L, 0L)
+Mroz_reg$wc <- ifelse(Mroz_reg$wc=="yes", 1L, 0L)
+Mroz_reg$hc <- ifelse(Mroz_reg$hc=="yes", 1L, 0L)
 str(Mroz_reg)
 ```
 
@@ -299,6 +301,8 @@ Mroz_reg_model <- lm(lfp ~ ., data=Mroz_reg) # fit the model
 reg_pred <- predict(Mroz_reg_model, Mroz_reg) # calculate predictions
 
 MSE <- mean((Mroz_reg$lfp - reg_pred)^2) # calculate MSE 
+
+MSE
 ```
 
 ### Challenge 2
@@ -318,11 +322,10 @@ plotcp(Mroz_dt) # plot the cross-validated results
 
 summary(Mroz_dt) # print results, variable importance, and summary of splits
 
-#pdf("classification tree.pdf", 6,6)
 par(mar=c(0,0,1,0))
 plot(Mroz_dt, uniform=TRUE, main="Mroz classification tree")
 text(Mroz_dt, use.n=FALSE, all=TRUE, cex=0.75)
-#dev.off()
+ggsave("classification tree.png")
 ```
 
 Here, each node shows the cutoff for each of the predictors and how it contributed to the split. Pruning methods also exist to avoid overfitting the data. 
@@ -441,13 +444,11 @@ rocCurve <- roc(response=test_gbm$lfp, # define ROC characteristics
 	levels = rev(levels(test_gbm$lfp)),
 	auc=TRUE, ci=TRUE)
 
-#pdf("gbm AUC.pdf", 9, 6)
 plot(rocCurve, print.thres="best", main="GBM", col="blue") # plot AUC
-#dev.off()
+ggsave("gbm AUC.png")
 
-#pdf("gbm tuning comparison.pdf", 9, 6)
 ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons") # plot the CV ROC accuracy of the tuned models
-#dev.off()
+ggsave("gbm tuning comparison.png")
 ```
 
 ### Challenge 5
