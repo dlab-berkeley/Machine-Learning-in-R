@@ -224,6 +224,9 @@ First, make a copy of the "Mroz_knn" dataset. Second, scale it to means equal to
 Mroz_knn_scaled <- Mroz_knn
 Mroz_knn_scaled <- scale(Mroz_knn_scaled, center = TRUE, scale = TRUE)
 head(Mroz_knn_scaled, n = 20)
+
+# Look at the new distribution.
+summary(Mroz_knn_scaled)
 ```
 
 Now, 1) split the data again, 2) fit the model again, and 3) examine the accuracy of predictions in the contingency table (again).  
