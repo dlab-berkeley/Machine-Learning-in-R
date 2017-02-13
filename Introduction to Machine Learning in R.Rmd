@@ -163,7 +163,7 @@ In order to get our selected function to work (`knn()` from the "class" R packag
 str(Mroz_knn)
 
 Y_knn <- Mroz_knn$lfp
-Mroz_knn <- data.frame(model.matrix( ~ ., subset(Mroz_knn, select = -lfp))) # this is a good boiler-plate way to convert factors to indicators ("one-hot encoding")
+Mroz_knn <- data.frame(model.matrix( ~ . - 1, subset(Mroz_knn, select = -lfp))) # this is a good boiler-plate way to convert factors to indicators ("one-hot encoding")
 
 str(Mroz_knn)
 ```
@@ -175,12 +175,12 @@ Now, let's split the dataset. 70% will be assigned to the training dataset, whil
 ```{r}
 library(caret)
 set.seed(1)
-split_knn <- createDataPartition(Mroz_knn$lfp, p=0.70, list=FALSE) # create a stratified random split
+split_knn <- createDataPartition(Y_knn, p=0.70, list=FALSE) # create a stratified random split
 train_knn <- Mroz_knn[split_knn, ] # partition training dataset
 test_knn <- Mroz_knn[-split_knn, ] # partition test dataset
 
-train_labels_knn <- train_knn[, 1] # partition training Y variable vector
-test_labels_knn <- test_knn[, 1] # partition test Y variable vector 
+train_labels_knn <- Y_knn[split_knn] # partition training Y variable vector
+test_labels_knn <- Y_knn[-split_knn] #  partition test Y variable vector
 ```
 
 We now have training and test datasets and vector labels to use in the kNN example below.  
@@ -194,7 +194,7 @@ Fit the model! Our goal is to predict the classification accuracy of our Y varia
 ```{r}
 library(class)
 set.seed(1)
-Mroz_pred_knn <- knn(train = train_knn[,-1], test = test_knn[, -1],
+Mroz_pred_knn <- knn(train = train_knn, test = test_knn,
                      cl = train_labels_knn, k = 23, prob = TRUE)
 ```
 
@@ -206,6 +206,9 @@ CrossTable(x = test_labels_knn, y = Mroz_pred_knn,
            prop.r = FALSE,
            prop.c = FALSE,
            prop.t = FALSE)
+
+# Compute accuracy.
+mean(test_labels_knn == Mroz_pred_knn)
 ```
 How did it do? Although accuracy was the performance metric used in this example, others could be applied. 
 
@@ -219,7 +222,7 @@ First, make a copy of the "Mroz_knn" dataset. Second, scale it to means equal to
 
 ```{r}
 Mroz_knn_scaled <- Mroz_knn
-Mroz_knn_scaled[, -1] <- scale(Mroz_knn[, -1], center = TRUE, scale = TRUE)
+Mroz_knn_scaled <- scale(Mroz_knn_scaled, center = TRUE, scale = TRUE)
 head(Mroz_knn_scaled, n = 20)
 ```
 
@@ -232,16 +235,16 @@ split_knn_scaled <- createDataPartition(Y_knn, p = 0.70, list = FALSE) # create 
 train_knn_scaled <- Mroz_knn_scaled[split_knn_scaled, ] # partition training dataset
 test_knn_scaled <- Mroz_knn_scaled[-split_knn_scaled, ] # partition test dataset
 
-train_labels_knn_scaled <- train_knn_scaled[,1] # partition training Y variable vector
-test_labels_knn_scaled <- test_knn_scaled[,1] # partition test Y variable vector 
+train_labels_knn_scaled <- Y_knn[split_knn_scaled] # partition training Y variable vector
+test_labels_knn_scaled <- Y_knn[-split_knn_scaled] # partition test Y variable vector 
 ```
 
 2) fit the model again
 ```{r}
 library(class)
 set.seed(1)
-Mroz_pred_knn_scaled <- knn(train = train_knn_scaled[, -1],
-                            test = test_knn_scaled[,-1], 
+Mroz_pred_knn_scaled <- knn(train = train_knn_scaled,
+                            test = test_knn_scaled, 
                             cl = train_labels_knn_scaled,
                             k = 23, prob = TRUE)
 ```
@@ -254,6 +257,9 @@ CrossTable(x=test_labels_knn_scaled, y=Mroz_pred_knn_scaled,
            prop.r=FALSE,
            prop.c=FALSE,
            prop.t=FALSE)
+
+# Compute accuracy directly.
+mean(test_labels_knn_scaled == Mroz_pred_knn_scaled)
 ```
 What happened?  
 
@@ -261,8 +267,8 @@ What happened?
 
 It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. First, let's tidy the transformed "Mroz_knn_scaled" data ...
 ```{r}
-grp <- Mroz_knn_scaled$lfp
-X <- Mroz_knn_scaled[,-1]
+grp <- Y_knn
+X <- Mroz_knn_scaled
 k <- length(unique(grp))
 dat <- data.frame(grp, X)
 n <- nrow(X)
@@ -278,7 +284,7 @@ library(chemometrics)
 knn_k <- knnEval(X, grp, train_plot, 
                  knnvec=seq(1,50, by=1), 
                  legpo="bottomright", las=2)
-title("kNN classification")
+#title("kNN classification")
 ggsave("kNN classification.png")
 ```
 
