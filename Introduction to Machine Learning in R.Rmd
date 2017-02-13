@@ -456,11 +456,12 @@ ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons") # plot the CV ROC a
 3. What challenges do you encounter when trying to do so?  
 
 # 9. Ensemble methods
+
 The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
 
 Let's see how the five algorithms you learned in this workshop (kNN, linear regression, decision trees, random forest, and gradient boosted machines) compare to each other and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!
 
-Check out the different algorithm wrappers offered by SuperLearner:
+A "wrapper" is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:
 ```{r}
 listWrappers()
 ```
@@ -473,26 +474,35 @@ set.seed(1)
 data <- Mroz_knn_scaled
 str(data)
 
-split_SL <- createDataPartition(data$lfp, p=0.70, list=FALSE) # create a stratified random split
-train_SL <- data[split_SL, ] # partition training dataset
+# Create a 70/30 random split stratified on our binary outcome variable.
+split_SL <- createDataPartition(data$lfp, p = 0.70, list = FALSE) 
 
-#train_SL <- train_SL[274:336, ] # choose fewer rows to speed up model fitting
+# Partition training dataset.
+train_SL <- data[split_SL, ] 
 
-Y <- ifelse(train_SL$lfp=="yes", 1, 0) # designate Y outcome variable
+# Designate Y outcome variable.
+Y <- as.numeric(train_SL$lfp == "yes") 
 
-train_SL <- train_SL[, -1] # remove Y outcome variable
+# Check distribution.
+table(train_SL$lfp, Y, useNA = "ifany")
 
-# In the interest of time we are not doing GBM.
+# Remove Y outcome variable.
+train_SL <- train_SL[, -1] 
+
+# In the interest of time we are not running GBM, but "SL.gbm" is the wrapper.
 SL_library <- c("SL.mean", "SL.knn", "SL.glm", "SL.rpart", "SL.randomForest")
 ```
 
 Fit the ensemble:
+
 ```{r}
 library(SuperLearner)
-set.seed(1, "L'Ecuyer-CMRG") #
+# This is a seed that is compatible with multicore parallel processing.
+# See ?set.seed for more information.
+set.seed(1, "L'Ecuyer-CMRG") 
 
 # This may take a minute to execute.
-CV_SL <- CV.SuperLearner(Y = Y, X = train_SL,
+cv_sl <- CV.SuperLearner(Y = Y, X = train_SL,
                          SL.library = SL_library,
                          family = binomial(),
                          # Fit only 5 folds for demo purposes only.
@@ -500,16 +510,19 @@ CV_SL <- CV.SuperLearner(Y = Y, X = train_SL,
                          cvControl = list(V = 5))
 ```
 
-Risk will be the performance estimate. The lower the risk, the fewer errors the model makes in its prediction. The coefficient displays the importance of each algorithm in the overall ensemble. View and plot results:
+Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error (y_actual - y_predicted)^2, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
 ```{r}
-summary(CV_SL)
+summary(cv_sl)
 
-plot(CV_SL) + theme_bw()
+plot(cv_sl) + theme_bw()
 
 ggsave("SuperLearner.pdf")
 ```
+"Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.
 
 ### Challenge 6. 
-1. Did you get exactly the same results as your neighbors?
+1. If you set the seed again and re-run `CV.SuperLearner` do you get exactly the same results?
 2. Choose your favorite 2 algorithms and re-run the SuperLearner with just those algorihtms in the library. Does the performance change?
 3. What are the elements of the CV_SL object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
+
+A longer tutorial on SuperLearner is available here: https://github.com/ck37/superlearner-guide
