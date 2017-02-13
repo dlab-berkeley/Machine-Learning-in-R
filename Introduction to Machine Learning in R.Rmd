@@ -67,7 +67,7 @@ Abstraction and adaptation have become core components of reinforcement learning
 
 Machine learning algorithm selection depends on the nature of the problem being investigated. Algorithms are generally divided into three types: supervised, unsupervised, and reinforcement - we will focus on supervised learning methods for this workshop. Classification and regression are the two main subtypes of supervised learning.  
 
-Supervised machine learning algorithms learn a target funciton _f_ that best maps to a response/target/outcome/dependent variable "Y" based on independent/predictor variable(s) "X". The algorithm then tries to predict Y based on new data for X. However, these predictions are influenced by three types of error: bias, variance, and irreducible error. See [An Introduction to Statistical Learning, pp. 18, 33-37.](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) for definitions.  
+Supervised machine learning algorithms learn a target function _f_ that best maps to a response/target/outcome/dependent variable "Y" based on independent/predictor variable(s) "X". The algorithm then tries to predict Y based on new data for X. However, these predictions are influenced by three types of error: bias, variance, and irreducible error. See [An Introduction to Statistical Learning, pp. 18, 33-37.](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) for definitions.  
 
 Unsupervised machine learning algorithms only utilize predictor variables (X) and no Y response variable. The goal is to instead discern the underlying structure of the data. Clustering and ordination techniques are examples of unsupervised learning. Visit the below links for introductions to unsupervised and reinforcement learning:
 
