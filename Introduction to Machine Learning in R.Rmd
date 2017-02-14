@@ -146,12 +146,6 @@ data(Mroz)
 str(Mroz) # 753 rows and 8 columns
 ```
 
-Now, let's make copies of the dataset because we need to coerce some datatypes to ensure the k-Nearest Neighbors and linear regression examples work correctly:
-```{r}
-Mroz_knn <- Mroz # dataset for k-Nearest Neighbors example
-Mroz_reg <- Mroz # dataset for regression example
-```
-
 # 5. k-Nearest Neighbor (kNN)
 
 The k-Nearest Neighbor (kNN) algorithm is a good starting point for introducing machine learning because it makes no assumptions about the underlying distribution of the data. To classify a data point, kNN uses the characteristics of the points around it to determine how to classify it. For this example, point distances are measured via Euclidean distance.  
@@ -163,7 +157,7 @@ The k-Nearest Neighbor (kNN) algorithm is a good starting point for introducing 
 For k-nearest neighbors we need to convert categorical factors to numeric indicators, because kNN uses [euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance) to find the closest neighbors. We use `model.matrix()` to expand factors into a series of indicators, which is known as "one-hot encoding". `lm()` and `glm()` internally use model.matrix() to do this. Converting factors to indicators makes it easier to analyze a dataset with a variety of algorithms, because most algorithms can't handle factors (decision trees are the main exception).
 
 ```{r}
-str(Mroz_knn)
+str(Mroz)
 
 # Assign outcome to its own vector.
 Y_knn <- Mroz_knn$lfp
@@ -183,7 +177,9 @@ Mroz_knn <- Mroz_knn[, -1]
 # Review data structure.
 str(Mroz_knn)
 ```
-Because you know that for classification our outcome Y variable must be discrete, remember that "lfp" is left as "factor" type.  
+Note that our Y response variable (Y_knn) and our X predictor variables (the other variables) are now contained within separate objects! Also, note that the factors have been expanded out into indicators thanks to `model.matrix`.
+
+Because you know that for classification our outcome Y variable must be discrete, remember that `Y_knn` ("lfp") is left as "factor" type.  
 
 Now, let's split the dataset. 70% will be assigned to the training dataset, while the remaining 30% will be ascribed to the test dataset. 
 ```{r}
@@ -227,6 +223,9 @@ CrossTable(x = test_labels_knn, y = Mroz_pred_knn,
 
 # Compute accuracy.
 mean(test_labels_knn == Mroz_pred_knn)
+
+# or, hard coded:
+(26+90)/225
 ```
 How did it do? Although accuracy was the performance metric used in this example, others could be applied. 
 
@@ -239,12 +238,12 @@ Two common ways of improving kNN performance are to 1) standardize the data so t
 First, make a copy of the "Mroz_knn" dataset. Second, scale it to means equal to 0 and standard deviations equal to 1. 
 
 ```{r}
-Mroz_knn_scaled <- Mroz_knn
-Mroz_knn_scaled <- scale(Mroz_knn_scaled, center = TRUE, scale = TRUE)
-head(Mroz_knn_scaled, n = 20)
+Mroz_scaled <- scale(Mroz_knn, center = TRUE, scale = TRUE)
+head(Mroz_scaled)
 
 # Look at the new distribution.
-summary(Mroz_knn_scaled)
+summary(Mroz_scaled)
+boxplot(Mroz_scaled, las=2)
 ```
 
 Now, 1) split the data again, 2) fit the model again, and 3) examine the accuracy of predictions in the contingency table (again).  
@@ -253,11 +252,11 @@ Now, 1) split the data again, 2) fit the model again, and 3) examine the accurac
 library(caret)
 set.seed(1)
 split_knn_scaled <- createDataPartition(Y_knn, p = 0.70, list = FALSE) # create a stratified random split
-train_knn_scaled <- Mroz_knn_scaled[split_knn_scaled, ] # partition training dataset
-test_knn_scaled <- Mroz_knn_scaled[-split_knn_scaled, ] # partition test dataset
+train_knn_scaled <- Mroz_scaled[split_knn_scaled, ] # partition training dataset
+test_knn_scaled <- Mroz_scaled[-split_knn_scaled, ] # partition test dataset
 
-train_labels_knn_scaled <- Y_knn[split_knn_scaled] # partition training Y variable vector
-test_labels_knn_scaled <- Y_knn[-split_knn_scaled] # partition test Y variable vector 
+train_labels_scaled <- Y_knn[split_knn_scaled] # partition training Y variable vector
+test_labels_scaled <- Y_knn[-split_knn_scaled] # partition test Y variable vector 
 ```
 
 2) fit the model again
@@ -289,7 +288,7 @@ What happened?
 It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. First, let's tidy the transformed "Mroz_knn_scaled" data ...
 ```{r}
 grp <- Y_knn
-X <- Mroz_knn_scaled
+X <- Mroz_scaled
 k <- length(unique(grp))
 dat <- data.frame(grp, X)
 n <- nrow(X)
@@ -302,33 +301,43 @@ train_plot <- sample(1:n,n_train)
 ... and then plot the cross-validated errors:
 ```{r}
 library(chemometrics)
+png("kNN classification.png", height=6, width=9, units="in", res=600)
 knn_k <- knnEval(X, grp, train_plot, 
                  knnvec=seq(1,50, by=1), 
                  legpo="bottomright", las=2)
 #title("kNN classification")
-#ggsave("kNN classification.png")
+dev.off()
 ```
 
 ### Challenge 1  
-1. What happens to the predictive accuracy when k=2, k=3, k=40, and k=50?  
-2. Using this same dataset, how might you construct a kNN regression model?  
+1. What happens to the predictive accuracy when k=1, k=2, k=3, k=40, and k=50?  
+2. Using what you learned above, how would you classify the predictive accuracy of the Species vector in the  "iris" dataset?
 
 # 6. Linear regression
 Regression can be used when the target Y variable is continuous. There are many different forms of regression ranging from simple to mind-bendingly complex. For this example, we will use simple linear regression.  
 
 Remember that for simple linear regression, we should coerce all data to numeric data types (even our Y response variable):
 ```{r}
-str(Mroz_reg)
-Mroz_reg$lfp <- ifelse(Mroz_reg$lfp=="yes", 1L, 0L)
-Mroz_reg$wc <- ifelse(Mroz_reg$wc=="yes", 1L, 0L)
-Mroz_reg$hc <- ifelse(Mroz_reg$hc=="yes", 1L, 0L)
+# view structure of Mroz
+str(Mroz)
+
+# define our Y response variable, "lwg"
+Y_reg <- Mroz$lwg
+
+# expand our predictor X variables out into indicators
+Mroz_reg <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lwg)))
+
+# view structure of Mroz_reg
 str(Mroz_reg)
 ```
 
-Now, we can fit a model that attempts to predict the binary Y variable labor force participation ("lfp") via the other X predictor variables. Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
+Now, we can fit a model that attempts to predict the binary Y variable log wage gap ("lwg") via the other X predictor variables. Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
 ```{r}
 # Fit the regression model.
 Mroz_reg_model <- lm(lfp ~ ., data = Mroz_reg)
+
+# View the regression results.
+summary(Mroz_reg_model) 
 
 # Predict the outcome back onto the training data.
 reg_pred <- predict(Mroz_reg_model, Mroz_reg) 
@@ -341,7 +350,8 @@ MSE
 
 ### Challenge 2
 1) Why might it be inappropriate to predict binary "1" and "0" Y response variables?  
-2) What happens to MSE when we try to predict "age" and "lwg"?  
+2) What happens to MSE when you try to predict "age" and "lwg"?  
+3) Set up a regression that predicts one of the numeric variables from the "iris" dataset.
 
 # 7. Decision trees
 
@@ -389,15 +399,21 @@ Here, each node shows the cutoff for each of the predictors and how it contribut
 ### Challenge 3
 1) Make a decision tree that tries to classify something other than "lfp".
 2) What are the "minsplit=" and "cp=" hyperparameters within the "control=" parameter? How might you go about figuring out what these are?  
-HINT: the syntax might look like this: `control <- rpart.control(minsplit=20, cp=0.01)`  
+HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit=20, cp=0.001)`  
 
 # 8. Random forests
 Random forests also are recursive partitioning methods that use multiple decision trees for ensemble predictions for classification and regression. At each random forest tree split, only a small portion of the predictors are used (rather than the full suite).  
 
 The decision tree method did not require us to split the data into training and test sets. Let us split it now! Note that mixed-data types can be used:
 ```{r}
-str(Mroz)
+str(Mroz) # view the structure of Mroz
 
+# although we could use the "Mroz_knn" or "Mroz_reg", dataframes, it is good practice to again review what `model.matrix` is doing here:
+Mroz_rf <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lfp)))
+
+str(Mroz_rf)
+
+# split this data, similar to before
 library(caret)
 set.seed(1)
 split_rf <- createDataPartition(Mroz$lfp, p=0.70, list=FALSE)
@@ -419,6 +435,7 @@ rf1 <- randomForest(lfp ~ .,
                     importance = TRUE) 
 
 rf1
+
 ```
 The "OOB estimate of error rate" shows us how accurate our model is. `accuracy = 1 - error rate`.
 
@@ -443,9 +460,9 @@ Check the accuracy of the test set:
 (62 + 100) / nrow(test_rf) # 0.72
 
 # Or without hard-coding the table counts:
-mean(rf_pred == test_rf$lfp)
+mean(rf_pred == test_rf$lfp) # 0.72
 ```
-How did it do? Are our data overfit or underfit? Are the accuracies for the training and test sets similar?  
+How did it do? Are the accuracies for the training and test sets similar?  
 
 # Challenge 4
 1. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. What happens to the fit of the model when another variable is chosen?  
@@ -459,10 +476,20 @@ However, the cases that the model has difficulty predicting are _upweighted_ so 
 
 Split the data:
 ```{r}
+Y_gbm <- Mroz$lfp
+
+# Argh! More practice to remember what model.matrix does:
+Mroz_gbm <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lfp)))
+
+str(Mroz_gbm)
+
 set.seed(1)
-split_gbm <- createDataPartition(Mroz$lfp, p=0.70, list=FALSE)
-train_gbm <- Mroz[split_gbm,]
-test_gbm <- Mroz[-split_gbm,]
+split_gbm <- createDataPartition(Y_gbm, p=0.70, list=FALSE)
+train_gbm <- Mroz_gbm[split_gbm, ]
+test_gbm <- Mroz_gbm[-split_gbm, ]
+
+train_gbm_label <- Y_gbm[split_gbm]
+test_gbm_label <- Y_gbm[-split_gbm]
 ```
 
 Rather than testing only a single model at a time, it is useful to compare tuning parameters within that single model. Bootstrap is the default resampling method in `caret`, but we want cross-validation. We also want to specify different tuning parameters.  
@@ -489,7 +516,7 @@ grid <- expand.grid(
 	n.minobsinnode = 10)
 ```
 
-Fit the model. However, note that we are now using the area under the ROC curve as our performance metric. This can be graphed for quick interpretation later: 
+Fit the model. Note that we are now using the area under the ROC curve as our performance metric. This can be graphed for quick visualization: 
 ```{r}
 set.seed(1)
 gbm1 <- train(lfp ~ ., data=train_gbm,
@@ -532,9 +559,7 @@ ggsave("gbm tuning comparison.png")
 ```
 
 ### Challenge 5
-1. Load the "iris" dataset  
-2. Fit a GBM model where "Species" is your Y variable.  
-3. What challenges do you encounter when trying to do so?  
+1. Using your Mroz dataset, fit a GBM model where "wc" is your Y variable. What happens to AUC?
 
 # 9. Ensemble methods
 
