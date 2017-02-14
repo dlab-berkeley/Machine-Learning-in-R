@@ -42,7 +42,7 @@ printcp(dt3)
 plotcp(dt3)
 summary(dt3)
 
-png("classification tree with pruning.png", height=6, width=6, units="in", res=600)
+png("classification tree2.png", height=6, width=6, units="in", res=600)
 par(mar=c(0,0,1,0))
 plot(dt3, uniform=TRUE, main="")
 text(dt3, use.n=FALSE, all=TRUE, cex=.75)

@@ -234,11 +234,11 @@ Now, 1) split the data again, 2) fit the model again, and 3) examine the accurac
 library(caret)
 set.seed(1)
 split_knn_scaled <- createDataPartition(Y_knn, p = 0.70, list = FALSE) # create a stratified random split
-train_knn_scaled <- Mroz_knn_scaled[split_knn_scaled, ] # partition training dataset
-test_knn_scaled <- Mroz_knn_scaled[-split_knn_scaled, ] # partition test dataset
+train_knn_scaled <- Mroz_scaled[split_knn_scaled, ] # partition training dataset
+test_knn_scaled <- Mroz_scaled[-split_knn_scaled, ] # partition test dataset
 
-train_labels_knn_scaled <- Y_knn[split_knn_scaled] # partition training Y variable vector
-test_labels_knn_scaled <- Y_knn[-split_knn_scaled] # partition test Y variable vector 
+train_labels_scaled <- Y_knn[split_knn_scaled] # partition training Y variable vector
+test_labels_scaled <- Y_knn[-split_knn_scaled] # partition test Y variable vector 
 ```
 
 2) fit the model again
@@ -270,7 +270,7 @@ What happened?
 It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. First, let's tidy the transformed "Mroz_knn_scaled" data ...
 ```{r}
 grp <- Y_knn
-X <- Mroz_knn_scaled
+X <- Mroz_scaled
 k <- length(unique(grp))
 dat <- data.frame(grp, X)
 n <- nrow(X)
@@ -300,12 +300,16 @@ Regression can be used when the target Y variable is continuous. There are many 
 
 Remember that for simple linear regression, we should coerce all data to numeric data types (even our Y response variable):
 ```{r}
+# view structure of Mroz
 str(Mroz)
 
+# define our Y response variable, "lwg"
 Y_reg <- Mroz$lwg
 
+# expand our predictor X variables out into indicators
 Mroz_reg <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lwg)))
 
+# view structure of Mroz_reg
 str(Mroz_reg)
 ```
 
@@ -352,17 +356,21 @@ Here, each node shows the cutoff for each of the predictors and how it contribut
 ### Challenge 3
 1) Make a decision tree that tries to classify something other than "lfp".
 2) What are the "minsplit=" and "cp=" hyperparameters within the "control=" parameter? How might you go about figuring out what these are?  
-HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit=20, cp=0.1)`  
+HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit=20, cp=0.001)`  
 
 # 8. Random forests
 Random forests also are recursive partitioning methods that use multiple decision trees for ensemble predictions for classification and regression. At each random forest tree split, only a small portion of the predictors are used (rather than the full suite).  
 
 The decision tree method did not require us to split the data into training and test sets. Let us split it now! Note that mixed-data types can be used:
 ```{r}
-str(Mroz)
+str(Mroz) # view the structure of Mroz
 
+# although we could use the "Mroz_knn" or "Mroz_reg", dataframes, it is good practice to again review what `model.matrix` is doing here:
 Mroz_rf <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lfp)))
 
+str(Mroz_rf)
+
+# split this data, similar to before
 library(caret)
 set.seed(1)
 split_rf <- createDataPartition(Mroz$lfp, p=0.70, list=FALSE)
@@ -407,9 +415,9 @@ Check the accuracy of the test set:
 (62+100)/nrow(test_rf) # 0.72
 
 # Or without hard-coding the table counts:
-mean(rf_pred == test_rf$lfp)
+mean(rf_pred == test_rf$lfp) # 0.72
 ```
-How did it do? Are our data overfit or underfit? Are the accuracies for the training and test sets similar?  
+How did it do? Are the accuracies for the training and test sets similar?  
 
 # Challenge 4
 1. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. What happens to the fit of the model when another variable is chosen?  
@@ -423,14 +431,20 @@ However, the cases that the model has difficulty predicting are _upweighted_ so 
 
 Split the data:
 ```{r}
-
 Y_gbm <- Mroz$lfp
+
+# Argh! More practice to remember what model.matrix does:
 Mroz_gbm <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lfp)))
+
+str(Mroz_gbm)
 
 set.seed(1)
 split_gbm <- createDataPartition(Y_gbm, p=0.70, list=FALSE)
-train_gbm <- Mroz[split_gbm,]
-test_gbm <- Mroz[-split_gbm,]
+train_gbm <- Mroz_gbm[split_gbm, ]
+test_gbm <- Mroz_gbm[-split_gbm, ]
+
+train_gbm_label <- Y_gbm[split_gbm]
+test_gbm_label <- Y_gbm[-split_gbm]
 ```
 
 Rather than testing only a single model at a time, it is useful to compare tuning parameters within that single model. Bootstrap is the default resampling method in `caret`, but we want cross-validation. We also want to specify different tuning parameters.  
@@ -448,10 +462,10 @@ grid <- expand.grid(n.trees=seq(0,2000, by=50), # define the number of boosting 
 	n.minobsinnode=10) # ascribe the number of observations in a cluster to commence a split
 ```
 
-Fit the model. However, note that we are now using the area under the ROC curve as our performance metric. This can be graphed for quick interpretation later: 
+Fit the model. Note that we are now using the area under the ROC curve as our performance metric. This can be graphed for quick visualization: 
 ```{r}
 set.seed(1)
-gbm1 <- train(lfp ~ ., data=train_gbm,
+gbm1 <- train(train_gbm_label ~ ., data=train_gbm,
 	method="gbm", # we specify a gbm - "gradient boosted machine"
 	metric="ROC", # indicate "ROC" as our performance metric
 	trControl=control, # insert our control object into the "trControl" parameter
@@ -462,7 +476,7 @@ gbm1$times # see how long this algorithm took to complete
 
 gbm1 # produce model summary table
 
-summary(gbm1, las=2) # plot variable importance     ####### why are axis labels not printing here?
+summary(gbm1, las=2) # plot variable importance     
 
 gbm.pred <- predict(gbm1, test_gbm) # generate predicted values
 
@@ -481,9 +495,7 @@ ggsave("gbm tuning comparison.png")
 ```
 
 ### Challenge 5
-1. Load the "iris" dataset  
-2. Fit a GBM model where "Species" is your Y variable.  
-3. What challenges do you encounter when trying to do so?  
+1. Using your Mroz dataset, fit a GBM model where "wc" is your Y variable. What happens to AUC?
 
 # 9. Ensemble methods
 

@@ -2,12 +2,14 @@
 
 data(iris) # call the data
 
-Y_iris <- iris$Sepal.Length
+Y_iris <- iris$Sepal.Length # define Y response variable
 
-X_iris <- data.frame(model.matrix( ~ ., subset(iris, select = -Sepal.Length)))
+X_iris <- data.frame(model.matrix( ~ ., subset(iris, select = -Sepal.Length))) # define X predictor variables
+
+# NOTE: here, we do not include "-1" after "~ ." because we want R to print the intercept so that you can see what is going on under the hood. 
 str(X_iris)
 
-X_iris <- X_iris[,-1]
+X_iris <- X_iris[,-1] # remove intercept
 str(X_iris)
 
 iris_fit <- lm(Y_iris ~ ., data=X_iris) # fit the model
