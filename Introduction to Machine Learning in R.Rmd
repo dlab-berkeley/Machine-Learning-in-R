@@ -234,7 +234,7 @@ Two common ways of improving kNN performance are to 1) standardize the data so t
 
 ##### 5. k-Nearest Neighbor (kNN) - improving performance metrics - 1) scale the data
 
-First, make a copy of the "Mroz_knn" dataset. Second, scale it to means equal to 0 and standard deviations equal to 1. 
+Create a new copy of the "Mroz" dataset called "Mroz_scaled", which will contain scaled values with means equal to 0 and standard deviations equal to 1. 
 
 ```{r}
 Mroz_scaled <- scale(Mroz_knn, center = TRUE, scale = TRUE)
@@ -303,12 +303,12 @@ train_plot <- sample(1:n,n_train)
 ... and then plot the cross-validated errors:
 ```{r}
 library(chemometrics)
-png("kNN classification.png", height=6, width=9, units="in", res=600)
+# png("kNN classification.png", height=6, width=9, units="in", res=600)
 knn_k <- knnEval(X, grp, train_plot, 
                  knnvec=seq(1,50, by=1), 
                  legpo="bottomright", las=2)
 #title("kNN classification")
-dev.off()
+# dev.off()
 ```
 
 ### Challenge 1  
@@ -348,15 +348,15 @@ summary(Mroz_reg_model)
 reg_pred <- predict(Mroz_reg_model, Mroz_reg) 
 
 # Calculate mean-squared error. 
-MSE <- mean((Mroz_reg$lfp - reg_pred)^2) 
+MSE <- mean((Y_reg - reg_pred)^2) 
 
 MSE
 ```
 
 ### Challenge 2
-1) Why might it be inappropriate to predict binary "1" and "0" Y response variables?  
-2) What happens to MSE when you try to predict "age" and "lwg"?  
-3) Set up a regression that predicts one of the numeric variables from the "iris" dataset.
+1) Why might it be inappropriate to predict binary "1" and "0" Y response variables in a regression model?  
+2) What happens to MSE when you try to predict "age" and "lfp"?  
+3) Set up a regression model that predicts one of the numeric variables from the "iris" dataset.
 
 # 7. Decision trees
 
@@ -400,7 +400,9 @@ summary(tree_pruned)
 rpart.plot(tree_pruned)
 ```
 
-Here, each node shows the cutoff for each of the predictors and how it contributed to the split. Pruning methods also exist to avoid overfitting the data. 
+Here, each node shows the cutoff for each of the predictors and how it contributed to the split. Pruning methods also exist to avoid overfitting the data.  
+
+View a helpful decision tree tutorial at [GormAnalysis](https://gormanalysis.com/decision-trees-in-r-using-rpart/)  
 
 ### Challenge 3
 1) Make a decision tree that tries to classify something other than "lfp".
@@ -561,11 +563,11 @@ rocCurve <- roc(response=test_gbm_label,
 
 # Plot ROC.
 plot(rocCurve, print.thres="best", main="GBM", col="blue") 
-ggsave("gbm AUC.png")
+# ggsave("gbm AUC.png")
 
 # Plot the cross-validated AUC of the different configurations.
 ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons") 
-ggsave("gbm tuning comparison.png")
+# ggsave("gbm tuning comparison.png")
 ```
 
 ### Challenge 5
@@ -636,7 +638,7 @@ summary(cv_sl)
 
 plot(cv_sl) + theme_bw()
 
-ggsave("SuperLearner.pdf")
+# ggsave("SuperLearner.pdf")
 ```
 "Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.
 
