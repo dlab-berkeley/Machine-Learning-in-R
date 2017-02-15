@@ -21,3 +21,4 @@ iris_pred <- predict(iris_fit, X_iris) # calculate predictions
 MSE_iris <- mean((Y_iris - iris_pred)^2) # calculate MSE 
 
 MSE_iris
+ 

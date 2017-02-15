@@ -12,10 +12,9 @@ rf2 # view cross tabs
 (334+94)/(nrow(train_rf)) # 0.81
 
 # compute accuracy and relative variable importance
-rf2$importance # accuracy table
-barchart(rf2$importance, main="rf barchart", col="turquoise", border="black") # barchart
+varImpPlot(rf2) # variable importance plot
+barchart(rf2$importance, main="rf barchart", col="gray80", border="black") # barchart
 dotplot(rf2$importance, main="rf2 dotplot", col=c(3,6)) # dot plot
-
 
 # evaluate performance on the test dataset
 rf2_pred <- predict(rf2, newdata=test_rf)

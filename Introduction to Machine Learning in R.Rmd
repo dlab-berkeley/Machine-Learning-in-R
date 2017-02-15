@@ -1,6 +1,6 @@
 ---
 title: "Introduction to Machine Learning in R"
-author: "Evan Muzzall"
+author: "Evan Muzzall and Chris Kennedy"
 date: "2/13/2017"
 output: html_document
 ---
@@ -160,10 +160,10 @@ For k-nearest neighbors we need to convert categorical factors to numeric indica
 str(Mroz)
 
 # Assign outcome to its own vector.
-Y_knn <- Mroz_knn$lfp
+Y_knn <- Mroz$lfp
 
 # Remove our outcome variable from the dataframe, so it is now only X variables.
-Mroz_knn = subset(Mroz_knn, select = -lfp)
+Mroz_knn = subset(Mroz, select = -lfp)
 
 # Convert factors to indicators; this will add an intercept that we don't need.
 Mroz_knn <- data.frame(model.matrix( ~ ., Mroz_knn)) 
@@ -177,7 +177,7 @@ Mroz_knn <- Mroz_knn[, -1]
 # Review data structure.
 str(Mroz_knn)
 ```
-Note that our Y response variable (Y_knn) and our X predictor variables (the other variables) are now contained within separate objects! Also, note that the factors have been expanded out into indicators thanks to `model.matrix`.
+Note that our Y response variable (Y_knn) and our X predictor variables (Mroz_knn) are now contained within separate objects! Also, note that the factors have been expanded out into indicators thanks to `model.matrix`.
 
 Because you know that for classification our outcome Y variable must be discrete, remember that `Y_knn` ("lfp") is left as "factor" type.  
 
@@ -223,9 +223,6 @@ CrossTable(x = test_labels_knn, y = Mroz_pred_knn,
 
 # Compute accuracy.
 mean(test_labels_knn == Mroz_pred_knn)
-
-# or, hard coded:
-(26+90)/225
 ```
 How did it do? Although accuracy was the performance metric used in this example, others could be applied. 
 
@@ -251,7 +248,10 @@ Now, 1) split the data again, 2) fit the model again, and 3) examine the accurac
 ```{r}
 library(caret)
 set.seed(1)
-split_knn_scaled <- createDataPartition(Y_knn, p = 0.70, list = FALSE) # create a stratified random split
+
+# create a stratified random split
+split_knn_scaled <- createDataPartition(Y_knn, p = 0.70, list = FALSE) 
+
 train_knn_scaled <- Mroz_scaled[split_knn_scaled, ] # partition training dataset
 test_knn_scaled <- Mroz_scaled[-split_knn_scaled, ] # partition test dataset
 
@@ -263,23 +263,23 @@ test_labels_scaled <- Y_knn[-split_knn_scaled] # partition test Y variable vecto
 ```{r}
 library(class)
 set.seed(1)
-Mroz_pred_knn_scaled <- knn(train = train_knn_scaled,
+Mroz_pred_scaled <- knn(train = train_knn_scaled,
                             test = test_knn_scaled, 
-                            cl = train_labels_knn_scaled,
+                            cl = train_labels_scaled,
                             k = 23, prob = TRUE)
 ```
 
 3) examine the accuracy of predictions in the contingency table (again)
 ```{r}
 library(gmodels)
-CrossTable(x=test_labels_knn_scaled, y=Mroz_pred_knn_scaled, 
+CrossTable(x=test_labels_scaled, y=Mroz_pred_scaled, 
            prop.chisq=FALSE,
            prop.r=FALSE,
            prop.c=FALSE,
            prop.t=FALSE)
 
 # Compute accuracy directly.
-mean(test_labels_knn_scaled == Mroz_pred_knn_scaled)
+mean(test_labels_scaled == Mroz_pred_scaled)
 ```
 What happened?  
 
@@ -325,7 +325,10 @@ str(Mroz)
 Y_reg <- Mroz$lwg
 
 # expand our predictor X variables out into indicators
-Mroz_reg <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lwg)))
+Mroz_reg <- data.frame(model.matrix( ~ ., subset(Mroz, select = -lwg)))
+
+# remove intercept
+Mroz_reg <- Mroz_reg[,-1]
 
 # view structure of Mroz_reg
 str(Mroz_reg)
@@ -334,7 +337,7 @@ str(Mroz_reg)
 Now, we can fit a model that attempts to predict the binary Y variable log wage gap ("lwg") via the other X predictor variables. Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
 ```{r}
 # Fit the regression model.
-Mroz_reg_model <- lm(lfp ~ ., data = Mroz_reg)
+Mroz_reg_model <- lm(Y_reg ~ ., data = Mroz_reg)
 
 # View the regression results.
 summary(Mroz_reg_model) 
@@ -387,11 +390,12 @@ plotcp(Mroz_dt)
 # We can "prune" a tree to a higher CP setting if we want.
 # Note: due to rounding we make the cp value slightly higher than
 # was shown in the table.
-tree_pruned = prune(Mroz_dt, cp = 0.033847)
+tree_pruned <- prune(Mroz_dt, cp = 0.033847)
 rpart.plot(tree_pruned)
 
 # Print detailed results, variable importance, and summary of splits.
-summary(Mroz_dt) 
+summary(tree_pruned) 
+rpart.plot(tree_pruned)
 ```
 
 Here, each node shows the cutoff for each of the predictors and how it contributed to the split. Pruning methods also exist to avoid overfitting the data. 
@@ -408,7 +412,7 @@ The decision tree method did not require us to split the data into training and 
 ```{r}
 str(Mroz) # view the structure of Mroz
 
-# although we could use the "Mroz_knn" or "Mroz_reg", dataframes, it is good practice to again review what `model.matrix` is doing here:
+# Let us again review what `model.matrix` is doing here:
 Mroz_rf <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lfp)))
 
 str(Mroz_rf)
@@ -421,7 +425,7 @@ train_rf <- Mroz[split_rf,]
 test_rf <- Mroz[-split_rf,]
 ```
 
-Now, let's fit a model that tries to predict the number of women who participated in the labor force in 1975 again using the other seven variables as our X predictors: 
+Now, let's fit a model that tries to predict the number of women who participated in the labor force in 1975 again using the other variables as our X predictors: 
 ```{r}
 library(randomForest)
 set.seed(1)
@@ -457,10 +461,10 @@ table(rf_pred, test_rf$lfp)
 
 Check the accuracy of the test set:
 ```{r}
-(62 + 100) / nrow(test_rf) # 0.72
-
-# Or without hard-coding the table counts:
 mean(rf_pred == test_rf$lfp) # 0.72
+
+# Or, by hard-coding the table counts:
+(62 + 100) / nrow(test_rf) # 0.72
 ```
 How did it do? Are the accuracies for the training and test sets similar?  
 
@@ -479,7 +483,7 @@ Split the data:
 Y_gbm <- Mroz$lfp
 
 # Argh! More practice to remember what model.matrix does:
-Mroz_gbm <- data.frame(model.matrix( ~ . - 1, subset(Mroz, select = -lfp)))
+Mroz_gbm <- data.frame(model.matrix( ~ . -1, subset(Mroz, select = -lfp)))
 
 str(Mroz_gbm)
 
@@ -519,7 +523,7 @@ grid <- expand.grid(
 Fit the model. Note that we are now using the area under the ROC curve as our performance metric. This can be graphed for quick visualization: 
 ```{r}
 set.seed(1)
-gbm1 <- train(lfp ~ ., data=train_gbm,
+gbm1 <- train(Y_gbm ~ ., data=train_gbm,
 	method = "gbm",
 	# Use AUC as our performance metric, which caret incorrectly calls "ROC".
 	metric = "ROC",

@@ -27,8 +27,6 @@ library(class)
 set.seed(1)
 iris_pred_knn <- knn(train = train_iris, test = test_iris,
                      cl = train_iris_labels, k = 10, prob = TRUE)
-iris_pred_knn
-
 # evaluate cross tabs
 library(gmodels)
 CrossTable(x = test_iris_labels, y = iris_pred_knn, 

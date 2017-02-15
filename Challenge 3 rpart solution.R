@@ -20,12 +20,7 @@ plotcp(dt2)
 summary(dt2)
 
 # plot
-png("classification tree for wc.png", height=6, width=6, units="in", res=600)
-par(mar=c(0,0,1,0))
-plot(dt2, uniform=TRUE, main="")
-text(dt2, use.n=FALSE, all=TRUE, cex=0.75)
-dev.off()
-
+rpart.plot(dt2)
 
 ### control
 ?rpart.control # view help file
@@ -42,8 +37,4 @@ printcp(dt3)
 plotcp(dt3)
 summary(dt3)
 
-png("classification tree2.png", height=6, width=6, units="in", res=600)
-par(mar=c(0,0,1,0))
-plot(dt3, uniform=TRUE, main="")
-text(dt3, use.n=FALSE, all=TRUE, cex=.75)
-dev.off()
+rpart.plot(dt3)
