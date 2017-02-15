@@ -376,7 +376,7 @@ library(rpart.plot)
 rpart.plot(Mroz_dt)
 ```
 
-In decision trees the main hyperparamter (configuration setting) is the *complexity parameter* (CP). A high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits. So the name is a little counterintuitive.
+In decision trees the main hyperparameter (configuration setting) is the *complexity parameter* (CP). A high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits. So the name is a little counterintuitive.
 
 rpart uses cross-validation internally to estimate the accuracy at various complexity parameter (CP) settings. We can review those to see what setting seems best.
 
