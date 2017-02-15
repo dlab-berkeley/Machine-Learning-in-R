@@ -356,7 +356,7 @@ MSE
 ### Challenge 2
 1) Why might it be inappropriate to predict binary "1" and "0" Y response variables in a regression model?  
 2) What happens to MSE when you try to predict "age" and "lfp"?  
-3) Set up a regression model that predicts one of the numeric variables from the "iris" dataset.
+3) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
 # 7. Decision trees
 
