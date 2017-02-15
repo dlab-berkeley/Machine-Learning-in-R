@@ -644,7 +644,7 @@ plot(cv_sl) + theme_bw()
 
 ### Challenge 6. 
 1. If you set the seed again and re-run `CV.SuperLearner` do you get exactly the same results?
-2. Choose your favorite 2 algorithms and re-run the SuperLearner with just those algorihtms in the library. Does the performance change?
+2. Choose your favorite 2 algorithms and re-run the SuperLearner with just those algorithms in the library. Does the performance change?
 3. What are the elements of the CV_SL object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
 
 A longer tutorial on SuperLearner is available here: https://github.com/ck37/superlearner-guide
