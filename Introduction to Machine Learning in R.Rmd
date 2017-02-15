@@ -358,7 +358,7 @@ MSE
 2) What happens to MSE when you try to predict "age" and "lfp"?  
 3) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
-# 7. Decision trees
+# 7. Decision trees 
 
 Decision trees are recursive partitioning methods that attempt to classify data by dividing it into subsets according to a Y output variable based on the other X predictor variables. Let's see how a tree-based method classifies women's participation in the workforce.
 ```{r}
