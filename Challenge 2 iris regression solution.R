@@ -1,24 +1,36 @@
 ### Challenge 2 iris regression solution
 
-data(iris) # call the data
+# Load the data.
+data(iris)
 
-Y_iris <- iris$Sepal.Length # define Y response variable
+# Define Y response variable.
+Y_iris <- iris$Sepal.Length 
 
-X_iris <- data.frame(model.matrix( ~ ., subset(iris, select = -Sepal.Length))) # define X predictor variables
+# Remove outcome variable from the X dataframe.
+X_iris = subset(iris, select = -Sepal.Length)
 
-# NOTE: here, we do not include "-1" after "~ ." because we want R to print the intercept so that you can see what is going on under the hood. 
+# This will convert factors to indicators but will also add an extra constant
+# column for estimating the intercept.
+X_iris <- data.frame(model.matrix( ~ ., X_iris))
+
 str(X_iris)
 
-X_iris <- X_iris[,-1] # remove intercept
+# Remove the extra intercept column, we don't need to store it in our dataset.
+X_iris <- X_iris[, -1]
+
 str(X_iris)
 
-iris_fit <- lm(Y_iris ~ ., data=X_iris) # fit the model
+# Fit the regression model; lm() will automatically add a temporary intercept column.
+iris_fit <- lm(Y_iris ~ ., data = X_iris)
 
-summary(iris_fit) # view the output
+# View the output.
+summary(iris_fit) 
 
-iris_pred <- predict(iris_fit, X_iris) # calculate predictions
+# Predict outcome for the training data.
+iris_pred <- predict(iris_fit, X_iris)
 
-MSE_iris <- mean((Y_iris - iris_pred)^2) # calculate MSE 
+# Calculate mean-squared error. 
+MSE_iris <- mean((Y_iris - iris_pred)^2)
 
 MSE_iris
  
