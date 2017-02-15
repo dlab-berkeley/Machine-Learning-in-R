@@ -37,7 +37,7 @@ library(SuperLearner)
 
 # 2. A brief history of machine learning
 
-Machine learning evolved from scientific pursuits in computational/information theory, artificial intelligence, and pattern recognition. In the modern sense, it arguably dates to [Blaise Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html). See [Welling's commentary](https://www.ics.uci.edu/~welling/publications/papers/WhyMLneedsStatistics.pdf) about the importance of statistics in machine learning. 
+Machine learning evolved from scientific pursuits in computational/information theory, artificial intelligence, and pattern recognition. In the modern sense, it arguably dates to [Blaise Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html). See [Welling's commentary](https://www.ics.uci.edu/~welling/publications/papers/WhyMLneedsStatistics.pdf) about the importance of statistics in machine learning. Also see [Tavish Srivastava's discussion](https://www.analyticsvidhya.com/blog/2015/07/difference-machine-learning-statistical-modeling/) about differences between machine learning and statistics.  
 
 However, contemporary machine learning is often attributed to the ideas of people such as Alan Turing, Frank Rosenblatt, and Arthur Samuel.  
 
@@ -348,7 +348,7 @@ summary(Mroz_reg_model)
 reg_pred <- predict(Mroz_reg_model, Mroz_reg) 
 
 # Calculate mean-squared error. 
-MSE <- mean((Y_reg - reg_pred)^2) 
+MSE <- mean((Y_reg - reg_pred)^2)   
 
 MSE
 ```
@@ -358,7 +358,7 @@ MSE
 2) What happens to MSE when you try to predict "age" and "lfp"?  
 3) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
-# 7. Decision trees  
+# 7. Decision trees 
 
 Decision trees are recursive partitioning methods that attempt to classify data by dividing it into subsets according to a Y output variable based on the other X predictor variables. Let's see how a tree-based method classifies women's participation in the workforce.
 ```{r}
