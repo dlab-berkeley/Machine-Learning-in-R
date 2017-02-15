@@ -630,7 +630,7 @@ cv_sl <- CV.SuperLearner(Y = Y, X = train_SL,
                          verbose = F)
 ```
 
-Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error (y_actual - y_predicted)^2, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
+Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error `(y_actual - y_predicted)^2`, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
 ```{r}
 summary(cv_sl)
 
