@@ -585,23 +585,24 @@ listWrappers()
 Prepare and split the data:
 ```{r}
 library(caret)
-set.seed(1)
 
 lfp <- Mroz$lfp
 data <- data.frame(lfp, Mroz_scaled)
 str(data)
 
+set.seed(1)
+
 # Create a 70/30 random split stratified on our binary outcome variable.
 split_SL <- createDataPartition(data$lfp, p = 0.70, list = FALSE) 
+
+# Convert outcome from factor to numeric.
+data$lfp <- as.numeric(data$lfp == "yes") 
 
 # Partition training dataset.
 train_SL <- data[split_SL, ] 
 
-# Designate Y outcome variable.
-Y <- as.numeric(train_SL$lfp == "yes") 
-
-# Check distribution.
-table(train_SL$lfp, Y, useNA = "ifany")
+# Extract our outcome variable into a vector.
+Y <- train_SL$lfp
 
 # Remove Y outcome variable.
 train_SL <- train_SL[, -1] 
@@ -624,7 +625,9 @@ cv_sl <- CV.SuperLearner(Y = Y, X = train_SL,
                          family = binomial(),
                          # Fit only 5 folds for demo purposes only.
                          # For a real analysis we would do 20 folds.
-                         cvControl = list(V = 5))
+                         cvControl = list(V = 5),
+                         # Set to T to show details.
+                         verbose = F)
 ```
 
 Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error (y_actual - y_predicted)^2, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
