@@ -3,8 +3,8 @@ title: "Introduction to Machine Learning in R"
 author: "Evan Muzzall and Chris Kennedy"
 date: "3/6/2017"
 output:
-  html_document: default
   word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -523,6 +523,7 @@ Let's see how the five algorithms you learned in this workshop (kNN, linear regr
 
 A "wrapper" is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:
 ```{r}
+library(SuperLearner)
 listWrappers()
 ```
 
