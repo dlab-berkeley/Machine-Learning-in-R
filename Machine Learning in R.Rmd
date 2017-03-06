@@ -395,7 +395,7 @@ rf1 <- randomForest(train_label ~ .,
 rf1
 
 ```
-The "OOB estimate of error rate" shows us how accurate our model is. `accuracy = 1 - error rate`.  
+The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$.  
 
 We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled. The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never chosen as a split in any of the decision trees.
 ```{r}
@@ -446,7 +446,7 @@ Let us first create two objects - `control` and `grid`. `control` will allow us 
 ```{r}
 # Choose 10-fold repeated measure cross-validation as our performance metric
 # (instead of the default "bootstrap").
-control <- trainControl(method="repeatedcv", 
+control <- trainControl(method = "repeatedcv", 
 	repeats = 2,
 	# Calculate class probabilities.
 	classProbs = TRUE,
@@ -491,16 +491,16 @@ summary(gbm1, las = 2)
 gbm.pred <- predict(gbm1, test)
 
 # Generate class probabilities.
-gbm.prob <- predict(gbm1, test, type="prob")
+gbm.prob <- predict(gbm1, test, type = "prob")
 
 # Define ROC characteristics.
-rocCurve <- roc(response=test_label,
+rocCurve <- roc(response = test_label,
 	predictor = gbm.prob[, "yes"],
 	levels = rev(levels(test_label)),
 	auc=TRUE, ci=TRUE)
 
 # Plot ROC.
-plot(rocCurve, print.thres="best", main="GBM", col="blue") 
+plot(rocCurve, print.thres = "best", main = "GBM", col = "blue") 
 # ggsave("gbm AUC.png")
 
 # Plot the cross-validated AUC of the different configurations.
@@ -556,7 +556,7 @@ cv_sl <- CV.SuperLearner(Y = Mroz$lfp, X = data,
                          verbose = F)
 ```
 
-Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error `(y_actual - y_predicted)^2`, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
+Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
 ```{r}
 summary(cv_sl)
 
