@@ -3,7 +3,6 @@ title: "Introduction to Machine Learning in R"
 author: "Evan Muzzall and Chris Kennedy"
 date: "3/6/2017"
 output:
-  word_document: default
   html_document: default
 ---
 
@@ -268,6 +267,7 @@ knn_k <- knnEval(data_scaled, Y, split,
 A combination of scaling the data and searching for the best cross-validated "k" is ideal.  
 
 ### Challenge 1  
+
 1. What happens to accuracy when k = 1, 2, or 3?  
 2. What is the optimal k-value from the cross-validation plot? What happens to the predictive accuracy when you switch k to this value?  
 3. Using what you learned above, how would you classify the predictive accuracy of the Species vector in the  "iris" dataset? Hint: use `data(iris)` to load the dataset.
@@ -313,6 +313,7 @@ MSE
 See the [yhat blog for Fitting & Interpreting Linear Models in R](http://blog.yhat.com/posts/r-lm-summary.html) to learn more about `lm` output.  
 
 ### Challenge 2
+
 1) What happens to MSE when you try to predict "age" and "lfp"?  
 2) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
@@ -362,8 +363,8 @@ Here, each node shows the cutoff for each of the predictors and how it contribut
 
 ### Challenge 3
 1) Make a decision tree that tries to classify something other than "lfp".
-2) What are the "minsplit=" and "cp=" hyperparameters within the "control=" parameter? How might you go about figuring out what these are?  
-HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit=20, cp=0.001)`  
+2) What are the "minsplit" and "cp" hyperparameters within the "control" parameter? How might you go about figuring out what these are?  
+HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit = 20, cp = 0.001)`  
 
 # 8. Random forests
 Random forests also are recursive partitioning methods that use multiple decision trees for ensemble predictions for classification and regression. At each random forest tree split, only a small portion of the predictors are used (rather than the full suite).  
@@ -423,6 +424,7 @@ mean(rf_pred == test_label) # 0.7377778
 How did it do? Are the accuracies for the training and test sets similar?  
 
 # Challenge 4
+
 1. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. What happens to the fit of the model when another variable is chosen?  
 
 # 8. Boosting
@@ -435,7 +437,7 @@ However, the cases that the model has difficulty predicting are _upweighted_ so 
 Remember, our data are still split from before:
 ```{r}
 # view "Y" and "data"
-Y
+table(Y)
 str(data)
 nrow(train) + nrow(test) == nrow(data) # sanity check
 ```
@@ -511,6 +513,7 @@ ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons")
 Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages/xgboost/index.html) for extreme gradient boosting.  
 
 ### Challenge 5
+
 1. Using your Mroz dataset, fit a GBM model where "wc" is your Y variable. What happens to variable relative importance? What happens to AUC?
 
 # 9. Ensemble methods
