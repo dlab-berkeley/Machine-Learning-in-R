@@ -277,19 +277,19 @@ OLS regression can be used when the target Y variable is continuous.
 
 Remember that under the hood, `lm` and `glm` are one hot encoding factors to indicators. Write it out again for good practice: 
 ```{r}
-# view structure of Mroz
+# View structure of Mroz.
 str(Mroz)
 
-# define our continuous Y response variable, "lwg". Call it "Y2"
+# Define our continuous Y response variable, "lwg". Call it "Y2".
 Y2 <- Mroz$lwg
 
-# expand our predictor X variables out into indicators
+# Expand our predictor X variables out into indicators.
 data2 <- data.frame(model.matrix( ~ ., subset(Mroz, select = -lwg)))
 
-# remove intercept
-data2 <- data2[,-1]
+# Remove intercept.
+data2 <- data2[, -1]
 
-# view structure of "data2"
+# View structure of "data2".
 str(data2)
 ```
 
