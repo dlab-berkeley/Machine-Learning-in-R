@@ -3,8 +3,8 @@ title: "Introduction to Machine Learning in R"
 author: "Evan Muzzall and Chris Kennedy"
 date: "3/6/2017"
 output:
-  word_document: default
   html_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -65,9 +65,9 @@ Supervised machine learning algorithms learn a target function _f_ that best map
 
 ##### 3. Machine learning algorithms - classification or regression?
 
-In supervised machine learning, classification and regression are common distinctions. Classification should be used when your target Y variable is discrete, such as a binary Y outcome variable.  
+In supervised machine learning, classification and regression are common distinctions. Classification is used when your target Y variable is discrete, such as a binary Y outcome variable. Examples include predicting if an email is spam or not, estimating probability of mortality in the emergency room, whether a tumor is cancerous or benign, or how likely someone is to vote in the next election. Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. It can be extended to multiple categories as well.
 
-Regression can be used when the target Y variable is continuous. Examples could include predicting income, gdp, housing prices, distance, height, and weight of a country, person, place, or thing.  
+Regression is used when the target Y variable is continuous. Examples include predicting income, GDP, housing prices, distance, height, or weight. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.
 
 ##### 3. Machine learning algorithms - research design
 
