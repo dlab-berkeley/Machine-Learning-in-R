@@ -7,14 +7,11 @@ output:
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 # 1. Pre-introduction
 Be sure you have installed and libraried the following packages:
-```{r, eval=FALSE}
+```{r}
 if (FALSE) {
+  # Run this line manually to install the necessary packages.
   install.packages(c("car", "caret","chemometrics", "class", "doParallel", "gbm", "ggplot2", "gmodels", "parallel", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
 }
   
@@ -273,7 +270,7 @@ A combination of scaling the data and searching for the best cross-validated "k"
 ### Challenge 1  
 1. What happens to accuracy when k = 1, 2, or 3?  
 2. What is the optimal k-value from the cross-validation plot? What happens to the predictive accuracy when you switch k to this value?  
-3. Using what you learned above, how would you classify the predictive accuracy of the Species vector in the  "iris" dataset?
+3. Using what you learned above, how would you classify the predictive accuracy of the Species vector in the  "iris" dataset? Hint: use `data(iris)` to load the dataset.
 
 # 6. Linear regression
 OLS regression can be used when the target Y variable is continuous.  
@@ -374,7 +371,7 @@ Random forests also are recursive partitioning methods that use multiple decisio
 The decision tree method did not require us to split the data into training and test sets. Thus, we can use our previously defined scheme of "Y" and "data" variables and "train" and "test" datasets: 
 ```{r}
 # view "Y" and "data"
-Y
+table(Y)
 str(data)
 
 # split this data, similar to before
