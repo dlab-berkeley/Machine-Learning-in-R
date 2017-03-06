@@ -10,7 +10,7 @@ Y_dt <- Mroz$wc
 X_dt <- Mroz[,-5] 
 
 # construct the tree
-dt2 <- rpart(Y_dt ~ ., data=X_dt, method="anova")
+dt2 <- rpart(Y_dt ~ ., data=X_dt, method="class")
 
 # view results
 printcp(dt2)
@@ -31,7 +31,7 @@ rpart.plot(dt2)
 
 dt_control <- rpart.control(minsplit=20, cp=0.001)
 
-dt3 <- rpart(Y_dt ~ ., data=X_dt, method="anova", control=dt_control)
+dt3 <- rpart(Y_dt ~ ., data=X_dt, method="class", control=dt_control)
 
 printcp(dt3)
 plotcp(dt3)
