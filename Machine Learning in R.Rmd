@@ -347,7 +347,7 @@ printcp(dt)
 
 # Plot the performance estimates for different CP settings.
 # We see that a larger tree (lower CP) seems more accurate.
-plotcp(dt) 
+plotcp(dt)
 
 # We can "prune" a tree to a higher CP setting if we want.
 # Note: due to rounding we make the cp value slightly higher than
