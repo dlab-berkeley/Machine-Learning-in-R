@@ -91,7 +91,7 @@ Once an appropriate algorithm is selected, a common first step is to split a dat
 
 The "test" dataset is a handy way to evaluate model performance. If an algorithm performs poorly on the training dataset, it could be said to be _underfit_ because it could not discern the relationships between the X and Y variables. A model is said to be _overfit_ if it performs well on the training dataset but poorly on the test dataset because it was not able to generalize to new data.  
 
-Some common performance metrics include accuracy, true positive/true negative rates, and area under the ROC curve; these are usually estimated using cross-validation. See the below links for more information:  
+Some common performance metrics for classification include accuracy, true positive/true negative rates, and area under the ROC curve; these are usually estimated using cross-validation. For regression we often use mean-squared error or mean-absolute error as performance metrics. See the below links for more information:  
 
 [Jason Brownlee - How to Evaluate Machine Learning Algorithms](http://machinelearningmastery.com/how-to-evaluate-machine-learning-algorithms/) and [Assessing and Comparing Classifier Performance with ROC Curves](http://machinelearningmastery.com/assessing-comparing-classifier-performance-roc-curves-2/)  
 
@@ -213,24 +213,25 @@ summary(data_scaled)
 boxplot(data_scaled, las=2)
 ```
 
-1) split the data again, 2) fit the model again, and 3) examine the accuracy of predictions in the contingency table (again).  
+1) split the scaled data , 2) fit the model on the scaled data, and 3) examine the accuracy of predictions in the contingency table.
 
-1) split the data again
 ```{r}
-library(caret)
-set.seed(1)
+# Use our existing split vector.
 
-# create a stratified random split
-split_scaled <- createDataPartition(Y, p = 0.70, list = FALSE) 
+# Create the training partition.
+train_scaled <- data_scaled[split, ] 
 
-train_scaled <- data_scaled[split_scaled, ] # partition training dataset
-test_scaled <- data_scaled[-split_scaled, ] # partition test dataset
+# Create the test partition.
+test_scaled <- data_scaled[-split, ] 
 
-train_label_scaled <- Y[split_scaled] # partition training Y variable vector
-test_label_scaled <- Y[-split_scaled] # partition test Y variable vector 
+# Extract outcome data for training set.
+train_label_scaled <- Y[split] 
+
+# Extract outcome data for test set.
+test_label_scaled <- Y[-split] 
 ```
 
-2) fit the model again
+2) fit the model on scaled data
 ```{r}
 library(class)
 set.seed(1)
@@ -240,14 +241,14 @@ data_pred_scaled <- knn(train = train_scaled,
                             k = 23, prob = TRUE)
 ```
 
-3) examine the accuracy of predictions in the contingency table (again)
+3) examine the accuracy of predictions in the contingency table
 ```{r}
 library(gmodels)
-CrossTable(x=test_label_scaled, y=data_pred_scaled, 
-           prop.chisq=FALSE,
-           prop.r=FALSE,
-           prop.c=FALSE,
-           prop.t=FALSE)
+CrossTable(x = test_label_scaled, y = data_pred_scaled, 
+           prop.chisq = FALSE,
+           prop.r = FALSE,
+           prop.c = FALSE,
+           prop.t = FALSE)
 
 # Compute accuracy directly.
 mean(test_label_scaled == data_pred_scaled)
@@ -261,9 +262,9 @@ It also helps to investigate the cross-validated errors for multiple k-values at
 library(chemometrics)
 set.seed(1)
 # png("kNN classification.png", height=6, width=9, units="in", res=600)
-knn_k <- knnEval(data_scaled, Y, as.numeric(row.names(train)), 
-                 knnvec=seq(1,50, by=1), 
-                 legpo="bottomright", las=2)
+knn_k <- knnEval(data_scaled, Y, split, 
+                 knnvec=seq(1, 50, by = 5), 
+                 legpo="bottomright", las = 2)
 # dev.off()
 ```
 
