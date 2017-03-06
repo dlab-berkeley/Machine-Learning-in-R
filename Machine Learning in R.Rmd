@@ -325,9 +325,9 @@ Note that we do not have to use `model.matrix` for our decision tree algorithm h
 ```{r}
 library(rpart)
 
-# Choose method="anova" for a regression tree; also see the "control=" argument
+# Choose method="anova" for a regression tree; also see the "control" argument
 # in the help files.
-dt <- rpart(Y ~ ., data = data, method = "class")  
+dt <- rpart(Y ~ ., data = subset(Mroz, select = -lfp), method = "class")
 
 # Here is the text-based display of the decision tree.
 print(dt)
