@@ -3,6 +3,7 @@
 # load data
 data(iris)
 ?iris
+str(iris)
 
 # designate Y and X variables
 Y_iris  <- iris$Species
@@ -36,7 +37,7 @@ CrossTable(x = test_iris_labels, y = iris_pred_knn,
            prop.t = FALSE)
 
 # compute accuracy
-mean(test_iris_labels == iris_pred_knn) # ~ 98% accuracy! 
+mean(test_iris_labels == iris_pred_knn) # ~ 91% accuracy! 
 
 # plot it! 
 ggplot(iris, aes(Petal.Length, Petal.Width, col=Species)) + geom_point()
