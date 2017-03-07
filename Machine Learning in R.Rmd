@@ -3,18 +3,14 @@ title: "Introduction to Machine Learning in R"
 author: "Evan Muzzall and Chris Kennedy"
 date: "3/6/2017"
 output:
-  word_document: default
   html_document: default
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 # 1. Pre-introduction
 Be sure you have installed and libraried the following packages:
-```{r, eval=FALSE}
+```{r}
 if (FALSE) {
+  # Run this line manually to install the necessary packages.
   install.packages(c("car", "caret","chemometrics", "class", "doParallel", "gbm", "ggplot2", "gmodels", "parallel", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
 }
   
@@ -91,7 +87,7 @@ Once an appropriate algorithm is selected, a common first step is to split a dat
 
 The "test" dataset is a handy way to evaluate model performance. If an algorithm performs poorly on the training dataset, it could be said to be _underfit_ because it could not discern the relationships between the X and Y variables. A model is said to be _overfit_ if it performs well on the training dataset but poorly on the test dataset because it was not able to generalize to new data.  
 
-Some common performance metrics include accuracy, true positive/true negative rates, and area under the ROC curve; these are usually estimated using cross-validation. See the below links for more information:  
+Some common performance metrics for classification include accuracy, true positive/true negative rates, and area under the ROC curve; these are usually estimated using cross-validation. For regression we often use mean-squared error or mean-absolute error as performance metrics. See the below links for more information:  
 
 [Jason Brownlee - How to Evaluate Machine Learning Algorithms](http://machinelearningmastery.com/how-to-evaluate-machine-learning-algorithms/) and [Assessing and Comparing Classifier Performance with ROC Curves](http://machinelearningmastery.com/assessing-comparing-classifier-performance-roc-curves-2/)  
 
@@ -213,24 +209,25 @@ summary(data_scaled)
 boxplot(data_scaled, las=2)
 ```
 
-1) split the data again, 2) fit the model again, and 3) examine the accuracy of predictions in the contingency table (again).  
+1) split the scaled data , 2) fit the model on the scaled data, and 3) examine the accuracy of predictions in the contingency table.
 
-1) split the data again
 ```{r}
-library(caret)
-set.seed(1)
+# Use our existing split vector.
 
-# create a stratified random split
-split_scaled <- createDataPartition(Y, p = 0.70, list = FALSE) 
+# Create the training partition.
+train_scaled <- data_scaled[split, ] 
 
-train_scaled <- data_scaled[split_scaled, ] # partition training dataset
-test_scaled <- data_scaled[-split_scaled, ] # partition test dataset
+# Create the test partition.
+test_scaled <- data_scaled[-split, ] 
 
-train_label_scaled <- Y[split_scaled] # partition training Y variable vector
-test_label_scaled <- Y[-split_scaled] # partition test Y variable vector 
+# Extract outcome data for training set.
+train_label_scaled <- Y[split] 
+
+# Extract outcome data for test set.
+test_label_scaled <- Y[-split] 
 ```
 
-2) fit the model again
+2) fit the model on scaled data
 ```{r}
 library(class)
 set.seed(1)
@@ -240,14 +237,14 @@ data_pred_scaled <- knn(train = train_scaled,
                             k = 23, prob = TRUE)
 ```
 
-3) examine the accuracy of predictions in the contingency table (again)
+3) examine the accuracy of predictions in the contingency table
 ```{r}
 library(gmodels)
-CrossTable(x=test_label_scaled, y=data_pred_scaled, 
-           prop.chisq=FALSE,
-           prop.r=FALSE,
-           prop.c=FALSE,
-           prop.t=FALSE)
+CrossTable(x = test_label_scaled, y = data_pred_scaled, 
+           prop.chisq = FALSE,
+           prop.r = FALSE,
+           prop.c = FALSE,
+           prop.t = FALSE)
 
 # Compute accuracy directly.
 mean(test_label_scaled == data_pred_scaled)
@@ -261,37 +258,38 @@ It also helps to investigate the cross-validated errors for multiple k-values at
 library(chemometrics)
 set.seed(1)
 # png("kNN classification.png", height=6, width=9, units="in", res=600)
-knn_k <- knnEval(data_scaled, Y, as.numeric(row.names(train)), 
-                 knnvec=seq(1,50, by=1), 
-                 legpo="bottomright", las=2)
+knn_k <- knnEval(data_scaled, Y, split, 
+                 knnvec=seq(1, 50, by = 5), 
+                 legpo="bottomright", las = 2)
 # dev.off()
 ```
 
 A combination of scaling the data and searching for the best cross-validated "k" is ideal.  
 
 ### Challenge 1  
+
 1. What happens to accuracy when k = 1, 2, or 3?  
 2. What is the optimal k-value from the cross-validation plot? What happens to the predictive accuracy when you switch k to this value?  
-3. Using what you learned above, how would you classify the predictive accuracy of the Species vector in the  "iris" dataset?
+3. Using what you learned above, how would you classify the predictive accuracy of the Species vector in the  "iris" dataset? Hint: use `data(iris)` to load the dataset.
 
 # 6. Linear regression
 OLS regression can be used when the target Y variable is continuous.  
 
 Remember that under the hood, `lm` and `glm` are one hot encoding factors to indicators. Write it out again for good practice: 
 ```{r}
-# view structure of Mroz
+# View structure of Mroz.
 str(Mroz)
 
-# define our continuous Y response variable, "lwg". Call it "Y2"
+# Define our continuous Y response variable, "lwg". Call it "Y2".
 Y2 <- Mroz$lwg
 
-# expand our predictor X variables out into indicators
+# Expand our predictor X variables out into indicators.
 data2 <- data.frame(model.matrix( ~ ., subset(Mroz, select = -lwg)))
 
-# remove intercept
-data2 <- data2[,-1]
+# Remove intercept.
+data2 <- data2[, -1]
 
-# view structure of "data2"
+# View structure of "data2".
 str(data2)
 ```
 
@@ -315,6 +313,7 @@ MSE
 See the [yhat blog for Fitting & Interpreting Linear Models in R](http://blog.yhat.com/posts/r-lm-summary.html) to learn more about `lm` output.  
 
 ### Challenge 2
+
 1) What happens to MSE when you try to predict "age" and "lfp"?  
 2) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
@@ -326,9 +325,9 @@ Note that we do not have to use `model.matrix` for our decision tree algorithm h
 ```{r}
 library(rpart)
 
-# Choose method="anova" for a regression tree; also see the "control=" argument
+# Choose method="anova" for a regression tree; also see the "control" argument
 # in the help files.
-dt <- rpart(Y ~ ., data = data, method = "class")  
+dt <- rpart(Y ~ ., data = subset(Mroz, select = -lfp), method = "class")
 
 # Here is the text-based display of the decision tree.
 print(dt)
@@ -348,7 +347,7 @@ printcp(dt)
 
 # Plot the performance estimates for different CP settings.
 # We see that a larger tree (lower CP) seems more accurate.
-plotcp(dt) 
+plotcp(dt)
 
 # We can "prune" a tree to a higher CP setting if we want.
 # Note: due to rounding we make the cp value slightly higher than
@@ -364,8 +363,8 @@ Here, each node shows the cutoff for each of the predictors and how it contribut
 
 ### Challenge 3
 1) Make a decision tree that tries to classify something other than "lfp".
-2) What are the "minsplit=" and "cp=" hyperparameters within the "control=" parameter? How might you go about figuring out what these are?  
-HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit=20, cp=0.001)`  
+2) What are the "minsplit" and "cp" hyperparameters within the "control" parameter? How might you go about figuring out what these are?  
+HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit = 20, cp = 0.001)`  
 
 # 8. Random forests
 Random forests also are recursive partitioning methods that use multiple decision trees for ensemble predictions for classification and regression. At each random forest tree split, only a small portion of the predictors are used (rather than the full suite).  
@@ -373,7 +372,7 @@ Random forests also are recursive partitioning methods that use multiple decisio
 The decision tree method did not require us to split the data into training and test sets. Thus, we can use our previously defined scheme of "Y" and "data" variables and "train" and "test" datasets: 
 ```{r}
 # view "Y" and "data"
-Y
+table(Y)
 str(data)
 
 # split this data, similar to before
@@ -397,7 +396,7 @@ rf1 <- randomForest(train_label ~ .,
 rf1
 
 ```
-The "OOB estimate of error rate" shows us how accurate our model is. `accuracy = 1 - error rate`.  
+The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$.  
 
 We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled. The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never chosen as a split in any of the decision trees.
 ```{r}
@@ -425,6 +424,7 @@ mean(rf_pred == test_label) # 0.7377778
 How did it do? Are the accuracies for the training and test sets similar?  
 
 # Challenge 4
+
 1. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. What happens to the fit of the model when another variable is chosen?  
 
 # 8. Boosting
@@ -437,7 +437,7 @@ However, the cases that the model has difficulty predicting are _upweighted_ so 
 Remember, our data are still split from before:
 ```{r}
 # view "Y" and "data"
-Y
+table(Y)
 str(data)
 nrow(train) + nrow(test) == nrow(data) # sanity check
 ```
@@ -448,7 +448,7 @@ Let us first create two objects - `control` and `grid`. `control` will allow us 
 ```{r}
 # Choose 10-fold repeated measure cross-validation as our performance metric
 # (instead of the default "bootstrap").
-control <- trainControl(method="repeatedcv", 
+control <- trainControl(method = "repeatedcv", 
 	repeats = 2,
 	# Calculate class probabilities.
 	classProbs = TRUE,
@@ -493,16 +493,16 @@ summary(gbm1, las = 2)
 gbm.pred <- predict(gbm1, test)
 
 # Generate class probabilities.
-gbm.prob <- predict(gbm1, test, type="prob")
+gbm.prob <- predict(gbm1, test, type = "prob")
 
 # Define ROC characteristics.
-rocCurve <- roc(response=test_label,
+rocCurve <- roc(response = test_label,
 	predictor = gbm.prob[, "yes"],
 	levels = rev(levels(test_label)),
 	auc=TRUE, ci=TRUE)
 
 # Plot ROC.
-plot(rocCurve, print.thres="best", main="GBM", col="blue") 
+plot(rocCurve, print.thres = "best", main = "GBM", col = "blue") 
 # ggsave("gbm AUC.png")
 
 # Plot the cross-validated AUC of the different configurations.
@@ -513,6 +513,7 @@ ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons")
 Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages/xgboost/index.html) for extreme gradient boosting.  
 
 ### Challenge 5
+
 1. Using your Mroz dataset, fit a GBM model where "wc" is your Y variable. What happens to variable relative importance? What happens to AUC?
 
 # 9. Ensemble methods
@@ -558,7 +559,7 @@ cv_sl <- CV.SuperLearner(Y = Mroz$lfp, X = data,
                          verbose = F)
 ```
 
-Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error `(y_actual - y_predicted)^2`, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
+Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
 ```{r}
 summary(cv_sl)
 
