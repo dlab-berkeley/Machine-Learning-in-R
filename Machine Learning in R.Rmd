@@ -368,10 +368,13 @@ Here, each node shows the cutoff for each of the predictors and how it contribut
 HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit = 20, cp = 0.001)`  
 
 # 8. Random forests
-Random forests also are recursive partitioning methods that use multiple decision trees for ensemble predictions for classification and regression. At each random forest tree split, only a small portion of the predictors are used (rather than the full suite).  
+
+Random forest is an algorithm that seeks to improve on the performance of a single decision tree by taking the average of many trees. So RF is an **ensemble** method, or model averaging approach. The algorithm was invented by Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see 1984 CART book).
+
+Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"), an algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used any algorithm, RF uses decision trees as its base learner. Random Forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
 
 ```{r}
-# view "Y" and "data"
+# View "Y" and "data"
 table(Y)
 str(data)
 
@@ -396,9 +399,9 @@ rf1 <- randomForest(train_label ~ .,
 rf1
 
 ```
-The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$.  
+The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$.  OOB stands for "out of bag" - and bag is short for "bootstrap aggregation". So OOB estimates performance by comparing the predicted outcome value to the actual value across all trees using only the observations that were not part of the training data for that tree.
 
-We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled. The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never chosen as a split in any of the decision trees.
+We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.
 ```{r}
 # As the function name suggests, this creates a variable importance plot.
 varImpPlot(rf1)
@@ -425,9 +428,12 @@ How did it do? Are the accuracies for the training and test sets similar?
 
 ### Challenge 4
 
-1. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. What happens to the fit of the model when another variable is chosen?  
+1. Try a few other values of mtry - can you find one that has improved performance?
+2. Maxnodes is another tuning parameter for randomForest - does changing it improve your performance?
+3. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. How is the fit of the model for this variable?  
 
 # 8. Boosting
+
 "Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  
 
 The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
