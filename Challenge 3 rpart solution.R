@@ -30,6 +30,10 @@ rpart.plot(dt2)
 # cp = "complexity parameter" - this will prune splits that are not worthwhile; 
 # cross-validation will prune off all splits that do not improve the model fit
 
+dt_control <- rpart.control(minsplit=20, cp=0.03)
+
+# or
+
 dt_control <- rpart.control(minsplit = 20, cp = 0.001)
 
 dt3 <- rpart(Y_dt ~ ., data = X_dt, method = "class", control = dt_control)
