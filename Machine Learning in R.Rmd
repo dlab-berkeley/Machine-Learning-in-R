@@ -362,14 +362,14 @@ rpart.plot(tree_pruned)
 Here, each node shows the cutoff for each of the predictors and how it contributed to the split. View a helpful decision tree tutorial at [GormAnalysis](https://gormanalysis.com/decision-trees-in-r-using-rpart/).  
 
 ### Challenge 3
-1) Make a decision tree that tries to classify something other than "lfp".
-2) What are the "minsplit" and "cp" hyperparameters within the "control" parameter? How might you go about figuring out what these are?  
+
+1. Make a decision tree that tries to classify something other than "lfp".
+2. What are the "minsplit" and "cp" hyperparameters within the "control" parameter? How might you go about figuring out what these are?  
 HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit = 20, cp = 0.001)`  
 
 # 8. Random forests
 Random forests also are recursive partitioning methods that use multiple decision trees for ensemble predictions for classification and regression. At each random forest tree split, only a small portion of the predictors are used (rather than the full suite).  
 
-The decision tree method did not require us to split the data into training and test sets. Thus, we can use our previously defined scheme of "Y" and "data" variables and "train" and "test" datasets: 
 ```{r}
 # view "Y" and "data"
 table(Y)
@@ -423,7 +423,7 @@ mean(rf_pred == test_label) # 0.7377778
 ```
 How did it do? Are the accuracies for the training and test sets similar?  
 
-# Challenge 4
+### Challenge 4
 
 1. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. What happens to the fit of the model when another variable is chosen?  
 
