@@ -1,10 +1,10 @@
-### Challenge 1: Mroz knn with k = 1, 2, 3
+### Challenge 1: Mroz knn with k = 2, 10, 20
 library(class)
 set.seed(1)
 data_predicted_scaled2 <- knn(train = train_scaled,
                         test = test_scaled, 
                         cl = train_label_scaled,
-                        k = 2, prob = TRUE)
+                        k = 31, prob = TRUE)
 library(gmodels)
 CrossTable(x = test_label_scaled, y = data_predicted_scaled2, 
            prop.chisq = FALSE,

@@ -309,7 +309,7 @@ str(data2)
 ```
 
 - Fit a model that predicts the `Y` variable log wage gap (`lwg`) using the other variables as predictors.  
-- Root mean squared error (RMSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
+- Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
 ```{r}
 # Fit the regression model.
 data2_lm <- lm(Y2 ~ ., data = data2)
