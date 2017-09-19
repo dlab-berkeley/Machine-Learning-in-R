@@ -94,7 +94,7 @@ A longstanding first step is to split a dataset into **"training" and "test" sub
 ##### 4.3 Common performance metrics
 - Accuracy  
 - Mean squared error  
-- True positives and true negatives (also see: https://uberpython.wordpress.com/2012/01/01/precision-recall-sensitivity-and-specificity)
+- True positives and true negatives (also see:  https://uberpython.wordpress.com/2012/01/01/precision-recall-sensitivity-and-specificity)
 - Area under the ROC curve  
 - Cross validated error  
 
