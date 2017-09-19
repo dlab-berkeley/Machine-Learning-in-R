@@ -207,7 +207,7 @@ CrossTable(x = test_label, y = data_predicted,
            prop.c = FALSE,
            prop.t = FALSE)
 
-# Compute accuracy.
+# Compute accuracy
 mean(test_label == data_pred)
 ```
 How did it do?  
