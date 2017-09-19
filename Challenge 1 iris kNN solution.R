@@ -1,5 +1,21 @@
-### Challenge 1: iris kNN solution
+### Challenge 1: Mroz knn with k = 1, 2, 3
+library(class)
+set.seed(1)
+data_predicted_scaled2 <- knn(train = train_scaled,
+                        test = test_scaled, 
+                        cl = train_label_scaled,
+                        k = 2, prob = TRUE)
+library(gmodels)
+CrossTable(x = test_label_scaled, y = data_predicted_scaled2, 
+           prop.chisq = FALSE,
+           prop.r = FALSE,
+           prop.c = FALSE,
+           prop.t = FALSE)
 
+# Compute accuracy
+mean(test_label_scaled == data_predicted_scaled2)
+
+### Challenge 1: iris knn solution
 # Load data.
 data(iris)
 ?iris
@@ -26,20 +42,23 @@ round(sqrt(nrow(train_iris)))
 # fit kNN model
 library(class)
 set.seed(1)
-iris_pred_knn <- knn(train = train_iris, test = test_iris,
+iris_predicted_knn <- knn(train = train_iris, test = test_iris,
                      cl = train_iris_labels, k = 10, prob = TRUE)
 
 # Evaluate cross tabs.
 library(gmodels)
-CrossTable(x = test_iris_labels, y = iris_pred_knn, 
+CrossTable(x = test_iris_labels, y = iris_predicted_knn, 
            prop.chisq = FALSE,
            prop.r = FALSE,
            prop.c = FALSE,
            prop.t = FALSE)
 
 # compute accuracy
-mean(test_iris_labels == iris_pred_knn) # ~ 91% accuracy! 
+mean(test_iris_labels == iris_predicted_knn) # ~ 98% accuracy! 
 
-
-# Plot original dataset.
-ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species)) + geom_point()
+# Plot Petal.Length and Petal.Width
+ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species, shape = Species)) + 
+  geom_point(size = 5, alpha = 1) + 
+  ggtitle("iris petal lengths and widths") + 
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5))
