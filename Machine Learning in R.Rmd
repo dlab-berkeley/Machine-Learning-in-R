@@ -8,7 +8,7 @@ output:
     toc_float: yes
 ---
 
-# Introduction
+# Introduction 
 ### 1. Package installation
 ```{r, eval = F}
 if (FALSE) {
