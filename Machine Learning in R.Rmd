@@ -62,9 +62,12 @@ Reinforcement learning:
 - [DeepMind blog](https://deepmind.com/blog/understanding-agent-cooperation/) 
 
 ### 3.  Supervised machine learning
-Selecting a machine learning algorithm depends on the characteristics of the problem being investigated. Algorithms can be divided into three broad classes: supervised, unsupervised, and reinforcement - we will focus on two main subtypes of supervised machine learning: classification and regression.  
+Selecting a machine learning algorithm depends on the characteristics of the problem being investigated. Machine learning is generally divided into three broad classes: supervised, unsupervised, and reinforcement. In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
 
-Supervised machine learning algorithms learn a target function _f_ that best maps to a dependent/response/target/outcome variable `Y` based on independent/input/predictor variable(s) `X1, X2, X3,... Xn`. The algorithm then tries to predict `Y` using new data for `X`. However, these predictions are influenced by bias, variance, and irreducible error. See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) to learn more.  
+Supervised machine learning algorithms learn a target function _f_ that best maps to a dependent/response/target/outcome variable `Y` based on independent/input/predictor variable(s) `X1, X2, X3,... Xn`. The algorithm then tries to predict `Y` using new data for `X`. These predictions are influenced by bias, variance, and irreducible error.  
+
+- More simply, supervised machine learning algorithms train with known data to predict classification of new data.  
+- See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) to learn more.  
 
 ##### 3.1 Classification or regression?
 **Classification** is used when the `Y` variable is discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" classification and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
@@ -130,10 +133,11 @@ data(iris)
 ```
 
 ### 1.  k-nearest neighbor (knn)
-The k-Nearest Neighbor (knn) makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. 
+The k-nearest neighbor (knn) makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. 
 - [**Euclidean distances**]((https://en.wikipedia.org/wiki/Euclidean_distance)) between points are used in this example. 
-- **`k`** is the number of neighbors used to classify the point and choosing a proper "k" is integral to finding the best-performing model.  
-- **Large k-values** are bad because the class with the largest size might win regardless of the surrounding points.  
+- **`k`** is the number of neighbors used to classify the point.  
+- Choosing a proper "k" is integral to finding the best-performing model.  
+- **Large k-values** are bad because the class with the largest size might win regardless of influence of more proximate points.  
 - **Small k-values** are bad because neighboring points might become overly influential.  
 
 ##### 1.1 knn - data preprocessing
@@ -163,7 +167,7 @@ boxplot(data)
 ```
 > Remember! 
 - `Y` contains the `Mroz$lfp` variable.  
-- `data` contains the expanded predictor variables.  
+- `data` contains the expanded predictor variables and not `Mroz$lfp`.  
 
 ##### 1.2 knn - split the dataset
 - assign 70% of the data to training dataset.  
@@ -187,7 +191,7 @@ test_label <- Y[-split] # partition test Y vector labels
 ##### 1.3 knn - selecting a starting "k-value"
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset:
 ```{r}
-#round(sqrt(nrow(train_X)), digits=2) # 22.98
+round(sqrt(nrow(train_X)), digits=2) # 22.98
 ```
 
 Fit the model! Our goal is to predict the classification accuracy of our `Y` variable (yes/no whether or not a woman participated in the workforce) based on the other `X` predictor variables:
@@ -202,13 +206,13 @@ Using accuracy as our performance metric, compute a contingency table to see how
 ```{r}
 library(gmodels)
 CrossTable(x = test_label, y = data_predicted, 
-           prop.chisq = FALSE,
-           prop.r = FALSE,
-           prop.c = FALSE,
-           prop.t = FALSE)
+           prop.chisq = F,
+           prop.r = F,
+           prop.c = F,
+           prop.t = F)
 
 # Compute accuracy
-mean(test_label == data_pred)
+mean(test_label == data_predicted) # ~ 0.52
 ```
 How did it do?  
 
@@ -256,13 +260,13 @@ data_predicted_scaled <- knn(train = train_scaled,
 ```{r}
 library(gmodels)
 CrossTable(x = test_label_scaled, y = data_predicted_scaled, 
-           prop.chisq = FALSE,
-           prop.r = FALSE,
-           prop.c = FALSE,
-           prop.t = FALSE)
+           prop.chisq = F,
+           prop.r = F,
+           prop.c = F,
+           prop.t = F)
 
 # Compute accuracy
-mean(test_label_scaled == data_pred_scaled)
+mean(test_label_scaled == data_predicted_scaled) # 0.68
 ```
 What happened?  
 
@@ -272,7 +276,7 @@ It also helps to investigate the cross-validated errors for multiple k-values at
 library(chemometrics)
 set.seed(1)
 knn_k <- knnEval(data_scaled, Y, split, 
-                 knnvec=seq(1, 50, by = 2), 
+                 knnvec=seq(1, 51, by = 5), 
                  legpo="bottomright", las = 2)
 ```
 A combination of scaling the data and searching for the best cross-validated "k" is ideal.  
@@ -334,17 +338,19 @@ Note that we do not have to use `model.matrix` for our decision tree algorithm h
 ```{r}
 library(rpart)
 # Choose method="anova" for a regression tree
-dt <- rpart(Y ~ ., data = subset(Mroz, select = -lfp), method = "class")
+# Instead of gini coefficient, select "information" inside the "parms" parameter
+dt <- rpart(Y ~ ., data = subset(Mroz, select = -lfp), method = "class", parms = list(split = 'information'))
 
 # Here is the text-based display of the decision tree.
 print(dt)
 
 # The plot is much easier to interpret.
 library(rpart.plot)
-rpart.plot(dt, cex = 1, extra = 1)
+rpart.plot(dt, cex = 1)
            # shadow.col = "lightgray", 
-           # extra = 1, 
-           # fallen.leaves = F)
+           
+# Variable importance is also informative:
+dt$variable.importance
 ```
 
 In decision trees the main hyperparameter (configuration setting) is the *complexity parameter* (CP). A high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits. So, the name is a little counterintuitive.  
