@@ -10,7 +10,7 @@ data3 <- data.frame(model.matrix( ~ ., subset(Mroz, select = -age)))
 names(data3)
 
 # Remove intercept
-data3 <- data2[, -1]
+data3 <- data3[, -1]
 
 # View structure of "data2"
 str(data3)
@@ -22,12 +22,15 @@ data3_lm <- lm(Y3 ~ ., data = data3)
 summary(data3_lm) 
 
 # Predict the outcome back onto the training data
-data3_predicted <- predict(data3_lm, data2) 
+data3_predicted <- predict(data3_lm, data3) 
 
 # Calculate mean-squared error
 MSE2 <- mean((Y3 - data3_predicted)^2)   
 
 MSE2
+
+# Root mean-squared error (RMSE)
+sqrt(MSE2)
 
 ### Challenge 2: iris regression solution
 # Load the data
@@ -63,4 +66,7 @@ iris_predicted <- predict(iris_fit, X_iris)
 MSE_iris <- mean((Y_iris - iris_predicted)^2)
 
 MSE_iris
+# RMSE
+sqrt(MSE_iris)
+summary(Y_iris)
  

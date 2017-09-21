@@ -13,7 +13,7 @@ output:
 ```{r, eval = F}
 if (FALSE) {
   # Run this line manually to install the necessary packages.
-  install.packages(c("car", "caret","chemometrics", "class", "doParallel", "gbm", "ggplot2", "gmodels", "parallel", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
+  install.packages(c("car", "caret","chemometrics", "class", "doParallel", "gbm", "ggplot2", "gmodels", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
 }
   
 library(car)
@@ -341,7 +341,9 @@ Note that we do not have to use `model.matrix` for our decision tree algorithm h
 library(rpart)
 # Choose method="anova" for a regression tree
 # Instead of gini coefficient, select "information" inside the "parms" parameter
-dt <- rpart(Y ~ ., data = subset(Mroz, select = -lfp), method = "class", parms = list(split = 'information'))
+dt <- rpart(Mroz$lfp ~ ., data = subset(Mroz, select = -lfp),
+            method = "class",
+            parms = list(split = 'information'))
 
 # Here is the text-based display of the decision tree.
 print(dt)
@@ -398,8 +400,8 @@ table(Y)
 str(data)
 
 # split this data, similar to before
-str(train)
-str(test)
+str(train_X)
+str(test_X)
 ```
 
 Now, let's fit a model that tries to predict the number of women who participated in the labor force in 1975 again using the other variables as our X predictors: 
@@ -407,7 +409,7 @@ Now, let's fit a model that tries to predict the number of women who participate
 library(randomForest)
 set.seed(1)
 rf1 <- randomForest(train_label ~ ., 
-                    data = train, 
+                    data = train_X, 
                     # Number of trees
                     ntree = 500, 
                     # Number of variables randomly sampled as candidates at each split.
@@ -432,13 +434,14 @@ You can read up on the [gini coefficient](https://en.wikipedia.org/wiki/Gini_coe
 
 Now, the goal is to see how the model performs on the test dataset:
 ```{r}
-rf_pred <- predict(rf1, newdata = test)
+rf_pred <- predict(rf1, newdata = test_X)
 table(rf_pred, test_label)
 ```
 
 Check the accuracy of the test set:
 ```{r}
 mean(rf_pred == test_label) # 0.7377778
+summary(ck37r::rf_count_terminal_nodes(rf1))
 ```
 How did it do? Are the accuracies for the training and test sets similar?  
 
@@ -461,7 +464,7 @@ Remember, our data are still split from before:
 # view "Y" and "data"
 table(Y)
 str(data)
-nrow(train) + nrow(test) == nrow(data) # sanity check
+nrow(train_X) + nrow(test_X) == nrow(data) # sanity check
 ```
 
 Rather than testing only a single model at a time, it is useful to compare tuning parameters within that single model. Bootstrap is often a default, but we want cross-validation. We also want to specify different tuning parameters.  
@@ -496,8 +499,9 @@ library(pROC)
 set.seed(1)
 label_numeric = as.numeric(train_label == "yes")
 table(label_numeric, train_label)
+
 # cbind: caret expects the Y response and X predictors to be part of the same dataframe
-gbm1 <- train(train_label ~ ., data = cbind(train_label, train), 
+gbm1 <- train(train_label ~ ., data = cbind(train_label, train_X), 
 	method = "gbm",
 	# Use AUC as our performance metric, which caret incorrectly calls "ROC".
 	metric = "ROC",
@@ -516,10 +520,10 @@ gbm1
 summary(gbm1, las = 2)
 
 # Generate predicted values.
-gbm.pred <- predict(gbm1, test)
+gbm.pred <- predict(gbm1, test_X)
 
 # Generate class probabilities.
-gbm.prob <- predict(gbm1, test, type = "prob")
+gbm.prob <- predict(gbm1, test_X, type = "prob")
 
 # Define ROC characteristics.
 rocCurve <- roc(response = test_label,
