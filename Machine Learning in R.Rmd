@@ -432,7 +432,7 @@ You can read up on the [gini coefficient](https://en.wikipedia.org/wiki/Gini_coe
 
 Now, the goal is to see how the model performs on the test dataset:
 ```{r}
-rf_pred <- predict(rf1, newdata=test)
+rf_pred <- predict(rf1, newdata = test)
 table(rf_pred, test_label)
 ```
 
@@ -454,7 +454,7 @@ How did it do? Are the accuracies for the training and test sets similar?
 
 The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
 
-However, the cases that the model has difficulty predicting are _upweighted_ so that the model tries more assertively to predict them. This continues for multiple "boosting iterations", with a resample-based performance measure produced at each iteration. Error is measured on the weak learners so that even performing slightly better than random guessing improves accuracy fast (p.2). This method can drive down generalization error thus preventing overfitting (p. 5). While it is susceptible to noise, it is robust to outliers. (from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf).  
+However, the cases that the model has difficulty predicting are _upweighted_ so that the model tries more assertively to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). (from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf).  
 
 Remember, our data are still split from before:
 ```{r}
@@ -481,9 +481,9 @@ grid <- expand.grid(
   # Number of trees to fit, aka boosting iterations.
   n.trees = seq(500, 1500, by = 500),
   # Depth of the decision tree.
-	interaction.depth = c(1, 2, 3), 
+	interaction.depth = c(1, 3, 5), 
   # Learning rate: lower means the ensemble will adapt more slowly.
-	shrinkage = c(0.01, 0.05, 0.1),
+	shrinkage = c(0.001, 0.01, 0.1),
   # Stop splitting a tree if we only have this many obs in a tree node.
 	n.minobsinnode = 10)
 grid
@@ -496,7 +496,8 @@ library(pROC)
 set.seed(1)
 label_numeric = as.numeric(train_label == "yes")
 table(label_numeric, train_label)
-gbm1 <- train(train_label ~ ., data = cbind(train_label, train), # cbind: caret expects the Y response and X predictors to be part of the same dataframe
+# cbind: caret expects the Y response and X predictors to be part of the same dataframe
+gbm1 <- train(train_label ~ ., data = cbind(train_label, train), 
 	method = "gbm",
 	# Use AUC as our performance metric, which caret incorrectly calls "ROC".
 	metric = "ROC",
