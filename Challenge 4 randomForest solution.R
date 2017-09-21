@@ -1,5 +1,15 @@
 ### Challenge 4 randomForest solution
 
+##### 1. Change mtry
+
+rf <- randomForest(lfp ~ ., 
+                    data = train,
+                    ntree = 500,
+                    mtry = 10)
+
+##### 2. Change maxnodes
+
+##### 3. Different outcome variable.
 # Fit the model.
 rf2 <- randomForest(wc ~ ., 
                     data = train_rf,

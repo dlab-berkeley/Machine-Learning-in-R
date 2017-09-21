@@ -156,7 +156,7 @@ library(caret)
 set.seed(1)
 # Create a stratified random split
 split <- createDataPartition(Y, p=0.70, list=FALSE) 
-
+split
 train <- data[split, ] # partition training dataset
 test <- data[-split, ] # partition test dataset
 
@@ -420,9 +420,6 @@ table(rf_pred, test_label)
 Check the accuracy of the test set:
 ```{r}
 mean(rf_pred == test_label) # 0.7377778
-
-# Or, by hard-coding the table counts:
-(66 + 100) / nrow(test) # 0.7377778
 ```
 How did it do? Are the accuracies for the training and test sets similar?  
 
@@ -470,6 +467,7 @@ grid <- expand.grid(
 	shrinkage = c(0.01, 0.05, 0.1),
   # Stop splitting a tree if we only have this many obs in a tree node.
 	n.minobsinnode = 10)
+grid
 ```
 
 Fit the model. Note that we are now using the area under the ROC curve as our performance metric. This can be graphed for quick visualization: 
@@ -477,6 +475,8 @@ Fit the model. Note that we are now using the area under the ROC curve as our pe
 library(caret)
 library(pROC)
 set.seed(1)
+label_numeric = as.numeric(train_label == "yes")
+table(label_numeric, train_label)
 gbm1 <- train(train_label ~ ., data = cbind(train_label, train), # cbind: caret expects the Y response and X predictors to be part of the same dataframe
 	method = "gbm",
 	# Use AUC as our performance metric, which caret incorrectly calls "ROC".
@@ -484,7 +484,7 @@ gbm1 <- train(train_label ~ ., data = cbind(train_label, train), # cbind: caret 
 	trControl = control,
 	tuneGrid = grid,
 	# Keep output more concise.
-	verbose = FALSE)
+	verbose = T)
 
 # See how long this algorithm took to complete.
 gbm1$times 
@@ -563,6 +563,7 @@ cv_sl <- CV.SuperLearner(Y = Mroz$lfp, X = data,
                          cvControl = list(V = 5),
                          # Set to T to show details.
                          verbose = F)
+summary(cv_sl)
 ```
 
 Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:

@@ -1,5 +1,6 @@
 # split the data:
 Y_gbm <- Mroz$wc
+table(Y_gbm)
 
 # More model.matrix practice
 Mroz_gbm <- data.frame(model.matrix( ~ ., subset(Mroz, select = -wc)))
@@ -14,6 +15,9 @@ set.seed(1)
 split_gbm <- createDataPartition(Y_gbm, p=0.70, list=FALSE)
 train_gbm <- Mroz_gbm[split_gbm, ]
 test_gbm <- Mroz_gbm[-split_gbm, ]
+
+# Not the same due to stratification:
+table(split == split_gbm)
 
 train_gbm_label <- Y_gbm[split_gbm]
 test_gbm_label <- Y_gbm[-split_gbm]
@@ -31,13 +35,15 @@ control <- trainControl(method="repeatedcv",
 ### define the grid: 
 grid <- expand.grid(
   # Number of trees to fit, aka boosting iterations.
-  n.trees = seq(500, 1500, by = 500),
+  n.trees = seq(1000, 2500, by = 500),
   # Depth of the decision tree.
-  interaction.depth = c(1, 2, 3), 
+  interaction.depth = c(1, 3, 5), 
   # Learning rate: lower means the ensemble will adapt more slowly.
-  shrinkage = c(0.01, 0.05, 0.1),
+  shrinkage = c(0.01, 0.05),
   # Stop splitting a tree if we only have this many obs in a tree node.
   n.minobsinnode = 10)
+
+grid
 
 # we can also store our data inside a dataframe instead of cbinding it in-line:
 data_gbm <- data.frame(train_gbm_label, train_gbm)
@@ -57,5 +63,6 @@ gbm_wc <- train(train_gbm_label ~ ., data = data_gbm,
               verbose = FALSE)
 
 gbm_wc
+plot(gbm_wc)
 
 summary(gbm_wc, las=1)
