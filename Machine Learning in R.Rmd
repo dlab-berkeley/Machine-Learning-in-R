@@ -1,7 +1,7 @@
 ---
 title: "Introduction to Machine Learning in R"
 author: "Evan Muzzall and Chris Kennedy"
-date: "9/18/2017"
+date: "3/07/2018"
 output:
   html_document:
     toc: yes
@@ -62,15 +62,15 @@ Reinforcement learning:
 - [DeepMind blog](https://deepmind.com/blog/understanding-agent-cooperation/) 
 
 ### 3.  Supervised machine learning
-Selecting a machine learning algorithm depends on the characteristics of the problem being investigated. Machine learning is generally divided into three broad classes: supervised, unsupervised, and reinforcement. In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
+Selecting a machine learning algorithm depends on the characteristics of the problem being investigated. Machine learning is generally divided into three broad classes: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
 
-Supervised machine learning algorithms learn a target function _f_ that best maps to a dependent/response/target/outcome variable `Y` based on independent/input/predictor variable(s) `X1, X2, X3,... Xn`. The algorithm then tries to predict `Y` using new data for `X`. These predictions are influenced by bias, variance, and irreducible error.  
+Supervised machine learning algorithms learn a target function _f_ that best maps to a dependent/response/target/outcome variable `Y` based on independent/input/predictor variable(s) `X1, X2, X3,... Xn` from a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). The algorithm then tries to predict `Y` using new test data for `X`. These predictions are influenced by bias, variance, and irreducible [error](https://machinelearningmastery.com/gentle-introduction-to-the-bias-variance-trade-off-in-machine-learning/).  
 
 - More simply, supervised machine learning algorithms train with known data to predict classification of new data.  
-- See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf) to learn more.  
+- See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/) to learn more.  
 
 ##### 3.1 Classification or regression?
-**Classification** is used when the `Y` variable is discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" classification and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
+**Classification** is used when the `Y` variable is discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" category and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
 
 **Regression** is used when the target Y variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
 
@@ -84,34 +84,35 @@ Examples:
 
 ### 4.  Data preprocessing and performance metrics
 ##### 4.1 Data preprocessing
-A longstanding first step is to split a dataset into **"training" and "test" subsets.** A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance.  
+A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has nt yet seen.  
 
 ##### 4.2 Model performance
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
-- A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between `X` and `Y`.  
+- A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between `X` and `Y` variables.  
 - A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data. 
 
 ##### 4.3 Common performance metrics
 - Accuracy  
 - Mean squared error  
 - True positives and true negatives (also see:  https://uberpython.wordpress.com/2012/01/01/precision-recall-sensitivity-and-specificity)
-- Area under the ROC curve  
+- Area under the ROC curve (AUC)  
 - Cross validated error  
 
 Learn more:
-- [Jason Brownlee - How to Evaluate Machine Learning Algorithms](http://machinelearningmastery.com/how-to-evaluate-machine-learning-algorithms/) and - [Assessing and Comparing Classifier Performance with ROC Curves](http://machinelearningmastery.com/assessing-comparing-classifier-performance-roc-curves-2/)  
+- [Jason Brownlee - How to Evaluate Machine Learning Algorithms](http://machinelearningmastery.com/how-to-evaluate-machine-learning-algorithms/) and [Assessing and Comparing Classifier Performance with ROC Curves](http://machinelearningmastery.com/assessing-comparing-classifier-performance-roc-curves-2/)  
 - [An Introduction to Statistical Learning - ROC, pp.147-149](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf)  
 - [R-bloggers - cross validation example](https://www.r-bloggers.com/cross-validation-for-predictive-analytics-using-r/)  
 - [Rob J. Hyndman - why every statistician should know about cross-validation](http://robjhyndman.com/hyndsight/crossvalidation/)  
 
 ### 5.  Workshop goals
 ##### 5.1 General goals
-- Practice coding individual machine learning algorithms in R  
-- Vizualize outputs  
+- Learn a few basics and practice coding individual machine learning algorithms in R  
 - Examine model performance  
 - Construct ensembles to simultaneously compare multiple algorithms  
+- Vizualize outputs  
+
 ##### 5.2 Specific goals
-- Check out the [`car` package](https://cran.r-project.org/web/packages/car/index.html) and original [research paper](http://eml.berkeley.edu/~cle/e250a_f13/mroz-paper.pdf).  
+- Check out the [`car` package](https://cran.r-project.org/web/packages/car/index.html) and original [research paper](http://eml.berkeley.edu/~cle/e250a_f13/mroz-paper.pdf) for the Mroz dataset.  
 - **Binary classification:** did a woman participate in the United States labor force in the year 1975? (yes = 1, no = 0)  
 - **Regression:** predict the continuous "expected log wage rate" variable  
 
@@ -129,7 +130,8 @@ str(Mroz)
 ?Mroz 
 
 # load iris dataset for challenge questions
-data(iris) 
+data(iris)
+str(iris)
 ?iris
 ```
 
@@ -164,11 +166,12 @@ data <- data[, -1]
 names(data)
 
 # view variable distributions
-boxplot(data)
+summary(data)
 ```
+
 > Remember! 
 - `Y` contains the `Mroz$lfp` variable.  
-- `data` contains the expanded predictor variables and not `Mroz$lfp`.  
+- `data` contains the predictor variables but not `Mroz$lfp`.  
 
 ##### 1.2 knn - split the dataset
 - assign 70% of the data to training dataset.  
@@ -228,7 +231,7 @@ data_scaled <- scale(data, center = TRUE, scale = TRUE)
 
 # Look at the new distribution.
 summary(data_scaled)
-boxplot(data_scaled, las=2)
+summary(data_scaled)
 ```
 
 Repeat the process:  
@@ -389,7 +392,7 @@ Here, each node shows the cutoff for each of the predictors and how it contribut
 2. What are the "minsplit" and "cp" hyperparameters within the "control" parameter? How might you go about figuring out what these are?  
 HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit = 20, cp = 0.001)`  
 
-# 8. Random forests
+# 4. Random forests
 Random forest is an algorithm that seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest is an **ensemble** method, or model averaging approach. The algorithm was invented by Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see 1984 CART book).
 
 Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"), an algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used any algorithm, RF uses decision trees as its base learner. Random Forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
@@ -451,7 +454,7 @@ How did it do? Are the accuracies for the training and test sets similar?
 2. Maxnodes is another tuning parameter for randomForest - does changing it improve your performance?
 3. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. How is the fit of the model for this variable?  
 
-# 8. Boosting
+# 5. Boosting
 
 "Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  
 
@@ -546,7 +549,7 @@ Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages
 
 1. Using your Mroz dataset, fit a GBM model where "wc" is your Y variable. What happens to variable relative importance? What happens to AUC?
 
-# 9. Ensemble methods
+# 6. Ensemble methods
 
 The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
 
