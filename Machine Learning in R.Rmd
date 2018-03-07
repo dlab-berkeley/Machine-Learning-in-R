@@ -369,7 +369,7 @@ print(dt)
 
 # The plot is much easier to interpret.
 library(rpart.plot)
-rpart.plot(dt, cex = 1)
+rpart.plot(dt, cex = 1, type = 4, extra = 101)
            # shadow.col = "lightgray", 
            
 # Variable importance is also informative:
