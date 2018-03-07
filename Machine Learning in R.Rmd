@@ -300,7 +300,7 @@ It also helps to investigate the cross-validated errors for multiple k-values at
 library(chemometrics)
 set.seed(1)
 knn_k <- knnEval(data_scaled, Y, split, 
-                 knnvec=seq(1, 51, by = 5), 
+                 knnvec=seq(1, 51, by = 1), 
                  legpo="bottomright", las = 2)
 ```
 A combination of scaling the data and searching for the best cross-validated "k" is ideal.  
