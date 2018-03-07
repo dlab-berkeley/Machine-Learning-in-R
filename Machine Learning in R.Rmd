@@ -33,7 +33,7 @@ library(rpart.plot)
 library(SuperLearner)
 ```
 
-### 2. The briefest history of machine learning
+### 2. Brief history of machine learning
 Machine learning evolved from scientific pursuits in computational/information theory, artificial intelligence, and pattern recognition.  
 
 How to define machine learning?  
@@ -41,32 +41,41 @@ How to define machine learning?
 A proto-example:  
 - [17th C. - Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html)  
 Rapid advances:  
-- [1943 - McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html) 
+- [1943 - McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html)  
 - [1950 - Turing test](http://www.jstor.org/stable/pdf/2251299.pdf)  
 - [1958 - Rosenblatt's perceptron](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
 - [1959 - Samuels and the game of checkers](http://ucelinks.cdlib.org:8888/sfx_local?sid=google&auinit=AL&aulast=Samuel&atitle=Some+studies+in+machine+learning+using+the+game+of+checkers&id=doi:10.1147/rd.33.0210&title=IBM+Journal+of+Research+and+Development&volume=3&issue=3&date=1959&spage=210&issn=0018-8646)  
+
 Modern topics:  
 - [2003 - Turing Test: 50 years later](http://www.cs.bilkent.edu.tr/~akman/jour-papers/mam/mam2000.pdf)  
+
 - [computer vision](http://www.sciencedirect.com/science/article/pii/S1071581916301264)  
+
 - [data cleaning](https://s3.amazonaws.com/academia.edu.documents/41858217/A00DEC-CD.pdf?AWSAccessKeyId=AKIAIWOWYYGZ2Y53UL3A&Expires=1505795993&Signature=IHl0cO4N0T6tT6xdjNPZnOuloJ4%3D&response-content-disposition=inline%3B%20filename%3DAutomatically_extracting_structure_from.pdf#page=5)  
+
 - [machine learning software](http://dl.acm.org/citation.cfm?id=3106683)  
+
 - [robotics](https://arxiv.org/abs/1708.04677)  
-- [cloud computing](https://arxiv.org/abs/1707.07452)  
-- etc. 
+
+- [cloud computing](https://arxiv.org/abs/1707.07452), etc...  
+
 The importance of statistics:  
 - [Welling's commentary](https://www.ics.uci.edu/~welling/publications/papers/WhyMLneedsStatistics.pdf)  
-[Srivastava's discussion](https://www.analyticsvidhya.com/blog/2015/07/difference-machine-learning-statistical-modeling/) 
+
+[Srivastava's discussion](https://www.analyticsvidhya.com/blog/2015/07/difference-machine-learning-statistical-modeling/)  
+
 Seek "actionable insight":  
-- ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight) 
+- ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
+
 Reinforcement learning:  
-- [DeepMind blog](https://deepmind.com/blog/understanding-agent-cooperation/) 
+- [DeepMind blog](https://deepmind.com/blog/understanding-agent-cooperation/)  
 
 ### 3.  Supervised machine learning
 Selecting a machine learning algorithm depends on the characteristics of the problem being investigated. Machine learning is generally divided into three broad classes: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
 
-Supervised machine learning algorithms learn a target function _f_ that best maps to a dependent/response/target/outcome variable `Y` based on independent/input/predictor variable(s) `X1, X2, X3,... Xn` from a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). The algorithm then tries to predict `Y` using new test data for `X`. These predictions are influenced by bias, variance, and irreducible [error](https://machinelearningmastery.com/gentle-introduction-to-the-bias-variance-trade-off-in-machine-learning/).  
+Supervised machine learning algorithms learn a target function _f_ that best maps to a dependent/response/target/outcome variable `Y` based on independent/input/predictor variable(s) `X1, X2, X3,... Xn` from a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). The algorithm then tries to predict `Y` using new test data for `X`. It is then evaluated using some sort of performance metric. These predictions are influenced by bias, variance, reducible error, and irreducible [errors](https://machinelearningmastery.com/gentle-introduction-to-the-bias-variance-trade-off-in-machine-learning/).  
 
-- More simply, supervised machine learning algorithms train with known data to predict classification of new data.  
+- More simply, supervised machine learning algorithms train with known data to predict classification of new data to predict an output using some sort of inputs.  
 - See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/) to learn more.  
 
 ##### 3.1 Classification or regression?
@@ -76,25 +85,30 @@ Supervised machine learning algorithms learn a target function _f_ that best map
 
 Examples:  
 - [Text analysis](http://www.digitalhumanities.org/dhq/vol/3/2/000041/000041.html)  
+
 - [Network analysis](http://www.digitalhumanities.org/dhq/vol/3/2/000044/000044.html)  
+
 - [Real estate](https://arxiv.org/pdf/1609.08399.pdf)  
+
 - [Climate science](http://www.geosci-model-dev-discuss.net/gmd-2015-273/gmd-2015-273.pdf)  
+
 - [Voter turnout](http://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.28.2.51)  
+
 - [Public health](http://journals.plos.org/plosntds/article?id=10.1371/journal.pntd.0004549)  
 
 ### 4.  Data preprocessing and performance metrics
 ##### 4.1 Data preprocessing
-A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has nt yet seen.  
+A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen.  
 
 ##### 4.2 Model performance
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 - A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between `X` and `Y` variables.  
-- A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data. 
+- A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data - the patterns found in the test data simply might not exist in the test data.  
 
 ##### 4.3 Common performance metrics
 - Accuracy  
 - Mean squared error  
-- True positives and true negatives (also see:  https://uberpython.wordpress.com/2012/01/01/precision-recall-sensitivity-and-specificity)
+- True positives and true negatives (see:  https://uberpython.wordpress.com/2012/01/01/precision-recall-sensitivity-and-specificity)
 - Area under the ROC curve (AUC)  
 - Cross validated error  
 
@@ -288,7 +302,7 @@ A combination of scaling the data and searching for the best cross-validated "k"
 
 ### Challenge 1  
 1. What happens to accuracy when k = 2, 10, or 20?  
-2. What is the optimal k-value from the cross-validation plot? What happens to the predictive accuracy when you switch k to this value?  
+2. What happens when you set k to 17, the optimal value from the cross-validation plot? What happens to the predictive accuracy when you switch k to this value?  
 3. Using what you learned above, classify predictive accuracies of the `Species` variable in the  "iris" dataset. 
 
 # 2.  Linear regression
@@ -313,6 +327,7 @@ str(data2)
 ```
 
 - Fit a model that predicts the `Y` variable log wage gap (`lwg`) using the other variables as predictors.  
+
 - Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
 ```{r}
 # Fit the regression model.
@@ -336,7 +351,8 @@ See the [yhat blog for Fitting & Interpreting Linear Models in R](http://blog.yh
 2) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
 # 3.  Decision trees 
-- Decision trees are recursive partitioning methods that attempt to classify data by dividing it into subsets according to a `Y` output variable and based on some predictors.  
+- Decision trees are recursive partitioning methods that divides the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decesion trees attempt to classify data by dividing it into subsets according to a `Y` output variable and based on some predictors.  
+
 - Let's see how a tree-based method classifies women's participation in the workforce.  
 
 Note that we do not have to use `model.matrix` for our decision tree algorithm here:
@@ -348,7 +364,7 @@ dt <- rpart(Mroz$lfp ~ ., data = subset(Mroz, select = -lfp),
             method = "class",
             parms = list(split = 'information'))
 
-# Here is the text-based display of the decision tree.
+# Here is the text-based display of the decision tree. Yikes! 
 print(dt)
 
 # The plot is much easier to interpret.

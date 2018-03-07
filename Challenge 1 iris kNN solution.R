@@ -4,16 +4,23 @@ set.seed(1)
 data_predicted_scaled2 <- knn(train = train_scaled,
                         test = test_scaled, 
                         cl = train_label_scaled,
-                        k = 31, prob = TRUE)
+                        k = 2, prob = TRUE)
 library(gmodels)
 CrossTable(x = test_label_scaled, y = data_predicted_scaled2, 
            prop.chisq = FALSE,
            prop.r = FALSE,
            prop.c = FALSE,
            prop.t = FALSE)
-
 # Compute accuracy
 mean(test_label_scaled == data_predicted_scaled2)
+
+# k = 17
+set.seed(1)
+data_predicted_scaled3 <- knn(train = train_scaled,
+                              test = test_scaled, 
+                              cl = train_label_scaled,
+                              k = 17, prob = TRUE)
+mean(test_label_scaled == data_predicted_scaled3)
 
 ### Challenge 1: iris knn solution
 # Load data.
@@ -61,4 +68,4 @@ ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species, shape = Spe
   geom_point(size = 5, alpha = 1) + 
   ggtitle("iris petal lengths and widths") + 
   theme_bw() + 
-  theme(plot.title = element_text(hjust = 0.5))
+  theme(plot.title = element_text(hjust = 0.5)) 
