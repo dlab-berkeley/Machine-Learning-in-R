@@ -13,7 +13,7 @@ output:
 ```{r, eval = F}
 if (FALSE) {
   # Run this line manually to install the necessary packages.
-  install.packages(c("car", "caret","chemometrics", "class", "doParallel", "gbm", "ggplot2", "gmodels", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
+  install.packages(c("car", "caret","chemometrics", "class", "devtools", "doParallel", "gbm", "ggplot2", "gmodels", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
 }
   
 library(car)
@@ -460,6 +460,7 @@ table(rf_pred, test_label)
 Check the accuracy of the test set:
 ```{r}
 mean(rf_pred == test_label) # 0.7377778
+# devtools::install_github("ck37/ck37r")
 summary(ck37r::rf_count_terminal_nodes(rf1))
 ```
 How did it do? Are the accuracies for the training and test sets similar?  
