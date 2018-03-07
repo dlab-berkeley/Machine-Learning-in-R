@@ -158,7 +158,7 @@ str(iris)
 ?iris
 ```
 
-### 1.  k-nearest neighbor (knn)
+# 1.  k-nearest neighbor (knn)
 The k-nearest neighbor (knn) makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it.  
 
 [Euclidean distances]((https://en.wikipedia.org/wiki/Euclidean_distance)) between points are used in this example. 
