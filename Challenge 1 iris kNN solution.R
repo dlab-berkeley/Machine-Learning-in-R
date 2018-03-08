@@ -4,7 +4,7 @@ set.seed(1)
 data_predicted_scaled2 <- knn(train = train_scaled,
                         test = test_scaled, 
                         cl = train_label_scaled,
-                        k = 2, prob = TRUE)
+                        k = 41, prob = TRUE)
 library(gmodels)
 CrossTable(x = test_label_scaled, y = data_predicted_scaled2, 
            prop.chisq = FALSE,
@@ -32,6 +32,7 @@ str(iris)
 Y_iris  <- iris$Species
 
 X_iris <- iris[, 1:4]
+X_iris <- scale(X_iris, scale = T, center = T)
 
 # Split the data.
 library(caret)

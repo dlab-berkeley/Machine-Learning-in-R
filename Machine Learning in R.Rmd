@@ -15,7 +15,7 @@ Be sure to check out the D-Lab [Machine Learning Working Group](http://dlab.berk
 ```{r, eval = F}
 if (FALSE) {
   # Run this line manually to install the necessary packages.
-  install.packages(c("car", "caret","chemometrics", "class", "devtools", "doParallel", "gbm", "ggplot2", "gmodels", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
+install.packages(c("car", "caret","chemometrics", "class", "devtools", "doParallel", "gbm", "ggplot2", "gmodels", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
 }
   
 library(car)
@@ -250,7 +250,6 @@ data_scaled <- scale(data, center = TRUE, scale = TRUE)
 
 # Look at the new distribution.
 summary(data_scaled)
-summary(data_scaled)
 ```
 
 Repeat the process:  
@@ -301,7 +300,7 @@ library(chemometrics)
 set.seed(1)
 knn_k <- knnEval(data_scaled, Y, split, 
                  knnvec=seq(1, 51, by = 1), 
-                 legpo="bottomright", las = 2)
+                 legpo="bottomright", las = 3)
 ```
 A combination of scaling the data and searching for the best cross-validated "k" is ideal.  
 
@@ -348,6 +347,7 @@ data2_predicted <- predict(data2_lm, data2)
 MSE <- mean((Y2 - data2_predicted)^2)   
 
 MSE
+sqrt(MSE)
 ```
 See the [yhat blog for Fitting & Interpreting Linear Models in R](http://blog.yhat.com/posts/r-lm-summary.html) to learn more about `lm` output.  
 
