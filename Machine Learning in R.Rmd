@@ -71,7 +71,7 @@ The importance of statistics:
 Seek "actionable insight":  
 - ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
 
-#1. Supervised machine learning
+# Supervised machine learning
 Selecting a machine learning algorithm depends on the characteristics of the problem being investigated. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
@@ -86,7 +86,7 @@ Supervised machine learning methods learn a target function $f$ that best maps X
 **How to define machine learning? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$. See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/) to learn more.  
 
-#1.1 Classification or regression?
+# Classification or regression?
 **Classification** is used when the `Y` variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" category and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
 
 **Regression** is used when the target Y variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
@@ -104,18 +104,18 @@ Examples:
 
 - [Public health](http://journals.plos.org/plosntds/article?id=10.1371/journal.pntd.0004549)  
 
-#2.  Data preprocessing and performance metrics
-###2.1 Data preprocessing
+# Data preprocessing and performance metrics
+### Data preprocessing
 A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen.  
 
-#2.2 Model performance
+# Model performance
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
 A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between `X` and `Y` variables.  
 
 A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data - the patterns found in the test data simply might not exist in the test data.  
 
-###2.3 Common performance metrics
+### Common performance metrics
 *Accuracy  
 *Mean squared error  
 *Sensitivity and specificity  
@@ -129,32 +129,32 @@ Learn more:
 *[R-bloggers - cross validation example](https://www.r-bloggers.com/cross-validation-for-predictive-analytics-using-r/)  
 *[Rob J. Hyndman - why every statistician should know about cross-validation](http://robjhyndman.com/hyndsight/crossvalidation/)  
 
-#3.  Workshop goals
-###3.1 General goals
+# Workshop goals
+### General goals
 1)Learn the basics of coding individual machine learning algorithms in R  
 2)Examine the performances of these models  
 3)Construct ensembles to simultaneously compare multiple algorithms  
 4)Vizualize outputs  
 
-###3.2 Specific goals
+### Specific goals
 *Check out the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) and original [research paper](http://eml.berkeley.edu/~cle/e250a_f13/mroz-paper.pdf) to view information about the `PimaIndiansDiabetes2` dataset.  
 
 We ask the following questions:
-1) **Binary classification examples:** How reliably can a person's diabetes status be predicted using the other variables? 
-2) **Regression example:** How well can a person's age be predicted based on the other variables and what is the importance of having diabetes or not?  
+1) **Binary classification examples:** How reliably can machine learning algorithms predict a person's diabetes status using the other variables?  
+2) **Regression example:** How well can a person's age be predicted using the other variables?  
 
-# Algorithm walkthroughs
-Load the Mroz and iris datasets
+# Load the data
+Load the `PimaIndiansDiabetes2` and `iris` datasets
 ```{r}
 library(mlbench)
 # load the Mroz dataset
 data("PimaIndiansDiabetes2") 
 
 # view basic info
-str(Mroz) 
+str(PimaIndiansDiabetes2) 
 
 # read variable descriptions
-?Mroz 
+?PimaIndiansDiabetes2
 
 # also load iris dataset for challenge questions
 data(iris)
@@ -162,10 +162,17 @@ str(iris)
 ?iris
 ```
 
-# 1.  k-nearest neighbor (knn)
-The k-nearest neighbor (knn) makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it.  
+##### Data preprocessing
+```{r}
 
-[Euclidean distances]((https://en.wikipedia.org/wiki/Euclidean_distance)) between points are used in this example. 
+```
+
+# Algorithm walkthroughs
+
+#1.  k-nearest neighbor (knn)
+The k-nearest neighbor (knn) makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. 
+[Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
+
 `k` is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. *Large k-values* could be bad because the class with the largest size might win regardless of influence of more proximate points. *Small k-values* might also be bad because neighboring points might become overly influential.  
 
 ##### 1.1 knn - data preprocessing
