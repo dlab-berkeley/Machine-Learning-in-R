@@ -11,7 +11,7 @@ output:
 # Introduction 
 Be sure to check out the D-Lab [Machine Learning Working Group](http://dlab.berkeley.edu/working-groups/machine-learning-working-group-0) to learn more about machine learning in both R and Python, give a lightning talk, lead a coding walkthrough, and participate in other projects.  
 
-### 1. Package installation
+# Package installation
 ```{r, eval = F}
 if (FALSE) {
   # Run this line manually to install the necessary packages.
@@ -35,12 +35,12 @@ library(rpart.plot)
 library(SuperLearner)
 ```
 
-### 2. Brief history of machine learning
+# Brief history of machine learning
 Machine learning evolved from scientific pursuits in computational/information theory, artificial intelligence, and pattern recognition.  
 
 How to define machine learning?  
-* Algorithms, computers, and other machines that can "learn" without direct input from a programmer.  
-* A suite of tools for investigating/modeling/understanding complex datasets.  
+1) Algorithms, computers, and other machines that can "learn" without direct input from a programmer.  
+2) A suite of tools for investigating/modeling/understanding complex datasets.  
 
 A proto-example:  
 - [17th C. - Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html)  
@@ -55,9 +55,9 @@ Modern topics:
 
 - [computer vision](http://www.sciencedirect.com/science/article/pii/S1071581916301264)  
 
-- [data cleaning](https://s3.amazonaws.com/academia.edu.documents/41858217/A00DEC-CD.pdf?AWSAccessKeyId=AKIAIWOWYYGZ2Y53UL3A&Expires=1505795993&Signature=IHl0cO4N0T6tT6xdjNPZnOuloJ4%3D&response-content-disposition=inline%3B%20filename%3DAutomatically_extracting_structure_from.pdf#page=5)  
+- [data cleaning](http://www.betterevaluation.org/sites/default/files/data_cleaning.pdf)  
 
-- [machine learning software](http://dl.acm.org/citation.cfm?id=3106683)  
+- [machine learning software, tools, and methods](http://achcoop.ca/Data%20Mining%20Practical%20Machine%20Learning%20Tools%20and%20Techniques/)  
 
 - [robotics](https://arxiv.org/abs/1708.04677)  
 
@@ -71,19 +71,22 @@ The importance of statistics:
 Seek "actionable insight":  
 - ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
 
-Reinforcement learning:  
-- [DeepMind blog](https://deepmind.com/blog/understanding-agent-cooperation/)  
-
-### 3.  Supervised machine learning
+#1. Supervised machine learning
 Selecting a machine learning algorithm depends on the characteristics of the problem being investigated. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
 
-Supervised machine learning algorithms learn a target function _f_ that best maps to a dependent/response/target/outcome variable `Y` based on independent/input/predictor variable(s) `X1, X2, X3,... Xn` from a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). The algorithm then tries to predict `Y` using new test data for the `X` variables. It is then evaluated using some sort of performance metric. These predictions are influenced by bias, variance, reducible error, and irreducible [errors](https://machinelearningmastery.com/gentle-introduction-to-the-bias-variance-trade-off-in-machine-learning/).  
+The syntax for supervised machine learning algorithms can be thought of like this:  
 
-More simply, supervised machine learning algorithms estimate an output using inputs by training a model on known data. We hope that this model is consistent when it tried to predict on new data. This takes the form $Y = f(X) + \epsilon$. Y is the dependent/response/outcome/target variable, X is the independent/input/predictor variable(s). The function _f_ relates X to Y but this is unknown and we must estimate it. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero.  
+Y ~ X~1~ + X~2~ + X~3~… X~n~
 
-*Machine learning definition revisited: more specifically, we could think of machine learning as a bunch of methods to estimate $f$ Thus, we can predict Y using $\hat{y} = \hat{f}(X)$. See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/) to learn more.  
+Y is the dependent/response/target/outcome variable  
+X are the independent/input/predictor/feature variables.  
 
-##### 3.1 Classification or regression?
+Supervised machine learning methods learn a target function $f$ that best maps X to Y based on a set of training data [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). The function _f_ relates X to Y but this is unknown and we must estimate it. Thus, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (test dataset) and evaluate how well the algorithm learned the target function when introduced to new data. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero.  
+
+**How to define machine learning? (revisited)**  
+More specifically, we can think of machine learning as a bunch of methods to estimate $f$. See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/) to learn more.  
+
+#1.1 Classification or regression?
 **Classification** is used when the `Y` variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" category and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
 
 **Regression** is used when the target Y variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
@@ -101,50 +104,51 @@ Examples:
 
 - [Public health](http://journals.plos.org/plosntds/article?id=10.1371/journal.pntd.0004549)  
 
-### 4.  Data preprocessing and performance metrics
-##### 4.1 Data preprocessing
+#2.  Data preprocessing and performance metrics
+###2.1 Data preprocessing
 A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen.  
 
-##### 4.2 Model performance
+#2.2 Model performance
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
 A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between `X` and `Y` variables.  
 
 A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data - the patterns found in the test data simply might not exist in the test data.  
 
-##### 4.3 Common performance metrics
+###2.3 Common performance metrics
 *Accuracy  
 *Mean squared error  
-*True positives and true negatives (https://uberpython.wordpress.com/2012/01/01/precision-recall-sensitivity-and-specificity)
+*Sensitivity and specificity  
 *Area under the ROC curve (AUC)  
 *Cross validated error  
 
 Learn more:
 *[Jason Brownlee - How to Evaluate Machine Learning Algorithms](http://machinelearningmastery.com/how-to-evaluate-machine-learning-algorithms/) and [Assessing and Comparing Classifier Performance with ROC Curves](http://machinelearningmastery.com/assessing-comparing-classifier-performance-roc-curves-2/)  
+*[Sensitivity and specificity](https://uberpython.wordpress.com/2012/01/01/precision-recall-sensitivity-and-specificity)
 *[An Introduction to Statistical Learning - ROC, pp.147-149](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf)  
 *[R-bloggers - cross validation example](https://www.r-bloggers.com/cross-validation-for-predictive-analytics-using-r/)  
 *[Rob J. Hyndman - why every statistician should know about cross-validation](http://robjhyndman.com/hyndsight/crossvalidation/)  
 
-### 5.  Workshop goals
-##### 5.1 General goals
-*Learn a few basics and practice coding individual machine learning algorithms in R  
-*Examine model performance  
-*Construct ensembles to simultaneously compare multiple algorithms  
-*Vizualize outputs  
+#3.  Workshop goals
+###3.1 General goals
+1)Learn the basics of coding individual machine learning algorithms in R  
+2)Examine the performances of these models  
+3)Construct ensembles to simultaneously compare multiple algorithms  
+4)Vizualize outputs  
 
-##### 5.2 Specific goals
-*Check out the [`car` package](https://cran.r-project.org/web/packages/car/index.html) and original [research paper](http://eml.berkeley.edu/~cle/e250a_f13/mroz-paper.pdf) for the Mroz dataset.  
+###3.2 Specific goals
+*Check out the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) and original [research paper](http://eml.berkeley.edu/~cle/e250a_f13/mroz-paper.pdf) to view information about the `PimaIndiansDiabetes2` dataset.  
 
 We ask the following questions:
-1) **Binary classification examples:** did a woman participate in the United States labor force in the year 1975? (yes = 1, no = 0)  
-2) **Regression example:** what does a prediction for the continuous "expected log wage rate" variable look like?  
+1) **Binary classification examples:** How reliably can a person's diabetes status be predicted using the other variables? 
+2) **Regression example:** How well can a person's age be predicted based on the other variables and what is the importance of having diabetes or not?  
 
 # Algorithm walkthroughs
 Load the Mroz and iris datasets
 ```{r}
-library(car)
+library(mlbench)
 # load the Mroz dataset
-data(Mroz) 
+data("PimaIndiansDiabetes2") 
 
 # view basic info
 str(Mroz) 
