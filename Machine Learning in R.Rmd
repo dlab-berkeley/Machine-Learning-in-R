@@ -104,7 +104,7 @@ A model that performs poorly on the training dataset is **underfit** because it 
 
 A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data - the patterns found in the test data could not be discerned or simply might not exist in the test data.  
 
-### Common performance metrics
+##### Common performance metrics
 *Accuracy  
 *Mean squared error  
 *Sensitivity and specificity  
@@ -112,38 +112,47 @@ A model that performs well on the training dataset but poorly on the test datase
 *Cross validated error  
 
 # Workshop goals
-### General goals
+##### General goals
 1) Learn the basics of coding six machine learning algorithms in R:  
-  *k-nearest neighbor
-  *linear regression
-  *decision tree
-  *random forest
-  *boosting
-  *SuperLearner ensemble
+  - k-nearest neighbor  
+  - linear regression  
+  - decision tree  
+  - random forest  
+  - boosting  
+  - SuperLearner  
 2) Examine the performances of these models  
-3) Construct ensembles to simultaneously compare multiple algorithms  
-4) Vizualize outputs  
+3) Simultaneously compare multiple algorithms in an ensemble  
+4) Vizualize important information:  
+  - knn accuracy tables  
+  - decision trees  
+  - random forest relative variable importance  
+  - random forest variable importance  
+  - AUC from different boosting models  
+  - SuperLearner cross-validated risk  
 
-### Specific goals
+##### Specific goals
 Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) to investigate the following questions:  
 
 1) **Binary classification examples:** How reliably can machine learning algorithms predict a person's diabetes status using the other variables?  
 2) **Regression example:** How well can a person's age be predicted using the other variables?  
 
+What are these other variables?
+
 # Load the data
 Load the `PimaIndiansDiabetes2` and `iris` datasets
 ```{r}
 library(mlbench)
-# load the Mroz dataset
+
+# load the PimaIndiansDiabetes2 dataset
 data("PimaIndiansDiabetes2") 
 
 # read variable descriptions
 ?PimaIndiansDiabetes2
 
-# rename the dataset to something simpler to type (pidd = "Pima Indians Diabetes Dataset")
+# rename the dataset to something simpler (pidd = "Pima Indians Diabetes Dataset")
 pidd = PimaIndiansDiabetes2 
 
-# view basic info
+# view the sturcture of pidd
 str(pidd) 
 
 # also load iris dataset for challenge questions
@@ -152,34 +161,33 @@ str(iris)
 ?iris
 ```
 
-##### Data preprocessing
-Drata peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly identify your Y and X variables and split your data into training and test sets when neeeded.  
+# Data preprocessing
+Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly identify your Y and X variables and appropriately split your data into training and test sets if neeeded.  
 
-> One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees are the main exception). When we predict age in our regression example below, we will do this manually for good practice although functions like the `lm` function will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
+One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). When we predict age in our regression example below, we will do this manually for the "diabetes" column to practice. However, functions like the `lm` function will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
 
-- **k-nearest neighbor, decision tree, random forest, boosting, and SuperLearner algorithms:** we want to remove our Y variable from our dataframe of X features and store it as its own object then split the data into training and test sets. 
-- **linear regression:** we will similarly remove our Y outcome from our dataframe of X predictors, but this time will both 1) split the data into training and test sets _and_ 2) we will train the same model on _all of the data_ using R's handy `predict` function to create a test set based on predicted values from all of the data. 
+> NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data is used and multiple training/testing configurations are utilized. 
 
-> NOTE: Keep in mind that training/test dataset splitting is common, but not always necessary. We will introduce you to cross-validation in the second half of this workshop. 
+# Handling missing data
+Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
 
-##### Handling missing data
-First, like many "tasks" involving computing, statistics, and number theory, missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful informaiton. Many advocate for mean imputation, but arithmetic means are often too sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
-
-However, median imputation is demonstrated below for the classification examples (we will use listwise deletion for our regression example). 
+However, median imputation is demonstrated below for the classification examples 
 ```{r}
 # First, count the number of missing cases in our pidd dataset
 sum(is.na(pidd)) # 652 missing cases
 
 # Then, compute the proportion of missing cases in pidd
-sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of pidd is missing
+sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of cases pidd is missing
 ```
 
-Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will have some additional columns to our data frame. 
+Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
 
 Neither the "diabetes" nor "age" columns have any missing cases, so we can go ahead and impute the whole dataset! 
 ```{r}
 library(ck37r)
-result = ck37r::impute_missing_values(pidd)
+
+# run the median impute function
+result = impute_missing_values(pidd)
 
 # Use the imputed dataframe.
 pidd = result$data
@@ -188,12 +196,12 @@ pidd = result$data
 str(pidd)
 
 # No more missing data! 
-sum(is.na(pidd))
+sum(is.na(pidd)) # 0 missing cases
 ```
 
 # Defining Y outcome vectors and X feature dataframes
-### Classification setup
-Assign outcome to its own vector for **CLASSIFICATION tasks:** k-nearest neighbor, decision tree, random forest, boosting, and SuperLearner algorithms. However, keep in mind that these algorithms can also perform regression!
+##### Classification setup
+Assign outcome to its own vector for **CLASSIFICATION tasks:** k-nearest neighbor, decision tree, random forest, gradient boosting, and SuperLearner algorithms. However, keep in mind that these algorithms can also perform regression!
 ```{r}
 # View pidd variable names
 names(pidd)
@@ -202,7 +210,7 @@ names(pidd)
 Y = pidd$diabetes
 head(Y, n = 20)
 
-# 2) Then, convert "pos" to 1 and "neg" to 0
+# 2) Then, convert "pos" to 1 and "neg" to 0. Many algorithms expect 1's for the positive class and 0's for the negative class.
 Y = ifelse(Y == "pos", 1, 0)
 head(Y, n = 20)
 
@@ -214,6 +222,7 @@ head(data) # "diabetes" column has been successfully removed
 We then can take the "traditional" approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
 ```{r}
 library(caret)
+
 # set seed for reproducibility
 set.seed(1)
 
@@ -227,6 +236,7 @@ test_X <- data[-classification_split, ] # partition test dataset
 train_label <- Y[classification_split] # partition training Y vector labels
 test_label <- Y[-classification_split] # partition test Y vector labels
 
+# lengths of our Y label vectors and the  number of rows in our training dataframes are the same for both training and test sets!
 dim(train_X)
 length(train_label)
 
@@ -234,13 +244,13 @@ dim(test_X)
 length(test_label)
 ```
 
-### Regression setup
-Now we want to do something similar for our **REGRESSION task:** linear regression. There are forms of regression that can perform classification (such as `glm`), but the one we use here - `lm` - is not one of them. 
+##### Regression setup
+Now we want to do something similar for our lone **REGRESSION task:** linear regression. There are forms of regression that can perform classification (such as `glm`), but the one we use here - `lm` - is not one of them. Hence, we can only predict a continuous/integer Y output variable. 
 ```{r}
 # View pidd variable names
 names(pidd)
 
-# 4) Define Y for regression ("age")
+# 4) Define Y for regression; store "age" in Y_reg
 Y_reg = pidd$age
 head(Y_reg, n = 20)
 
@@ -248,14 +258,15 @@ head(Y_reg, n = 20)
 data_reg = subset(pidd, select = -age)
 head(data_reg) # "age" column has been successfully removed - but "diabetes" column is now present! 
 
-# 6) Finally, convert "diabetes" feature into numeric indicators
-data_ind = data.frame(model.matrix( ~ . -1, data_reg)) 
-head(data_ind) # what happened to the "diabetes" column?
+# 6) Finally, convert the "diabetes" column into numeric indicators - this will turn "diabetes" into two columns!
+data_reg = data.frame(model.matrix( ~ . -1, data_reg)) 
+head(data_reg) 
 ```
 
 Now we want to do the same splitting process like we did for classification above: 70% of data will be assigned to the training set and 30% to the test set. 
 ```{r}
 library(caret)
+
 # set seed for reproducibility
 set.seed(1)
 
@@ -272,9 +283,9 @@ test_label <- Y[-classification_split] # partition test Y vector labels
 
 # Algorithm walkthroughs
 #1. k-nearest neighbor (knn)
-The k-nearest neighbor (knn) makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. [Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
+The k-nearest neighbor (knn) algorithm is a good machine learning start point because it makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. [Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
 
-`k` is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. *Large k-values* could be bad because the class with the largest size might win regardless of influence of more proximate points. *Small k-values* might also be bad because neighboring points might become overly influential.  
+`k` is the number of neighbors used to classify the point in question. Choosing a proper `k` is integral to finding the best-performing model. **Large k-values** could be bad because the class with the largest size might win regardless of influence of closer points. **Small k-values** might also be bad because neighboring points might become overly influential.  
 
 #####1.2 knn - selecting a starting "k-value"
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset: 
