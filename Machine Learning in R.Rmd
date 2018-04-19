@@ -1,7 +1,7 @@
 ---
 title: "Introduction to Machine Learning in R"
 author: "Evan Muzzall and Chris Kennedy"
-date: "3/07/2018"
+date: "4/23/2018"
 output:
   html_document:
     toc: yes
@@ -11,16 +11,21 @@ output:
 # Introduction 
 Be sure to check out the D-Lab [Machine Learning Working Group](http://dlab.berkeley.edu/working-groups/machine-learning-working-group-0) to learn more about machine learning in both R and Python, give a lightning talk, lead a coding walkthrough, and participate in other projects.  
 
+# Resources
+James et al (amazon) (free)
+- strike car?
+
 # Package installation
 ```{r, eval = F}
 if (FALSE) {
   # Run this line manually to install the necessary packages.
-install.packages(c("car", "caret","chemometrics", "class", "devtools", "doParallel", "gbm", "ggplot2", "gmodels", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
+install.packages(c("car", "caret","chemometrics", "ck37r", "class", "devtools", "doParallel", "gbm", "ggplot2", "gmodels", "pROC", "randomForest", "RhpcBLASctl", "rpart", "rpart.plot", "SuperLearner"))
 }
   
 library(car)
 library(caret)
 library(chemometrics)
+library(ck37r)
 library(class)
 library(doParallel)
 library(gbm)
@@ -39,34 +44,29 @@ library(SuperLearner)
 Machine learning evolved from scientific pursuits in computational/information theory, artificial intelligence, and pattern recognition.  
 
 How to define machine learning?  
-1) Algorithms, computers, and other machines that can "learn" without direct input from a programmer.  
-2) A suite of tools for investigating/modeling/understanding complex datasets.  
+1) **In general:** algorithms, computers, and other machines that can "learn" without direct input from a programmer.  
+2) **Practically:** A suite of tools for investigating/modeling/understanding complex datasets.  
+3)  **Specifically:** (see below)
 
 A proto-example:  
-- [17th C. - Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html)  
+- [Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html)  
 Rapid advances:  
-- [1943 - McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html)  
-- [1950 - Turing test](http://www.jstor.org/stable/pdf/2251299.pdf)  
-- [1958 - Rosenblatt's perceptron](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
-- [1959 - Samuels and the game of checkers](http://ucelinks.cdlib.org:8888/sfx_local?sid=google&auinit=AL&aulast=Samuel&atitle=Some+studies+in+machine+learning+using+the+game+of+checkers&id=doi:10.1147/rd.33.0210&title=IBM+Journal+of+Research+and+Development&volume=3&issue=3&date=1959&spage=210&issn=0018-8646)  
+- [McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html)  
+- [Turing test](http://www.jstor.org/stable/pdf/2251299.pdf)  
+- [Rosenblatt's perceptron](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
+- [Samuels and the game of checkers](http://ucelinks.cdlib.org:8888/sfx_local?sid=google&auinit=AL&aulast=Samuel&atitle=Some+studies+in+machine+learning+using+the+game+of+checkers&id=doi:10.1147/rd.33.0210&title=IBM+Journal+of+Research+and+Development&volume=3&issue=3&date=1959&spage=210&issn=0018-8646)  
 
 Modern topics:  
-- [2003 - Turing Test: 50 years later](http://www.cs.bilkent.edu.tr/~akman/jour-papers/mam/mam2000.pdf)  
-
+- [Turing Test: 50 years later](http://www.cs.bilkent.edu.tr/~akman/jour-papers/mam/mam2000.pdf)  
 - [computer vision](http://www.sciencedirect.com/science/article/pii/S1071581916301264)  
-
 - [data cleaning](http://www.betterevaluation.org/sites/default/files/data_cleaning.pdf)  
-
 - [machine learning software, tools, and methods](http://achcoop.ca/Data%20Mining%20Practical%20Machine%20Learning%20Tools%20and%20Techniques/)  
-
 - [robotics](https://arxiv.org/abs/1708.04677)  
-
 - [cloud computing](https://arxiv.org/abs/1707.07452)  
 
 The importance of statistics:  
 - [Welling's commentary](https://www.ics.uci.edu/~welling/publications/papers/WhyMLneedsStatistics.pdf)  
-
-[Srivastava's discussion](https://www.analyticsvidhya.com/blog/2015/07/difference-machine-learning-statistical-modeling/)  
+- [Srivastava's discussion](https://www.analyticsvidhya.com/blog/2015/07/difference-machine-learning-statistical-modeling/)  
 
 Seek "actionable insight":  
 - ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
@@ -86,29 +86,25 @@ Supervised machine learning methods learn a target function $f$ that best maps X
 **How to define machine learning? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$. See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/) to learn more.  
 
-# Classification or regression?
+##### Classification or regression?
 **Classification** is used when the `Y` variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" category and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
 
 **Regression** is used when the target Y variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
 
 Examples:  
-- [Text analysis](http://www.digitalhumanities.org/dhq/vol/3/2/000041/000041.html)  
+- [text analysis](http://www.digitalhumanities.org/dhq/vol/3/2/000041/000041.html)  
+- [network analysis](http://www.digitalhumanities.org/dhq/vol/3/2/000044/000044.html)  
+- [real estate](https://arxiv.org/pdf/1609.08399.pdf)  
+- [climate science](http://www.geosci-model-dev-discuss.net/gmd-2015-273/gmd-2015-273.pdf)  
+- [voter turnout](http://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.28.2.51)  
+- [public health](http://journals.plos.org/plosntds/article?id=10.1371/journal.pntd.0004549)  
 
-- [Network analysis](http://www.digitalhumanities.org/dhq/vol/3/2/000044/000044.html)  
-
-- [Real estate](https://arxiv.org/pdf/1609.08399.pdf)  
-
-- [Climate science](http://www.geosci-model-dev-discuss.net/gmd-2015-273/gmd-2015-273.pdf)  
-
-- [Voter turnout](http://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.28.2.51)  
-
-- [Public health](http://journals.plos.org/plosntds/article?id=10.1371/journal.pntd.0004549)  
-
-# Data preprocessing and performance metrics
-### Data preprocessing
+##### Data preprocessing
 A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen.  
 
-# Model performance
+> QUESTION: what major issue was not mentioned here? (HINT: see below!)
+
+##### Model performance
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
 A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between `X` and `Y` variables.  
@@ -131,15 +127,20 @@ Learn more:
 
 # Workshop goals
 ### General goals
-1)Learn the basics of coding individual machine learning algorithms in R  
-2)Examine the performances of these models  
-3)Construct ensembles to simultaneously compare multiple algorithms  
-4)Vizualize outputs  
+1) Learn the basics of coding six machine learning algorithms in R:  
+  *k-nearest neighbor
+  *linear regression
+  *decision tree
+  *random forest
+  *boosting
+  *SuperLearner ensemble
+2) Examine the performances of these models  
+3) Construct ensembles to simultaneously compare multiple algorithms  
+4) Vizualize outputs  
 
 ### Specific goals
-*Check out the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) and original [research paper](http://eml.berkeley.edu/~cle/e250a_f13/mroz-paper.pdf) to view information about the `PimaIndiansDiabetes2` dataset.  
+Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) to investigate the following questions:  
 
-We ask the following questions:
 1) **Binary classification examples:** How reliably can machine learning algorithms predict a person's diabetes status using the other variables?  
 2) **Regression example:** How well can a person's age be predicted using the other variables?  
 
@@ -150,11 +151,14 @@ library(mlbench)
 # load the Mroz dataset
 data("PimaIndiansDiabetes2") 
 
-# view basic info
-str(PimaIndiansDiabetes2) 
-
 # read variable descriptions
 ?PimaIndiansDiabetes2
+
+# rename the dataset to something simpler to type (pidd = "Pima Indians Diabetes Dataset")
+pidd = PimaIndiansDiabetes2 
+
+# view basic info
+str(pidd) 
 
 # also load iris dataset for challenge questions
 data(iris)
@@ -163,78 +167,142 @@ str(iris)
 ```
 
 ##### Data preprocessing
-```{r}
+Drata peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly identify your Y and X variables and split your data into training and test sets when neeeded.  
 
+> One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees are the main exception). When we predict age in our regression example below, we will do this manually for good practice although functions like the `lm` function we will use will automatically expand the `diabetes` factor predictor into do numeric indicators.  
+
+- **k-nearest neighbor:** we want to remove our Y variable from our dataframe of X features and store it as its own object and split the data into training and test sets. 
+- **linear regression:** we will similarly remove our Y outcome from our dataframe of X predictors, but this time will both split the data into training and test sets _and_ we will 1) train the same model on _all of the data_ but then also 2) use R's handy `predict` function to create a test set based on predicted values from all of the data. 
+
+> NOTE: Keep in mind that training/test dataset splitting is not always necessary. We will introduce you to cross-validation in the second half of this workshop. 
+
+##### Handling missing data
+First, like many "tasks" involving computing, statistics, and number theory, missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful informaiton. Many advocate for mean imputation, but arithmetic means are often too sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
+
+However, median imputation is demonstrated below for the classification examples (we will use listwise deletion for our regression example). 
+```{r}
+# First, count the number of missing cases in our pidd dataset
+sum(is.na(pidd)) # 652 missing cases
+
+# Then, compute the proportion of missing cases in pidd
+sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of pidd is missing
 ```
 
-# Algorithm walkthroughs
+Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will have some additional columns to our data frame. 
 
-#1.  k-nearest neighbor (knn)
-The k-nearest neighbor (knn) makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. 
-[Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
-
-`k` is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. *Large k-values* could be bad because the class with the largest size might win regardless of influence of more proximate points. *Small k-values* might also be bad because neighboring points might become overly influential.  
-
-##### 1.1 knn - data preprocessing
-First, convert categorical factors to numeric indicators using the `model.matrix` function. This is called "one-hot encoding" and functinos like `lm` and `glm` do this internally. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees are the main exception).  
+First, 
 ```{r}
-# View Mroz variable names
-names(Mroz)
+library(ck37r)
+outcome = "diabetes"
 
-# Assign outcome to its own vector.
-Y <- Mroz$lfp
+# Impute missing data and add missingness indicators.
+# Don't impute the outcome though.
+result = ck37r::impute_missing_values(data, skip_vars = outcome)
+# Use the imputed dataframe.
+pidd = result$data
 
-# Remove Y from the Mroz dataframe and name this new dataframe "data"
-data <- subset(Mroz, select = -lfp)
-colnames(data)
+# view new columns
+str(pidd)
 
-# Convert factors to indicators; this will add an unneeded X.Intercept variable:
-data <- data.frame(model.matrix( ~ ., data)) 
-names(data)
-
-# Remove the extra intercept column.
-data <- data[, -1]
-names(data)
-
-# view variable distributions
-summary(data)
+# No more missing data! 
+sum(is.na(pidd))
 ```
 
-> Remember! 
-- `Y` contains the `Mroz$lfp` variable.  
-- `data` contains the predictor variables but not `Mroz$lfp`.  
 
-##### 1.2 knn - split the dataset
-Now we can split the dataset into training and test sets. Assign 70% of the data to training dataset and the remaining 30% to the test dataset.  
+# Defining Y outcome vectors and X feature dataframes
+### Classification setup
+Assign outcome to its own vector for **CLASSIFICATION tasks:** k-nearest neighbor, decision tree, random forest, boosting, and SuperLearner algorithms. However, keep in mind that these algorithms can also perform regression!
+```{r}
+# View pidd variable names
+names(pidd)
+
+# 1) Define Y for classification (has diabetes? "pos" or "neg")
+Y = pidd$diabetes
+head(Y, n = 20)
+
+# 2) Then, convert "pos" to 1 and "neg" to 0
+Y = ifelse(Y == "pos", 1, 0)
+head(Y, n = 20)
+
+# 3) Finally, define the X feature/predictor dataframe that excludes Y
+data = subset(pidd, select = -diabetes)
+head(data) # "diabetes" column has been successfully removed
+```
+
+We then can take the "traditional" approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
 ```{r}
 library(caret)
-
 # set seed for reproducibility
 set.seed(1)
 
 # Create a stratified random split
-split <- createDataPartition(Y, p=0.70, list=FALSE) 
-split
+classification_split <- createDataPartition(Y, p=0.70, list=FALSE) 
+classification_split
 
-train_X <- data[split, ] # partition training dataset
-test_X <- data[-split, ] # partition test dataset
+train_X <- data[classification_split, ] # partition training dataset
+test_X <- data[-classification_split, ] # partition test dataset
 
-train_label <- Y[split] # partition training Y vector labels
-test_label <- Y[-split] # partition test Y vector labels
+train_label <- Y[classification_split] # partition training Y vector labels
+test_label <- Y[-classification_split] # partition test Y vector labels
 ```
 
-##### 1.3 knn - selecting a starting "k-value"
+### Regression setup
+Now we want to do something similar for our **REGRESSION task:** linear regression. There are forms of regression that can perform classification (such as `glm`), but the one we use here - `lm` - is not one of them. 
+```{r}
+# View pidd variable names
+names(pidd)
+pidd_reg = na.omit(pidd)
+dim(pidd_reg)
+dim(pidd)
+
+# 4) Define Y for regression ("age")
+Y_reg = pidd$age
+head(Y_reg, n = 20)
+
+# 5) Then, define the X feature/predictor dataframe that excludes Y_reg
+data_reg = subset(pidd, select = -age)
+head(data_reg) # "age" column has been successfully removed - but "diabetes" column is now present! 
+
+# 6) Finally, convert "diabetes" feature into numeric indicators
+data_ind = data.frame(model.matrix( ~ . -1, data_reg)) 
+head(data_ind) # what happened to the "diabetes" column?
+```
+
+Now we want to do the same splitting process like we did for classification above: 70% of data will be assigned to the training set and 30% to the test set. 
+```{r}
+library(caret)
+# set seed for reproducibility
+set.seed(1)
+
+# Create a stratified random split - looks very similar to above, but this time is for regression
+regression_split <- createDataPartition(Y_reg, p=0.70, list=FALSE) 
+regression_split
+
+train_X_reg <- data[regression_split, ] # partition training dataset for regression
+train_X_reg <- data[-regression_split, ] # partition test dataset for regression
+
+train_label <- Y[classification_split] # partition training Y vector labels
+test_label <- Y[-classification_split] # partition test Y vector labels
+```
+
+# Algorithm walkthroughs
+#1. k-nearest neighbor (knn)
+The k-nearest neighbor (knn) makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. [Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
+
+`k` is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. *Large k-values* could be bad because the class with the largest size might win regardless of influence of more proximate points. *Small k-values* might also be bad because neighboring points might become overly influential.  
+
+#####1.2 knn - selecting a starting "k-value"
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset: 
 ```{r}
-round(sqrt(nrow(train_X)), digits=2) # 22.98
+round(sqrt(nrow(train_X)), digits=2) # 15.17
 ```
 
-Fit the model! Our goal is to predict the classification accuracy of our `Y` variable (yes/no whether or not a woman participated in the workforce) based on the other `X` predictor variables:
+Fit the model! Our goal is to predict the classification accuracy of our `Y` variable (yes/no [rather, 1/0] whether or not a person has diabetes based on the other `train_X` predictor variables:
 ```{r}
 library(class)
 set.seed(1)
 data_predicted <- knn(train = train_X, test = test_X,
-                     cl = train_label, k = 23, prob = TRUE)
+                     cl = train_label, k = 15, prob = TRUE)
 ```
 
 Using accuracy as our performance metric, compute a contingency table to see how well the model predicted yes and no:
@@ -322,7 +390,7 @@ A combination of scaling the data and searching for the best cross-validated "k"
 
 # 2.  Linear regression
 - Ordinary least squares regression (OLS) can be used when the target Y variable is continuous.  
-- Remember that under the hood, `lm` and `glm` are one hot encoding factors to indicators. Write it out again for good practice: 
+- Remember that under the hood, `lm` and `glm` are one-hot encoding factors to indicators. Write it out again for good practice: 
 ```{r}
 # View structure of Mroz.
 str(Mroz)
