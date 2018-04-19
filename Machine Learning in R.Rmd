@@ -50,7 +50,8 @@ How to define machine learning?
 
 A proto-example:  
 - [Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html)  
-Rapid advances:  
+
+Rapid advances:   
 - [McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html)  
 - [Turing test](http://www.jstor.org/stable/pdf/2251299.pdf)  
 - [Rosenblatt's perceptron](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
@@ -72,7 +73,7 @@ Seek "actionable insight":
 - ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
 
 # Supervised machine learning
-Selecting a machine learning algorithm depends on the characteristics of the problem being investigated. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
+Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
 
@@ -169,12 +170,12 @@ str(iris)
 ##### Data preprocessing
 Drata peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly identify your Y and X variables and split your data into training and test sets when neeeded.  
 
-> One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees are the main exception). When we predict age in our regression example below, we will do this manually for good practice although functions like the `lm` function we will use will automatically expand the `diabetes` factor predictor into do numeric indicators.  
+> One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees are the main exception). When we predict age in our regression example below, we will do this manually for good practice although functions like the `lm` function will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
 
-- **k-nearest neighbor:** we want to remove our Y variable from our dataframe of X features and store it as its own object and split the data into training and test sets. 
-- **linear regression:** we will similarly remove our Y outcome from our dataframe of X predictors, but this time will both split the data into training and test sets _and_ we will 1) train the same model on _all of the data_ but then also 2) use R's handy `predict` function to create a test set based on predicted values from all of the data. 
+- **k-nearest neighbor, decision tree, random forest, boosting, and SuperLearner algorithms:** we want to remove our Y variable from our dataframe of X features and store it as its own object then split the data into training and test sets. 
+- **linear regression:** we will similarly remove our Y outcome from our dataframe of X predictors, but this time will both 1) split the data into training and test sets _and_ 2) we will train the same model on _all of the data_ using R's handy `predict` function to create a test set based on predicted values from all of the data. 
 
-> NOTE: Keep in mind that training/test dataset splitting is not always necessary. We will introduce you to cross-validation in the second half of this workshop. 
+> NOTE: Keep in mind that training/test dataset splitting is common, but not always necessary. We will introduce you to cross-validation in the second half of this workshop. 
 
 ##### Handling missing data
 First, like many "tasks" involving computing, statistics, and number theory, missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful informaiton. Many advocate for mean imputation, but arithmetic means are often too sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
@@ -190,14 +191,11 @@ sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of pidd is missing
 
 Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will have some additional columns to our data frame. 
 
-First, 
+Neither the "diabetes" nor "age" columns have any missing cases, so we can go ahead and impute the whole dataset! 
 ```{r}
 library(ck37r)
-outcome = "diabetes"
+result = ck37r::impute_missing_values(pidd)
 
-# Impute missing data and add missingness indicators.
-# Don't impute the outcome though.
-result = ck37r::impute_missing_values(data, skip_vars = outcome)
 # Use the imputed dataframe.
 pidd = result$data
 
@@ -207,7 +205,6 @@ str(pidd)
 # No more missing data! 
 sum(is.na(pidd))
 ```
-
 
 # Defining Y outcome vectors and X feature dataframes
 ### Classification setup
@@ -244,6 +241,12 @@ test_X <- data[-classification_split, ] # partition test dataset
 
 train_label <- Y[classification_split] # partition training Y vector labels
 test_label <- Y[-classification_split] # partition test Y vector labels
+
+dim(train_X)
+length(train_label)
+
+dim(test_X)
+length(test_label)
 ```
 
 ### Regression setup
@@ -251,9 +254,6 @@ Now we want to do something similar for our **REGRESSION task:** linear regressi
 ```{r}
 # View pidd variable names
 names(pidd)
-pidd_reg = na.omit(pidd)
-dim(pidd_reg)
-dim(pidd)
 
 # 4) Define Y for regression ("age")
 Y_reg = pidd$age
@@ -294,7 +294,7 @@ The k-nearest neighbor (knn) makes no assumptions about the underlying distribut
 #####1.2 knn - selecting a starting "k-value"
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset: 
 ```{r}
-round(sqrt(nrow(train_X)), digits=2) # 15.17
+round(sqrt(nrow(train_X)), digits=2) # 23.19
 ```
 
 Fit the model! Our goal is to predict the classification accuracy of our `Y` variable (yes/no [rather, 1/0] whether or not a person has diabetes based on the other `train_X` predictor variables:
