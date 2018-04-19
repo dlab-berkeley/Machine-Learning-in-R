@@ -44,8 +44,8 @@ library(SuperLearner)
 Machine learning evolved from scientific pursuits in computational/information theory, artificial intelligence, and pattern recognition.  
 
 How to define machine learning?  
-1) **In general:** algorithms, computers, and other machines that can "learn" without direct input from a programmer.  
-2) **Practically:** A suite of tools for investigating/modeling/understanding complex datasets.  
+1) **In general:** algorithms, computers, and other machines that can "learn" without direct input from a human programmer.  
+2) **Practically:** sets of tools for investigating/modeling/understanding data.  
 3)  **Specifically:** (see below)
 
 A proto-example:  
@@ -73,32 +73,26 @@ Seek "actionable insight":
 - ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
 
 # Supervised machine learning
-Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
+Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method applicable to all cases. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
 
 Y ~ X~1~ + X~2~ + X~3~… X~n~
 
 Y is the dependent/response/target/outcome variable  
-X are the independent/input/predictor/feature variables.  
+X are the independent/input/predictor/feature variables  
 
-Supervised machine learning methods learn a target function $f$ that best maps X to Y based on a set of training data [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). The function _f_ relates X to Y but this is unknown and we must estimate it. Thus, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (test dataset) and evaluate how well the algorithm learned the target function when introduced to new data. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero.  
+Supervised machine learning methods learn a target function $f$ that best maps X to Y based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
+
+Our function would look like this: $\hat{y} = f(X) + \epsilon$, where $f$ is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Therefore, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero.  
 
 **How to define machine learning? (revisited)**  
-More specifically, we can think of machine learning as a bunch of methods to estimate $f$. See [An Introduction to Statistical Learning, Chapters 1 and 2](http://www-bcf.usc.edu/~gareth/ISL/) to learn more.  
+More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
 
 ##### Classification or regression?
-**Classification** is used when the `Y` variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" category and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
+**Classification** is used when the `Y` outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" category and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
 
 **Regression** is used when the target Y variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
-
-Examples:  
-- [text analysis](http://www.digitalhumanities.org/dhq/vol/3/2/000041/000041.html)  
-- [network analysis](http://www.digitalhumanities.org/dhq/vol/3/2/000044/000044.html)  
-- [real estate](https://arxiv.org/pdf/1609.08399.pdf)  
-- [climate science](http://www.geosci-model-dev-discuss.net/gmd-2015-273/gmd-2015-273.pdf)  
-- [voter turnout](http://pubs.aeaweb.org/doi/pdfplus/10.1257/jep.28.2.51)  
-- [public health](http://journals.plos.org/plosntds/article?id=10.1371/journal.pntd.0004549)  
 
 ##### Data preprocessing
 A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen.  
