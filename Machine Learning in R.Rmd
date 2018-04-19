@@ -95,16 +95,14 @@ More specifically, we can think of machine learning as a bunch of methods to est
 **Regression** is used when the target Y variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
 
 ##### Data preprocessing
-A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen.  
-
-> QUESTION: what major issue was not mentioned here? (HINT: see below!)
+A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen. **Missing data should be handled** before the splitting process commences.  
 
 ##### Model performance
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
-A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between `X` and `Y` variables.  
+A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the `X` and `Y` variables.  
 
-A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data - the patterns found in the test data simply might not exist in the test data.  
+A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data - the patterns found in the test data could not be discerned or simply might not exist in the test data.  
 
 ### Common performance metrics
 *Accuracy  
@@ -112,13 +110,6 @@ A model that performs well on the training dataset but poorly on the test datase
 *Sensitivity and specificity  
 *Area under the ROC curve (AUC)  
 *Cross validated error  
-
-Learn more:
-*[Jason Brownlee - How to Evaluate Machine Learning Algorithms](http://machinelearningmastery.com/how-to-evaluate-machine-learning-algorithms/) and [Assessing and Comparing Classifier Performance with ROC Curves](http://machinelearningmastery.com/assessing-comparing-classifier-performance-roc-curves-2/)  
-*[Sensitivity and specificity](https://uberpython.wordpress.com/2012/01/01/precision-recall-sensitivity-and-specificity)
-*[An Introduction to Statistical Learning - ROC, pp.147-149](http://www-bcf.usc.edu/~gareth/ISL/ISLR%20Sixth%20Printing.pdf)  
-*[R-bloggers - cross validation example](https://www.r-bloggers.com/cross-validation-for-predictive-analytics-using-r/)  
-*[Rob J. Hyndman - why every statistician should know about cross-validation](http://robjhyndman.com/hyndsight/crossvalidation/)  
 
 # Workshop goals
 ### General goals
