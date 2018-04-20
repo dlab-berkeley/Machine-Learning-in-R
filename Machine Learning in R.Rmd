@@ -208,7 +208,7 @@ names(pidd)
 
 # 1) Define Y for classification (has diabetes? "pos" or "neg")
 Y_fac = pidd$diabetes
-head(Y, n = 20)
+head(Y_fac, n = 20)
 
 # 2) Then, convert "pos" to 1 and "neg" to 0. Many algorithms expect 1's for the positive class and 0's for the negative class.
 Y = ifelse(Y_fac == "pos", 1, 0)
@@ -228,7 +228,6 @@ set.seed(1)
 
 # Create a stratified random split
 classification_split = createDataPartition(Y, p=0.70, list=FALSE) 
-classification_split
 
 train_X = features[classification_split, ] # partition training dataset
 test_X = features[-classification_split, ] # partition test dataset
@@ -292,6 +291,7 @@ Scaling the data is useful so that variables with large values do not bias the p
 data_scaled = scale(features, center = TRUE, scale = TRUE)
 
 # Look at the new distributions
+boxplot(features, horizontal = T, las = 1)
 boxplot(data_scaled, horizontal = T, las = 1)
 ```
 
@@ -432,10 +432,17 @@ tree_pruned2 = prune(dec_tree, cp = 0.017724) # 2 splits
 tree_pruned14 = prune(dec_tree, cp = 0.010000) # 14 splits
 
 # Print detailed results, variable importance, and summary of splits.
+```
+```{r eval = F}
 summary(tree_pruned2) 
+```
+```{r}
 rpart.plot(tree_pruned2)
-
+```
+```{r eval = F}
 summary(tree_pruned14) 
+```
+```{r}
 rpart.plot(tree_pruned14)
 ```
 
@@ -443,7 +450,7 @@ You can also get more fine-grained control by checking out the "control" argumen
 
 **Big question 3:** What do you notice about the tree with 2 splits and the tree with 14 splits? Are there any parts that are identical?  
 
-### Challenge 3
+##### Challenge 3
 What are the "minsplit", "cp", and "minbucket" hyperparameters within the "control" parameter? Use the iris dataset to construct a decision tree that utilized the `rpart.control` hyperparameter.  
 
 > HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  
@@ -500,7 +507,7 @@ How did it do? Are the accuracies for the training and test sets similar?
 
 **Big question 4:** Why is the random forest algorithm preferred to a single decision tree or bagged trees?
 
-### Challenge 4
+##### Challenge 4
 
 1. Try a few other values of mtry - can you find one that has improved performance?
 2. Maxnodes is another tuning parameter for randomForest - does changing it improve your performance?
@@ -561,8 +568,8 @@ gbm1 = train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_X),
              trControl = gbm_control,
              # Define our gbm model tunings
              tuneGrid = gbm_grid,
-             # Keep output more concise (setting to FALSE will hide this output)
-             verbose = T)
+             # Keep output hidden (setting to TRUE will print this output)
+             verbose = F)
 
 # See how long this algorithm took to complete
 gbm1$times 
@@ -600,6 +607,7 @@ ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons")
 
 Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages/xgboost/index.html) for a more powerful way to boost your trees.  
 
+##### Challenge 5
 **Big question 5:** What are some defining characteristics of the algorithms we have covered in these five exercises?
 
 # 6. Ensemble methods
@@ -636,8 +644,8 @@ cv_sl = CV.SuperLearner(Y = Y_sl, X = subset(pidd, select = -diabetes),
                          SL.library = SL_library,
                          family = binomial(),
                          cvControl = list(V = 5),
-                         # Set to F to hide details
-                         verbose = T)
+                         # Set to T to show details
+                         verbose = F)
 cv_sl
 ```
 
@@ -654,7 +662,7 @@ plot(cv_sl) + theme_bw()
 
 **Big question 6:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
 
-### Challenge 6. 
+##### Challenge 6
 1. What are the elements of the CV_SL object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
 
 A longer tutorial on SuperLearner is available here: https://github.com/ck37/superlearner-guide
