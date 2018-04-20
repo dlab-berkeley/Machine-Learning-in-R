@@ -3,6 +3,8 @@ title: "Introduction to Machine Learning in R"
 author: "Evan Muzzall and Chris Kennedy"
 date: "4/23/2018"
 output:
+  word_document:
+    toc: yes
   html_document:
     toc: yes
     toc_float: yes
