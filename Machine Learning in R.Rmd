@@ -507,105 +507,105 @@ How did it do? Are the accuracies for the training and test sets similar?
 3. **(time permitting)** Use the iris dataset to perform classification on the "Species" variable. What are you noticing about model fits between the pidd and iris datasets? 
 
 # 5. Boosting
-
 "Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  
 
 The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
 
-However, the cases that the model has difficulty predicting are _upweighted_ so that the model tries more assertively to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). (from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf).  
+However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). (from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf).  
 
-Remember, our data are still split from before:
-```{r}
-# view "Y" and "data"
-table(Y)
-str(data)
-nrow(train_X) + nrow(test_X) == nrow(data) # sanity check
-```
+Rather than testing only a single model at a time, it is useful to compare tuning parameters within that single model. Bootstrap is the default, but we want cross-validation. We also want to specify different tuning parameters.  
 
-Rather than testing only a single model at a time, it is useful to compare tuning parameters within that single model. Bootstrap is often a default, but we want cross-validation. We also want to specify different tuning parameters.  
-
-Let us first create two objects - `control` and `grid`. `control` will allow us to tune the cross-validated performance metric, while `grid` lets us evaluate the model with different characteristics: 
+First create two objects - `gbm_control` and `gbm_grid`. `gbm_control` will allow us to tune the cross-validated performance metric, while `gbm_grid` lets us evaluate the model with different characteristics:
 ```{r}
 # Choose 10-fold repeated measure cross-validation as our performance metric
-# (instead of the default "bootstrap").
-control = trainControl(method = "repeatedcv", 
-	repeats = 2,
-	# Calculate class probabilities.
+# (instead of the default "bootstrap")
+gbm_control = trainControl(method = "repeatedcv", 
+	repeats = 10,
+	# Calculate class probabilities
 	classProbs = TRUE,
-	# Indicate that our response varaible is binary.
+	# Indicate that our response varaible is binary
 	summaryFunction = twoClassSummary) 
 
-grid = expand.grid(
-  # Number of trees to fit, aka boosting iterations.
-  n.trees = seq(500, 1500, by = 500),
-  # Depth of the decision tree.
+
+gbm_grid = expand.grid(
+  # Number of trees to fit, aka boosting iterations
+  n.trees = seq(1, 1500, by = 100),
+  # Depth of the decision tree (how many splits)
 	interaction.depth = c(1, 3, 5), 
-  # Learning rate: lower means the ensemble will adapt more slowly.
-	shrinkage = c(0.001, 0.01, 0.1),
-  # Stop splitting a tree if we only have this many obs in a tree node.
+  # Learning rate: lower means the ensemble will adapt more slowly
+	shrinkage = c(0.01, 0.05, 0.1),
+  # Stop splitting a tree if we only have this many obs in a tree node
 	n.minobsinnode = 10)
-grid
 ```
 
-Fit the model. Note that we are now using the area under the ROC curve as our performance metric. This can be graphed for quick visualization: 
+Fit the model. Note that we will now use area under the ROC curve (called "AUC") as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).  
+
+> NOTE: This will take a few minutes to complete! See the .HTML or .PDF file for the output.
+
 ```{r}
 library(caret)
 library(pROC)
 set.seed(1)
-label_numeric = as.numeric(train_label == "yes")
-table(label_numeric, train_label)
+trainlab_factor = factor(ifelse(train_label == 1, "pos", "neg"))
+testlab_factor = factor(ifelse(test_label == 1, "pos", "neg"))
+table(trainlab_factor, train_label)
+table(testlab_factor, test_label)
 
 # cbind: caret expects the Y response and X predictors to be part of the same dataframe
-gbm1 = train(train_label ~ ., data = cbind(train_label, train_X), 
-	method = "gbm",
-	# Use AUC as our performance metric, which caret incorrectly calls "ROC".
-	metric = "ROC",
-	trControl = control,
-	tuneGrid = grid,
-	# Keep output more concise.
-	verbose = T)
+gbm1 = train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_X), 
+             # We want the method gradient boosted machine ("gbm")
+             method = "gbm",
+             # Use "AUC" as our performance metric, which caret incorrectly calls "ROC"
+             metric = "ROC",
+             # Specify our cross-validated performance metric settings
+             trControl = gbm_control,
+             # Define our gbm model tunings
+             tuneGrid = gbm_grid,
+             # Keep output more concise (setting to FALSE will hide this output)
+             verbose = T)
 
-# See how long this algorithm took to complete.
+# See how long this algorithm took to complete
 gbm1$times 
 
-# Review model summary table.
+# Review model summary table
 gbm1 
 
-# Plot variable importance.
+# Plot variable importance
 summary(gbm1, las = 2)
 
-# Generate predicted values.
-gbm.pred = predict(gbm1, test_X)
+# Generate predicted values
+gbm_predicted = predict(gbm1, test_X)
 
-# Generate class probabilities.
-gbm.prob = predict(gbm1, test_X, type = "prob")
+# Generate class probabilities
+gbm_probs = predict(gbm1, test_X, type = "prob")
 
-# Define ROC characteristics.
-rocCurve = roc(response = test_label,
-	predictor = gbm.prob[, "yes"],
-	levels = rev(levels(test_label)),
+# View final model
+gbm_cm = confusionMatrix(gbm_predicted, testlab_factor)
+gbm_cm
+
+# Define ROC characteristics
+rocCurve = roc(response = testlab_factor,
+	predictor = gbm_probs[, "neg"],
+	levels = rev(levels(testlab_factor)),
 	auc=TRUE, ci=TRUE)
 
-# Plot ROC.
+# Plot AUC
 plot(rocCurve, print.thres = "best", main = "GBM", col = "blue") 
 # ggsave("gbm AUC.png")
 
-# Plot the cross-validated AUC of the different configurations.
+# Plot the cross-validated AUC of the different configurations
 ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons") 
 # ggsave("gbm tuning comparison.png")
 ```
 
-Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages/xgboost/index.html) for extreme gradient boosting.  
+Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages/xgboost/index.html) for a more powerful way to boost your trees.  
 
-### Challenge 5
-
-1. Using your Mroz dataset, fit a GBM model where "wc" is your Y variable. What happens to variable relative importance? What happens to AUC?
+**Big question 5:** What are some defining characteristics of the algorithms we have covered in these five exercises?
 
 # 6. Ensemble methods
+You have learned how to fit several single algorithms and have explored a little about how you can define their different (hyper)parameters. However, the ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
 
-The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
-
-Let's see how the five algorithms you learned in this workshop (kNN, linear regression, decision trees, random forest, and gradient boosted machines) compare to each other and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!
+Let's see how the four classification algorithms you learned in this workshop (KNN, decision tree, random forest, and gradient boosted machines) compare to each other and also to binary logistic regression (`glm`) and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
 
 A "wrapper" is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:
 ```{r}
@@ -613,20 +613,18 @@ library(SuperLearner)
 listWrappers()
 ```
 
-Instead of splitting the data like before, since we are using cross-validation we actually want to use the entire `Mroz` dataset:
+Instead of splitting the data like before, since we are using cross-validation we actually want to use the entire pidd dataset - cross-validation will perform as many training and test splits as necessary (this is called the number of "folds") for us! 
 ```{r}
-str(Mroz)
+str(pidd)
 
 # convert our Y variable to numeric type
-Mroz$lfp = ifelse(Mroz$lfp == "yes", 1, 0)
+Y_sl = ifelse(pidd$diabetes == "pos", 1, 0)
 
-# Now, tell SuperLearner which algorithms to urn. In the interest of time we are not including GBM, but "SL.gbm" is the wrapper.
-SL_library = c("SL.mean", "SL.knn", "SL.glm", "SL.rpart", "SL.randomForest")
-
+# Now, tell SuperLearner which algorithms to incorporate
+SL_library = c("SL.mean", "SL.knn", "SL.glm", "SL.rpart", "SL.randomForest", "SL.gbm")
 ```
 
 Fit the ensemble:
-
 ```{r}
 library(SuperLearner)
 # This is a seed that is compatible with multicore parallel processing.
@@ -634,30 +632,31 @@ library(SuperLearner)
 set.seed(1, "L'Ecuyer-CMRG") 
 
 # This may take a minute to execute.
-cv_sl = CV.SuperLearner(Y = Mroz$lfp, X = data,
+cv_sl = CV.SuperLearner(Y = Y_sl, X = subset(pidd, select = -diabetes),
                          SL.library = SL_library,
                          family = binomial(),
-                         # Fit only 5 folds for demo purposes only.
-                         # For a real analysis we would do 20 folds.
                          cvControl = list(V = 5),
-                         # Set to T to show details.
-                         verbose = F)
-summary(cv_sl)
+                         # Set to F to hide details
+                         verbose = T)
+cv_sl
 ```
+
+> NOTE: Again, this will take a few minutes to complete! See the .HTML or .PDF file for the output!
 
 Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
 ```{r}
 summary(cv_sl)
 
 plot(cv_sl) + theme_bw()
-
 # ggsave("SuperLearner.pdf")
 ```
-"Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.
+"Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
+
+For a real project, it would be ideal to create 5, 10, or 50 tuned versions of the same algorithm for comparison not only against different algorithms, but also against other tuned versions of itself.  
+
+**Big question 5:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
 
 ### Challenge 6. 
-1. If you set the seed again and re-run `CV.SuperLearner` do you get exactly the same results?
-2. Choose your favorite 2 algorithms and re-run the SuperLearner with just those algorithms in the library. Does the performance change?
-3. What are the elements of the CV_SL object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
+1. What are the elements of the CV_SL object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
 
 A longer tutorial on SuperLearner is available here: https://github.com/ck37/superlearner-guide

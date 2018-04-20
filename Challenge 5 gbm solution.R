@@ -1,68 +1,14 @@
-# split the data:
-Y_gbm <- Mroz$wc
-table(Y_gbm)
+### Big question 5 answer:
 
-# More model.matrix practice
-Mroz_gbm <- data.frame(model.matrix( ~ ., subset(Mroz, select = -wc)))
+# knn: uses neighboring points to classify point in question, makes no assumptions about data distribution
 
-# Remove constant that model.matrix added.
-Mroz_gbm = Mroz_gbm[, -1]
+# lm: assumes a linear relationship exists between Y and X variables
 
-str(Mroz_gbm)
+# rpart: partitions feature space into smaller subspaces, tries to minimize RSS or classification error (% of training observations that do not belong to the majority class), generally have high variance, a single tree is likely to overfit, larger trees can be pruned back to smaller trees with lower test error
 
-# split the data like before
-set.seed(1)
-split_gbm <- createDataPartition(Y_gbm, p=0.70, list=FALSE)
-train_gbm <- Mroz_gbm[split_gbm, ]
-test_gbm <- Mroz_gbm[-split_gbm, ]
+# bagging: bootstrap aggregating trees helps improve prediction by constructing a specific number of bootstrapped trees and then averaging the performance, OOB error is often used as an estimate for test set performance
 
-# Not the same due to stratification:
-table(split == split_gbm)
+# randomForest: decorrelates bagged trees by using a smaller number of features at each split thus giving seemingly less important features the change to be the primary split in a tree
 
-train_gbm_label <- Y_gbm[split_gbm]
-test_gbm_label <- Y_gbm[-split_gbm]
+# boosting: takes these ideas even further by constructing many weak and generally shallow trees to predict each value in a dataset, incorporates that tree's learned performance into the function and its residuals to update the function across many boosting iterations, easily predicted values become less important for the model to try and predict compared to more difficult predicted values
 
-### define the control:
-# Choose 10-fold repeated measure cross-validation as our performance metric
-# (instead of the default "bootstrap").
-control <- trainControl(method="repeatedcv", 
-                        repeats = 2,
-                        # Calculate class probabilities.
-                        classProbs = TRUE,
-                        # Indicate that our response varaible is binary.
-                        summaryFunction = twoClassSummary) 
-
-### define the grid: 
-grid <- expand.grid(
-  # Number of trees to fit, aka boosting iterations.
-  n.trees = seq(1000, 2500, by = 500),
-  # Depth of the decision tree.
-  interaction.depth = c(1, 3, 5), 
-  # Learning rate: lower means the ensemble will adapt more slowly.
-  shrinkage = c(0.01, 0.05),
-  # Stop splitting a tree if we only have this many obs in a tree node.
-  n.minobsinnode = 10)
-
-grid
-
-# we can also store our data inside a dataframe instead of cbinding it in-line:
-data_gbm <- data.frame(train_gbm_label, train_gbm)
-str(data_gbm)
-
-# fit the model
-library(caret)
-library(pROC)
-set.seed(1)
-gbm_wc <- train(train_gbm_label ~ ., data = data_gbm,
-              method = "gbm",
-              # Use AUC as our performance metric, which caret incorrectly calls "ROC".
-              metric = "ROC",
-              trControl = control,
-              tuneGrid = grid,
-              # Keep output more concise.
-              verbose = FALSE)
-
-gbm_wc
-plot(gbm_wc)
-
-summary(gbm_wc, las=1)
