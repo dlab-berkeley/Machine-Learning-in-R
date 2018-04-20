@@ -215,8 +215,8 @@ Y = ifelse(Y == "pos", 1, 0)
 head(Y, n = 20)
 
 # 3) Finally, define the X feature/predictor dataframe that excludes Y
-data = subset(pidd, select = -diabetes)
-head(data) # "diabetes" column has been successfully removed
+features = subset(pidd, select = -diabetes)
+head(features) # "diabetes" column has been successfully removed
 ```
 
 We then can take the "traditional" approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
@@ -227,14 +227,14 @@ library(caret)
 set.seed(1)
 
 # Create a stratified random split
-classification_split <- createDataPartition(Y, p=0.70, list=FALSE) 
+classification_split = createDataPartition(Y, p=0.70, list=FALSE) 
 classification_split
 
-train_X <- data[classification_split, ] # partition training dataset
-test_X <- data[-classification_split, ] # partition test dataset
+train_X = features[classification_split, ] # partition training dataset
+test_X = features[-classification_split, ] # partition test dataset
 
-train_label <- Y[classification_split] # partition training Y vector labels
-test_label <- Y[-classification_split] # partition test Y vector labels
+train_label = Y[classification_split] # partition training Y vector labels
+test_label = Y[-classification_split] # partition test Y vector labels
 
 # lengths of our Y label vectors and the  number of rows in our training dataframes are the same for both training and test sets!
 dim(train_X)
@@ -265,7 +265,7 @@ Fit the model! Our goal is to predict the classification accuracy of our `Y` var
 ```{r}
 library(class)
 set.seed(1)
-data_predicted <- knn(train = train_X, test = test_X,
+data_predicted = knn(train = train_X, test = test_X,
                      cl = train_label, k = 23, prob = TRUE)
 ```
 
@@ -289,10 +289,10 @@ Two common ways of improving model performance are to 1) standardize the data so
 #####1.3 knn - scale the data
 Scaling the data is useful so that variables with large values do not bias the prediction. Create a new copy of the "data" dataset called "data_scaled", which will contain scaled values with means equal to 0 and standard deviations equal to 1. Our `Y` variable remains unchanged:
 ```{r}
-data_scaled <- scale(data, center = TRUE, scale = TRUE)
+data_scaled = scale(features, center = TRUE, scale = TRUE)
 
 # Look at the new distributions
-boxplot(data_scaled, las = 2)
+boxplot(data_scaled, horizontal = T, las = 1)
 ```
 
 Repeat the process:  
@@ -300,26 +300,26 @@ Repeat the process:
 ```{r}
 # Use "split" to create the training partition.
 set.seed(1)
-train_scaled <- data_scaled[classification_split, ] 
+train_scaled = data_scaled[classification_split, ] 
 
 # Create the training set
-training_scaled <- data_scaled[classification_split, ] 
+training_scaled = data_scaled[classification_split, ] 
 
 # Create the test set
-test_scaled <- data_scaled[-classification_split, ] 
+test_scaled = data_scaled[-classification_split, ] 
 
 # Extract outcome data for training set
-train_label_scaled <- Y[classification_split] 
+train_label_scaled = Y[classification_split] 
 
 # Extract outcome data for test set
-test_label_scaled <- Y[-classification_split] 
+test_label_scaled = Y[-classification_split] 
 ```
 
 2) fit the model on the scaled data  
 ```{r}
 library(class)
 set.seed(1)
-data_predicted_scaled <- knn(train = train_scaled,
+data_predicted_scaled = knn(train = train_scaled,
                             test = test_scaled, 
                             cl = train_label_scaled,
                             k = 23, prob = TRUE)
@@ -335,13 +335,10 @@ CrossTable(x = test_label_scaled, y = data_predicted_scaled,
            prop.t = F)
 
 # Compute accuracy
-mean(test_label_scaled == data_predicted_scaled) # 0.71
+mean(test_label_scaled == data_predicted_scaled) # ~0.71
 ```
 
-What happened? Was scaling necessary in this case? 
-```{r}
-boxplot(data, las = 2)
-```
+Did scaling the data help?  
 
 #####1.4 knn - improving performance metrics - change k-value
 Scaling our data actually _reduced_ our accuracy a little. It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. Plot the cross-validated errors:
@@ -349,7 +346,7 @@ Scaling our data actually _reduced_ our accuracy a little. It also helps to inve
 library(chemometrics)
 
 set.seed(1)
-knn_k <- knnEval(X = pidd[,-9], grp = pidd[,9], 
+knn_k = knnEval(X = pidd[,-9], grp = pidd[,9], 
                  train = classification_split, 
                  knnvec=seq(1, 51, by = 2), kfold = 10,
                  legpo="bottomright", las = 2)
@@ -359,9 +356,9 @@ A combination of scaling the data and searching for the best cross-validated "k"
 **Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset? (see the solutions file for an answer)  
 
 ##### Challenge 1  
-1. Using what you learned above, classify knn predictive accuracies of the `Species` variable in the  "iris" dataset. 
+Using what you learned above, classify knn predictive accuracies of the `Species` variable in the  "iris" dataset. 
 
-# 2.  Linear regression
+#2.  Linear regression
 Ordinary least squares regression (OLS) can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators.  
 
 Recall that we have already defined our Y outcome variable "age" and stored it in the object `Y_reg` as well as our dataframe of features, stored in `data_reg`. Let's fit a model that predicts the `Y_reg` using the other variables in `data_reg` as predictors.  
@@ -369,16 +366,16 @@ Recall that we have already defined our Y outcome variable "age" and stored it i
 Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
 ```{r}
 # Fit the regression model.
-pidd_age <- lm(pidd$age ~ ., data = subset(pidd, select = -age))
+pidd_age = lm(pidd$age ~ ., data = subset(pidd, select = -age))
 
 # View the regression results.
 summary(pidd_age) 
 
 # Predict the outcome back onto the data
-pidd_age_predicted <- predict(pidd_age, pidd) 
+pidd_age_predicted = predict(pidd_age, pidd) 
 
 # Calculate mean-squared error. 
-MSE <- mean((pidd$age - pidd_age_predicted)^2)   
+MSE = mean((pidd$age - pidd_age_predicted)^2)   
 
 MSE
 sqrt(MSE) #RMSE
@@ -386,68 +383,72 @@ sqrt(MSE) #RMSE
 
 **Big question 2:** What surmise about linear regression and this dataset? (see the solutions file for an answer)  
 
-### Challenge 2
-1) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
+##### Challenge 2
+Code a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
-# 3.  Decision trees 
-- Decision trees are recursive partitioning methods that divides the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decesion trees attempt to classify data by dividing it into subsets according to a `Y` output variable and based on some predictors.  
+#3.  Decision trees 
+Decision trees are recursive partitioning methods that divides the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decesion trees attempt to classify data by dividing it into subsets according to a `Y` output variable and based on some predictors.  
 
+Let's see how 
 - Let's see how a tree-based method classifies women's participation in the workforce.  
 
-Note that we do not have to use `model.matrix` for our decision tree algorithm here:
+Note that we do not have to use `model.matrix` for our decision tree algorithm here because it is adept at handling factor variables:
 ```{r}
 library(rpart)
-# Choose method="anova" for a regression tree
-# Instead of gini coefficient, select "information" inside the "parms" parameter
-dt <- rpart(Mroz$lfp ~ ., data = subset(Mroz, select = -lfp),
-            method = "class",
-            parms = list(split = 'information'))
 
-# Here is the text-based display of the decision tree. Yikes! 
-print(dt)
+dec_tree = rpart(Y ~ ., data = features,
+            method = "class", # or method ="anova" for a regression tree
+            parms = list(split = "information")) # or "gini" for gini coefficient
 
-# The plot is much easier to interpret.
-library(rpart.plot)
-rpart.plot(dt, cex = 1, type = 4, extra = 101)
-           # shadow.col = "lightgray", 
-           
-# Variable importance is also informative:
-dt$variable.importance
+# Here is the text-based display of the decision tree. Yikes!  :^( 
+print(dec_tree)
 ```
 
-In decision trees the main hyperparameter (configuration setting) is the *complexity parameter* (CP). A high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits. So, the name is a little counterintuitive.  
-
-rpart uses cross-validation internally to estimate the accuracy at various complexity parameter (CP) settings. We can review those to see what setting seems best.
+Although interpreting the text can be intimidating, a decision tree's main strength is its tree-like plot, which is much easier to interpret
 ```{r}
-# Print the results for various CP settings.
-# Here we want the setting with the lowest "xerror".
-printcp(dt)
+library(rpart.plot)
+rpart.plot(dec_tree) # shadow.col = "lightgray", cex = 1, type = 4, extra = 101) 
+```
 
-# Plot the performance estimates for different CP settings.
-# We see that a larger tree (lower CP) seems more accurate.
-plotcp(dt)
+We can also look inside of `dec_tree` to see what we can unpack. "variable.importance" stands out as one we should check out! 
+```{r}
+names(dec_tree)
+dec_tree$variable.importance
+```
 
-# We can "prune" a tree to a higher CP setting if we want.
-# Note: due to rounding we make the cp value slightly higher than
-# was shown in the table.
-tree_pruned <- prune(dt, cp = 0.033847)
+In decision trees the main hyperparameter (configuration setting) is the **complexity parameter** (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.  
+
+rpart uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.  
+
+Print the results for various CP settings - we want the one with the lowest "xerror". We can also plot the performance estimates for different CP settings. 
+```{r}
+printcp(dec_tree) # print various CP settings
+
+plotcp(dec_tree) # Plot their performance estimates
+
+# 2 or 14 splits appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. However, a tree with 14 splits has a lower relative error. 
+tree_pruned2 = prune(dec_tree, cp = 0.017724) # 2 splits
+
+tree_pruned14 = prune(dec_tree, cp = 0.010000) # 14 splits
 
 # Print detailed results, variable importance, and summary of splits.
-summary(tree_pruned) 
-rpart.plot(tree_pruned)
+summary(tree_pruned2) 
+rpart.plot(tree_pruned2)
 
-# Also see the "control" argument inside the rpart function: 
-?rpart
+summary(tree_pruned14) 
+rpart.plot(tree_pruned14)
 ```
 
-Here, each node shows the cutoff for each of the predictors and how it contributed to the split. View a helpful decision tree tutorial at [GormAnalysis](https://gormanalysis.com/decision-trees-in-r-using-rpart/).  
+You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type ?rpart to learn more.  
+
+**Big question 3:** What do you notice about the tree with 2 splits and the tree with 14 splits? Are there any parts that are identical?  
 
 ### Challenge 3
-1. Make a decision tree that tries to classify something other than "lfp".  
-2. What are the "minsplit" and "cp" hyperparameters within the "control" parameter? How might you go about figuring out what these are?  
-HINT: the syntax might look like this: `dt2_control <- rpart.control(minsplit = 20, cp = 0.001)`  
+What are the "minsplit", "cp", and "minbucket" hyperparameters within the "control" parameter? Use the iris dataset to construct a decision tree that utilized the `rpart.control` hyperparameter.  
 
-# 4. Random forests
+> HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  
+
+#4. Random forests
 Random forest is an algorithm that seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest is an **ensemble** method, or model averaging approach. The algorithm was invented by Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see 1984 CART book).
 
 Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"), an algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used any algorithm, RF uses decision trees as its base learner. Random Forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
@@ -466,7 +467,7 @@ Now, let's fit a model that tries to predict the number of women who participate
 ```{r}
 library(randomForest)
 set.seed(1)
-rf1 <- randomForest(train_label ~ ., 
+rf1 = randomForest(train_label ~ ., 
                     data = train_X, 
                     # Number of trees
                     ntree = 500, 
@@ -492,7 +493,7 @@ You can read up on the [gini coefficient](https://en.wikipedia.org/wiki/Gini_coe
 
 Now, the goal is to see how the model performs on the test dataset:
 ```{r}
-rf_pred <- predict(rf1, newdata = test_X)
+rf_pred = predict(rf1, newdata = test_X)
 table(rf_pred, test_label)
 ```
 
@@ -532,14 +533,14 @@ Let us first create two objects - `control` and `grid`. `control` will allow us 
 ```{r}
 # Choose 10-fold repeated measure cross-validation as our performance metric
 # (instead of the default "bootstrap").
-control <- trainControl(method = "repeatedcv", 
+control = trainControl(method = "repeatedcv", 
 	repeats = 2,
 	# Calculate class probabilities.
 	classProbs = TRUE,
 	# Indicate that our response varaible is binary.
 	summaryFunction = twoClassSummary) 
 
-grid <- expand.grid(
+grid = expand.grid(
   # Number of trees to fit, aka boosting iterations.
   n.trees = seq(500, 1500, by = 500),
   # Depth of the decision tree.
@@ -560,7 +561,7 @@ label_numeric = as.numeric(train_label == "yes")
 table(label_numeric, train_label)
 
 # cbind: caret expects the Y response and X predictors to be part of the same dataframe
-gbm1 <- train(train_label ~ ., data = cbind(train_label, train_X), 
+gbm1 = train(train_label ~ ., data = cbind(train_label, train_X), 
 	method = "gbm",
 	# Use AUC as our performance metric, which caret incorrectly calls "ROC".
 	metric = "ROC",
@@ -579,13 +580,13 @@ gbm1
 summary(gbm1, las = 2)
 
 # Generate predicted values.
-gbm.pred <- predict(gbm1, test_X)
+gbm.pred = predict(gbm1, test_X)
 
 # Generate class probabilities.
-gbm.prob <- predict(gbm1, test_X, type = "prob")
+gbm.prob = predict(gbm1, test_X, type = "prob")
 
 # Define ROC characteristics.
-rocCurve <- roc(response = test_label,
+rocCurve = roc(response = test_label,
 	predictor = gbm.prob[, "yes"],
 	levels = rev(levels(test_label)),
 	auc=TRUE, ci=TRUE)
@@ -622,10 +623,10 @@ Instead of splitting the data like before, since we are using cross-validation w
 str(Mroz)
 
 # convert our Y variable to numeric type
-Mroz$lfp <- ifelse(Mroz$lfp == "yes", 1, 0)
+Mroz$lfp = ifelse(Mroz$lfp == "yes", 1, 0)
 
 # Now, tell SuperLearner which algorithms to urn. In the interest of time we are not including GBM, but "SL.gbm" is the wrapper.
-SL_library <- c("SL.mean", "SL.knn", "SL.glm", "SL.rpart", "SL.randomForest")
+SL_library = c("SL.mean", "SL.knn", "SL.glm", "SL.rpart", "SL.randomForest")
 
 ```
 
@@ -638,7 +639,7 @@ library(SuperLearner)
 set.seed(1, "L'Ecuyer-CMRG") 
 
 # This may take a minute to execute.
-cv_sl <- CV.SuperLearner(Y = Mroz$lfp, X = data,
+cv_sl = CV.SuperLearner(Y = Mroz$lfp, X = data,
                          SL.library = SL_library,
                          family = binomial(),
                          # Fit only 5 folds for demo purposes only.

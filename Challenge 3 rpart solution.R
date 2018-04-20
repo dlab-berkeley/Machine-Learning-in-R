@@ -1,25 +1,25 @@
-### Challenge 3 solution decision tree
+### Big question 3 answer: The decision tree with 2 splits is exactly the same as the top part of the tree with 14 splits! 
 
-# View structure of Mroz.
-str(Mroz)
 
-# Isolate Y response variable ("wc").
-Y_dt <- Mroz$wc
+### Challenge 3 iris decision tree solution
+
+# Isolate Y response variable ("Species").
+Y_dt = iris$Species
 
 # Designate X predictor variables, excluding "wc".
-X_dt <- Mroz[, -5] 
+X_dt = iris[,-5]
 
 # Construct the tree.
-dt2 <- rpart(Y_dt ~ ., data = X_dt, method = "class")
+dec_tree2 = rpart(Y_dt ~ ., data = X_dt, method = "class")
 
 # View results.
-printcp(dt2)
+printcp(dec_tree2)
 
-plotcp(dt2)
+plotcp(dec_tree2)
 
-summary(dt2)
+summary(dec_tree2)
 
-rpart.plot(dt2)
+rpart.plot(dec_tree2)
 
 ### control
 ?rpart.control # view help file
@@ -30,16 +30,10 @@ rpart.plot(dt2)
 # cp = "complexity parameter" - this will prune splits that are not worthwhile; 
 # cross-validation will prune off all splits that do not improve the model fit
 
-dt_control <- rpart.control(minsplit=20, cp=0.03)
+dt_control = rpart.control(minsplit = 10, minbucket = 5, cp = 0.01)
 
-# or
+# construct the tree with the control object
+dt_controlled = rpart(Y_dt ~ ., data = X_dt, method = "class", control = dt_control)
 
-dt_control <- rpart.control(minsplit = 20, cp = 0.001)
-
-dt3 <- rpart(Y_dt ~ ., data = X_dt, method = "class", control = dt_control)
-
-printcp(dt3)
-plotcp(dt3)
-summary(dt3)
-
-rpart.plot(dt3)
+printcp(dt_controlled)
+rpart.plot(dt_controlled)
