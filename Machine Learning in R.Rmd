@@ -207,11 +207,11 @@ Assign outcome to its own vector for **CLASSIFICATION tasks:** k-nearest neighbo
 names(pidd)
 
 # 1) Define Y for classification (has diabetes? "pos" or "neg")
-Y = pidd$diabetes
+Y_fac = pidd$diabetes
 head(Y, n = 20)
 
 # 2) Then, convert "pos" to 1 and "neg" to 0. Many algorithms expect 1's for the positive class and 0's for the negative class.
-Y = ifelse(Y == "pos", 1, 0)
+Y = ifelse(Y_fac == "pos", 1, 0)
 head(Y, n = 20)
 
 # 3) Finally, define the X feature/predictor dataframe that excludes Y
@@ -449,25 +449,15 @@ What are the "minsplit", "cp", and "minbucket" hyperparameters within the "contr
 > HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  
 
 #4. Random forests
-Random forest is an algorithm that seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest is an **ensemble** method, or model averaging approach. The algorithm was invented by Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see 1984 CART book).
+The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest is an **ensemble** method, or model averaging approach. The algorithm was invented by Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see his [1984 CART book](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418)).  
 
-Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"), an algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used any algorithm, RF uses decision trees as its base learner. Random Forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
+Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"), an algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
 
-```{r}
-# View "Y" and "data"
-table(Y)
-str(data)
-
-# split this data, similar to before
-str(train_X)
-str(test_X)
-```
-
-Now, let's fit a model that tries to predict the number of women who participated in the labor force in 1975 again using the other variables as our X predictors: 
+Fit a random forest model that tries to predict the number of people with diabetes using the other variables as our X predictors. If our Y variable is a factor, randomForest will by default perform classification; it is is numeric/integer regression will be performed and if it is omitted it will become unsupervised! 
 ```{r}
 library(randomForest)
 set.seed(1)
-rf1 = randomForest(train_label ~ ., 
+rf1 = randomForest(as.factor(train_label) ~ ., 
                     data = train_X, 
                     # Number of trees
                     ntree = 500, 
@@ -477,39 +467,44 @@ rf1 = randomForest(train_label ~ .,
                     importance = TRUE) 
 
 rf1
-
 ```
-The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$.  OOB stands for "out of bag" - and bag is short for "bootstrap aggregation". So OOB estimates performance by comparing the predicted outcome value to the actual value across all trees using only the observations that were not part of the training data for that tree.
+
+The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$. OOB stands for "out of bag" - and bag is short for "bootstrap aggregation". So OOB estimates performance by comparing the predicted outcome value to the actual value across all trees using only the observations that were not part of the training data for that tree.
 
 We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.
 ```{r}
-# As the function name suggests, this creates a variable importance plot.
+# As the function name suggests, this creates a variable importance plot
 varImpPlot(rf1)
 
-# Raw data.
+# Raw data
 rf1$importance
 ```
+
 You can read up on the [gini coefficient](https://en.wikipedia.org/wiki/Gini_coefficient) if interested. It's basically a measure of diversity or dispersion - a higher gini means the model is classifying better. The gini version does not randomly shuffle the variable cells.  
 
 Now, the goal is to see how the model performs on the test dataset:
 ```{r}
-rf_pred = predict(rf1, newdata = test_X)
-table(rf_pred, test_label)
+rf_predicted = predict(rf1, newdata = test_X)
+table(rf_predicted, test_label)
 ```
 
 Check the accuracy of the test set:
 ```{r}
-mean(rf_pred == test_label) # 0.7377778
+mean(rf_predicted == test_label) # ~0.73
+
 # devtools::install_github("ck37/ck37r")
 summary(ck37r::rf_count_terminal_nodes(rf1))
 ```
+
 How did it do? Are the accuracies for the training and test sets similar?  
+
+**Big question 4:** Why is the random forest algorithm preferred to a single decision tree or bagged trees?
 
 ### Challenge 4
 
 1. Try a few other values of mtry - can you find one that has improved performance?
 2. Maxnodes is another tuning parameter for randomForest - does changing it improve your performance?
-3. Select another Y variable to predict and evaluate performance on the train_rf and test_rf. How is the fit of the model for this variable?  
+3. **(time permitting)** Use the iris dataset to perform classification on the "Species" variable. What are you noticing about model fits between the pidd and iris datasets? 
 
 # 5. Boosting
 
