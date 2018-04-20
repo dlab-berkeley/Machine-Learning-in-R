@@ -245,41 +245,9 @@ length(test_label)
 ```
 
 ##### Regression setup
-Now we want to do something similar for our lone **REGRESSION task:** linear regression. There are forms of regression that can perform classification (such as `glm`), but the one we use here - `lm` - is not one of them. Hence, we can only predict a continuous/integer Y output variable. 
-```{r}
-# View pidd variable names
-names(pidd)
+We could do something similar for our lone **REGRESSION task:** linear regression. There are forms of regression that can perform classification (such as `glm`), but the one we use here - `lm` - is not one of them. Hence, we can only predict a continuous/integer Y output variable. 
 
-# 4) Define Y for regression; store "age" in Y_reg
-Y_reg = pidd$age
-head(Y_reg, n = 20)
-
-# 5) Then, define the X feature/predictor dataframe that excludes Y_reg
-data_reg = subset(pidd, select = -age)
-head(data_reg) # "age" column has been successfully removed - but "diabetes" column is now present! 
-
-# 6) Finally, convert the "diabetes" column into numeric indicators - this will turn "diabetes" into two columns!
-data_reg = data.frame(model.matrix( ~ . -1, data_reg)) 
-head(data_reg) 
-```
-
-Now we want to do the same splitting process like we did for classification above: 70% of data will be assigned to the training set and 30% to the test set. 
-```{r}
-library(caret)
-
-# set seed for reproducibility
-set.seed(1)
-
-# Create a stratified random split - looks very similar to above, but this time is for regression
-regression_split <- createDataPartition(Y_reg, p=0.70, list=FALSE) 
-regression_split
-
-train_X_reg <- data[regression_split, ] # partition training dataset for regression
-train_X_reg <- data[-regression_split, ] # partition test dataset for regression
-
-train_label <- Y[classification_split] # partition training Y vector labels
-test_label <- Y[-classification_split] # partition test Y vector labels
-```
+Instead, we will use R's handy `predict` function to simply create a test data set based on predictions on all the data. 
 
 # Algorithm walkthroughs
 #1. k-nearest neighbor (knn)
@@ -287,18 +255,18 @@ The k-nearest neighbor (knn) algorithm is a good machine learning start point be
 
 `k` is the number of neighbors used to classify the point in question. Choosing a proper `k` is integral to finding the best-performing model. **Large k-values** could be bad because the class with the largest size might win regardless of influence of closer points. **Small k-values** might also be bad because neighboring points might become overly influential.  
 
-#####1.2 knn - selecting a starting "k-value"
+#####1.1 knn - selecting a starting "k-value"
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset: 
 ```{r}
 round(sqrt(nrow(train_X)), digits=2) # 23.19
 ```
 
-Fit the model! Our goal is to predict the classification accuracy of our `Y` variable (yes/no [rather, 1/0] whether or not a person has diabetes based on the other `train_X` predictor variables:
+Fit the model! Our goal is to predict the classification accuracy of our `Y` variable (whether or not a person has diabetes based on the other `train_X` predictor variables; 1 = yes/pos, 0 = no/neg:
 ```{r}
 library(class)
 set.seed(1)
 data_predicted <- knn(train = train_X, test = test_X,
-                     cl = train_label, k = 15, prob = TRUE)
+                     cl = train_label, k = 23, prob = TRUE)
 ```
 
 Using accuracy as our performance metric, compute a contingency table to see how well the model predicted yes and no:
@@ -310,21 +278,21 @@ CrossTable(x = test_label, y = data_predicted,
            prop.c = F,
            prop.t = F)
 
-# Compute accuracy
-mean(test_label == data_predicted) # ~ 0.52
+# Compute accuracy - how did we do?
+mean(test_label == data_predicted) # ~ 0.72
 ```
 How did it do?  
 
-##### 1.4 knn - improving performance metrics
+#####1.2 knn - improving performance metrics
 Two common ways of improving model performance are to 1) standardize the data so that scale does not unduly influence classification, and 2) change the k-value. 
 
-##### 1.4.1 knn - improving performance metrics - scale the data
+#####1.3 knn - scale the data
 Scaling the data is useful so that variables with large values do not bias the prediction. Create a new copy of the "data" dataset called "data_scaled", which will contain scaled values with means equal to 0 and standard deviations equal to 1. Our `Y` variable remains unchanged:
 ```{r}
 data_scaled <- scale(data, center = TRUE, scale = TRUE)
 
-# Look at the new distribution.
-summary(data_scaled)
+# Look at the new distributions
+boxplot(data_scaled, las = 2)
 ```
 
 Repeat the process:  
@@ -332,16 +300,19 @@ Repeat the process:
 ```{r}
 # Use "split" to create the training partition.
 set.seed(1)
-train_scaled <- data_scaled[split, ] 
+train_scaled <- data_scaled[classification_split, ] 
 
-# Create the test partition.
-test_scaled <- data_scaled[-split, ] 
+# Create the training set
+training_scaled <- data_scaled[classification_split, ] 
 
-# Extract outcome data for training set.
-train_label_scaled <- Y[split] 
+# Create the test set
+test_scaled <- data_scaled[-classification_split, ] 
 
-# Extract outcome data for test set.
-test_label_scaled <- Y[-split] 
+# Extract outcome data for training set
+train_label_scaled <- Y[classification_split] 
+
+# Extract outcome data for test set
+test_label_scaled <- Y[-classification_split] 
 ```
 
 2) fit the model on the scaled data  
@@ -364,62 +335,51 @@ CrossTable(x = test_label_scaled, y = data_predicted_scaled,
            prop.t = F)
 
 # Compute accuracy
-mean(test_label_scaled == data_predicted_scaled) # 0.68
+mean(test_label_scaled == data_predicted_scaled) # 0.71
 ```
-What happened?  
 
-##### 1.4.2 knn - improving performance metrics - change k-value
-It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. Plot the cross-validated errors:
+What happened? Was scaling necessary in this case? 
+```{r}
+boxplot(data, las = 2)
+```
+
+#####1.4 knn - improving performance metrics - change k-value
+Scaling our data actually _reduced_ our accuracy a little. It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. Plot the cross-validated errors:
 ```{r}
 library(chemometrics)
-set.seed(1)
-knn_k <- knnEval(data_scaled, Y, split, 
-                 knnvec=seq(1, 51, by = 1), 
-                 legpo="bottomright", las = 3)
-```
-A combination of scaling the data and searching for the best cross-validated "k" is ideal.  
 
-### Challenge 1  
-1. What happens to accuracy when k = 2, 10, or 20?  
-2. What happens when you set k to 17, the optimal value from the cross-validation plot? What happens to the predictive accuracy when you switch k to this value?  
-3. Using what you learned above, classify predictive accuracies of the `Species` variable in the  "iris" dataset. 
+set.seed(1)
+knn_k <- knnEval(X = pidd[,-9], grp = pidd[,9], 
+                 train = classification_split, 
+                 knnvec=seq(1, 51, by = 2), kfold = 10,
+                 legpo="bottomright", las = 2)
+```
+A combination of scaling the data and searching for the best cross-validated "k" can help find the proper `k` value.  
+
+**Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset?  
+##### Challenge 1  
+1. Using what you learned above, classify predictive accuracies of the `Species` variable in the  "iris" dataset. 
 
 # 2.  Linear regression
-- Ordinary least squares regression (OLS) can be used when the target Y variable is continuous.  
-- Remember that under the hood, `lm` and `glm` are one-hot encoding factors to indicators. Write it out again for good practice: 
-```{r}
-# View structure of Mroz.
-str(Mroz)
+Ordinary least squares regression (OLS) can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators.  
 
-# Define our continuous Y response variable, "lwg". Call it "Y2".
-Y2 <- Mroz$lwg
+Recall that we have already defined our Y outcome variable "age" and stored it in the object `Y_reg` as well as our dataframe of features, stored in `data_reg`. Let's fit a model that predicts the `Y_reg` using the other variables in `data_reg` as predictors.  
 
-# Expand our predictor X variables out into indicators.
-data2 <- data.frame(model.matrix( ~ ., subset(Mroz, select = -lwg)))
-names(data2)
-
-# Remove intercept.
-data2 <- data2[, -1]
-
-# View structure of "data2".
-str(data2)
-```
-
-- Fit a model that predicts the `Y` variable log wage gap (`lwg`) using the other variables as predictors.  
-
-- Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
+Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
 ```{r}
 # Fit the regression model.
-data2_lm <- lm(Y2 ~ ., data = data2)
+lm_age <- lm(pidd$age ~ ., data = subset(pidd, select = -age))
+data2_lm <- lm(Y_reg ~ ., data = data_reg)
 
 # View the regression results.
-summary(data2_lm) 
+summary(lm_age) 
+summary(data2_lm)
 
 # Predict the outcome back onto the training data.
-data2_predicted <- predict(data2_lm, data2) 
+data2_predicted <- predict(data2_lm, data_reg) 
 
 # Calculate mean-squared error. 
-MSE <- mean((Y2 - data2_predicted)^2)   
+MSE <- mean((Y_reg - data2_predicted)^2)   
 
 MSE
 sqrt(MSE)
