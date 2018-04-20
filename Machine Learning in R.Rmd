@@ -652,9 +652,7 @@ plot(cv_sl) + theme_bw()
 ```
 "Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
 
-For a real project, it would be ideal to create 5, 10, or 50 tuned versions of the same algorithm for comparison not only against different algorithms, but also against other tuned versions of itself.  
-
-**Big question 5:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
+**Big question 6:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
 
 ### Challenge 6. 
 1. What are the elements of the CV_SL object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
