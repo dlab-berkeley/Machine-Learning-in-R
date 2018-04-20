@@ -1,26 +1,5 @@
-### Challenge 1: Mroz knn with k = 2, 10, 20
-library(class)
-set.seed(1)
-data_predicted_scaled2 <- knn(train = train_scaled,
-                        test = test_scaled, 
-                        cl = train_label_scaled,
-                        k = 41, prob = TRUE)
-library(gmodels)
-CrossTable(x = test_label_scaled, y = data_predicted_scaled2, 
-           prop.chisq = FALSE,
-           prop.r = FALSE,
-           prop.c = FALSE,
-           prop.t = FALSE)
-# Compute accuracy
-mean(test_label_scaled == data_predicted_scaled2)
+### Big question 1 answer: this example illustrates why choosing a single algorithm is not a good idea. KNN is probably not well-suited to examine the relationships that exist within the pidd dataset. This is why comparing multiple algorithms with different tunings, along with a weighted ensemble average and the single best-performing algorithm ("discrete winner"), is ideal. You will learn more about this in Section 6: SuperLearner. 
 
-# k = 17
-set.seed(1)
-data_predicted_scaled3 <- knn(train = train_scaled,
-                              test = test_scaled, 
-                              cl = train_label_scaled,
-                              k = 17, prob = TRUE)
-mean(test_label_scaled == data_predicted_scaled3)
 
 ### Challenge 1: iris knn solution
 # Load data.
@@ -62,9 +41,9 @@ CrossTable(x = test_iris_labels, y = iris_predicted_knn,
            prop.t = FALSE)
 
 # compute accuracy
-mean(test_iris_labels == iris_predicted_knn) # ~ 98% accuracy! 
+mean(test_iris_labels == iris_predicted_knn) # ~ 96% accuracy! 
 
-# Plot Petal.Length and Petal.Width
+# Plot Petal.Length and Petal.Width - can you guess why accuracy was so high? 
 ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species, shape = Species)) + 
   geom_point(size = 5, alpha = 1) + 
   ggtitle("iris petal lengths and widths") + 

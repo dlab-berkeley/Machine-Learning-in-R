@@ -356,7 +356,8 @@ knn_k <- knnEval(X = pidd[,-9], grp = pidd[,9],
 ```
 A combination of scaling the data and searching for the best cross-validated "k" can help find the proper `k` value.  
 
-**Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset?  
+**Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset? (see the solutions notebook for an answer)  
+
 ##### Challenge 1  
 1. Using what you learned above, classify predictive accuracies of the `Species` variable in the  "iris" dataset. 
 
