@@ -356,10 +356,10 @@ knn_k <- knnEval(X = pidd[,-9], grp = pidd[,9],
 ```
 A combination of scaling the data and searching for the best cross-validated "k" can help find the proper `k` value.  
 
-**Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset? (see the solutions notebook for an answer)  
+**Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset? (see the solutions file for an answer)  
 
 ##### Challenge 1  
-1. Using what you learned above, classify predictive accuracies of the `Species` variable in the  "iris" dataset. 
+1. Using what you learned above, classify knn predictive accuracies of the `Species` variable in the  "iris" dataset. 
 
 # 2.  Linear regression
 Ordinary least squares regression (OLS) can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators.  
@@ -369,27 +369,25 @@ Recall that we have already defined our Y outcome variable "age" and stored it i
 Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
 ```{r}
 # Fit the regression model.
-lm_age <- lm(pidd$age ~ ., data = subset(pidd, select = -age))
-data2_lm <- lm(Y_reg ~ ., data = data_reg)
+pidd_age <- lm(pidd$age ~ ., data = subset(pidd, select = -age))
 
 # View the regression results.
-summary(lm_age) 
-summary(data2_lm)
+summary(pidd_age) 
 
-# Predict the outcome back onto the training data.
-data2_predicted <- predict(data2_lm, data_reg) 
+# Predict the outcome back onto the data
+pidd_age_predicted <- predict(pidd_age, pidd) 
 
 # Calculate mean-squared error. 
-MSE <- mean((Y_reg - data2_predicted)^2)   
+MSE <- mean((pidd$age - pidd_age_predicted)^2)   
 
 MSE
-sqrt(MSE)
+sqrt(MSE) #RMSE
 ```
-See the [yhat blog for Fitting & Interpreting Linear Models in R](http://blog.yhat.com/posts/r-lm-summary.html) to learn more about `lm` output.  
+
+**Big question 2:** What surmise about linear regression and this dataset? (see the solutions file for an answer)  
 
 ### Challenge 2
-1) What happens to MSE when you try to predict "age" and "lfp"?  
-2) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
+1) Set up a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
 # 3.  Decision trees 
 - Decision trees are recursive partitioning methods that divides the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decesion trees attempt to classify data by dividing it into subsets according to a `Y` output variable and based on some predictors.  

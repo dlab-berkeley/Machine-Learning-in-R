@@ -1,36 +1,5 @@
-### Challenge 2: Mroz "age" regression example
-# View structure of Mroz
-names(Mroz)
+### Big question 2 answer: by using only an inflexible OLS linear regression model, we are assuming that linear relationships among the data - we don't know this for sure. 
 
-# Define our continuous Y response variable, "age". Call it "Y3"
-Y3 <- Mroz$age
-
-# Expand our predictor X variables out into indicators
-data3 <- data.frame(model.matrix( ~ ., subset(Mroz, select = -age)))
-names(data3)
-
-# Remove intercept
-data3 <- data3[, -1]
-
-# View structure of "data2"
-str(data3)
-
-# Fit the regression model.
-data3_lm <- lm(Y3 ~ ., data = data3)
-
-# View the regression results
-summary(data3_lm) 
-
-# Predict the outcome back onto the training data
-data3_predicted <- predict(data3_lm, data3) 
-
-# Calculate mean-squared error
-MSE2 <- mean((Y3 - data3_predicted)^2)   
-
-MSE2
-
-# Root mean-squared error (RMSE)
-sqrt(MSE2)
 
 ### Challenge 2: iris regression solution
 # Load the data
@@ -66,7 +35,5 @@ iris_predicted <- predict(iris_fit, X_iris)
 MSE_iris <- mean((Y_iris - iris_predicted)^2)
 
 MSE_iris
-# RMSE
-sqrt(MSE_iris)
-summary(Y_iris)
+sqrt(MSE_iris) # RMSE
  
