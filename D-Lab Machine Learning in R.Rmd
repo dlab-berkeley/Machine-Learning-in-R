@@ -3,8 +3,6 @@ title: "Introduction to Machine Learning in R"
 author: "Evan Muzzall and Chris Kennedy"
 date: "4/23/2018"
 output:
-  word_document:
-    toc: yes
   html_document:
     toc: yes
     toc_float: yes
@@ -14,7 +12,7 @@ output:
 Visit the UC Berkeley [D-Lab](http://dlab.berkeley.edu/) to learn more about our services and resources, including the [Machine Learning Working Group](http://dlab.berkeley.edu/working-groups/machine-learning-working-group-0).  
 
 # Resources
-An Introduction to Statistical Learning - with Applications in R [Amazon](https://www.amazon.com/Introduction-Statistical-Learning-Applications-Statistics/dp/1461471370) or [free PDF](http://www-bcf.usc.edu/~gareth/ISL/). We encourage you to support the authors by purchasing their textbook!
+_An Introduction to Statistical Learning - with Applications in R (2013)_ by Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Springer: New York. [Amazon](https://www.amazon.com/Introduction-Statistical-Learning-Applications-Statistics/dp/1461471370) or [free PDF](http://www-bcf.usc.edu/~gareth/ISL/). We encourage you to support the authors by purchasing their textbook!
 
 # Package installation
 The following packages are required to run the code in this workshop:
@@ -27,19 +25,19 @@ install.packages(c("caret","chemometrics", "ck37r", "class",
                   "SuperLearner"))
 }
   
-library(caret)
-library(chemometrics)
-library(ck37r)
-library(class)
-library(devtools)
-library(gbm)
-library(ggplot2)
-library(gmodels)
-library(pROC)
-library(randomForest)
-library(rpart)
-library(rpart.plot)
-library(SuperLearner)
+library(caret) # createDataPartition creates a stratified random split
+library(chemometrics) # knnEval algorithm
+library(ck37r) # impute_missing_values
+library(class) # knn
+library(devtools) # makes 
+library(gbm) # gbm algorithm
+library(ggplot2) # graphics 
+library(gmodels) # nice cross tabulations
+library(pROC) # compute and plot AUC 
+library(randomForest) # random forest algorithm
+library(rpart) # decision tree algorithm
+library(rpart.plot) # nice decision tree plotting
+library(SuperLearner) # ensemble methods
 ```
 
 # Brief history of machine learning
@@ -86,15 +84,15 @@ X are the independent/input/predictor/feature variables
 
 Supervised machine learning methods learn a target function $f$ that best maps X to Y based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
 
-Our function would look like this: $\hat{y} = f(X) + \epsilon$, where $f$ is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Therefore, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero.  
+Our function would look like this: $\hat{y} = f(X) + \epsilon$, where $f$ is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero. Therefore, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
 
 **How to define machine learning? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
 
 ##### Classification or regression?
-**Classification** is used when the `Y` outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a `1` is prediction of the "yes" category and `0` as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
+**Classification** is used when the Y outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
 
-**Regression** is used when the target Y variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
+**Regression** is used when the target Y outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
 
 ##### Data preprocessing
 A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen. **Missing data should be handled** before the splitting process commences.  
@@ -102,16 +100,16 @@ A longstanding first step is to split a dataset into **"training"** and **"test"
 ##### Model performance
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
-A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the `X` and `Y` variables.  
+A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the X and Y variables.  
 
 A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data - the patterns found in the test data could not be discerned or simply might not exist in the test data.  
 
 ##### Common performance metrics
-*Accuracy  
-*Mean squared error  
-*Sensitivity and specificity  
-*Area under the ROC curve (AUC)  
-*Cross validated error  
+- Accuracy  
+- Mean squared error  
+- Sensitivity and specificity  
+- Area under the ROC curve (AUC)  
+- Cross validated error  
 
 # Workshop goals
 ##### General goals
@@ -123,22 +121,22 @@ A model that performs well on the training dataset but poorly on the test datase
   - boosting  
   - SuperLearner  
 2) Examine the performances of these models  
-3) Simultaneously compare multiple algorithms in an ensemble  
-4) Vizualize important information:  
+3) Vizualize important information:  
   - knn accuracy tables  
   - decision trees  
   - random forest relative variable importance  
   - random forest variable importance  
   - AUC from different boosting models  
   - SuperLearner cross-validated risk  
+4) Simultaneously compare multiple algorithms in an ensemble  
 
 ##### Specific goals
 Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) to investigate the following questions:  
 
-1) **Binary classification examples:** How reliably can machine learning algorithms predict a person's diabetes status using the other variables?  
+1) **Binary classification examples:** How reliably can different machine learning algorithms predict a person's diabetes status using the other variables?  
 2) **Regression example:** How well can a person's age be predicted using the other variables?  
 
-What are these other variables?
+What are these other variables? Let's load the data and find out!  
 
 # Load the data
 Load the `PimaIndiansDiabetes2` and `iris` datasets
@@ -148,7 +146,7 @@ library(mlbench)
 # load the PimaIndiansDiabetes2 dataset
 data("PimaIndiansDiabetes2") 
 
-# read variable descriptions
+# read background information and variable descriptions
 ?PimaIndiansDiabetes2
 
 # rename the dataset to something simpler (pidd = "Pima Indians Diabetes Dataset")
@@ -160,20 +158,22 @@ str(pidd)
 # also load iris dataset for challenge questions
 data(iris)
 str(iris)
+
+# background info/variable descriptions
 ?iris
 ```
 
 # Data preprocessing
 Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly identify your Y and X variables and appropriately split your data into training and test sets if neeeded.  
 
-One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). When we predict age in our regression example below, we will do this manually for the "diabetes" column to practice. However, functions like the `lm` function will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
+One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). When we predict age in our regression example below, we will do this manually for the "diabetes" column to practice. However, functions like `lm` will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
 
 > NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data is used and multiple training/testing configurations are utilized. 
 
 # Handling missing data
-Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
+Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
 
-However, median imputation is demonstrated below for the classification examples 
+However, median imputation is demonstrated below for the classification examples
 ```{r}
 # First, count the number of missing cases in our pidd dataset
 sum(is.na(pidd)) # 652 missing cases
@@ -197,13 +197,13 @@ pidd = result$data
 # view new columns
 str(pidd)
 
-# No more missing data! 
+# No more missing data and missingness indicators have been added as columns! 
 sum(is.na(pidd)) # 0 missing cases
 ```
 
 # Defining Y outcome vectors and X feature dataframes
 ##### Classification setup
-Assign outcome to its own vector for **CLASSIFICATION tasks:** k-nearest neighbor, decision tree, random forest, gradient boosting, and SuperLearner algorithms. However, keep in mind that these algorithms can also perform regression!
+Assign the outcome variable to its own vector for **CLASSIFICATION tasks:** in this workshop, k-nearest neighbor, decision tree, random forest, gradient boosting, and SuperLearner algorithms. However, keep in mind that these algorithms can also perform regression!
 ```{r}
 # View pidd variable names
 names(pidd)
@@ -216,7 +216,7 @@ head(Y_fac, n = 20)
 Y = ifelse(Y_fac == "pos", 1, 0)
 head(Y, n = 20)
 
-# 3) Finally, define the X feature/predictor dataframe that excludes Y
+# 3) Finally, define the X feature/predictor dataframe that excludes the Y outcome
 features = subset(pidd, select = -diabetes)
 head(features) # "diabetes" column has been successfully removed
 ```
@@ -254,7 +254,7 @@ Instead, we will use R's handy `predict` function to simply create a test data s
 #1. k-nearest neighbor (knn)
 The k-nearest neighbor (knn) algorithm is a good machine learning start point because it makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. [Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
 
-`k` is the number of neighbors used to classify the point in question. Choosing a proper `k` is integral to finding the best-performing model. **Large k-values** could be bad because the class with the largest size might win regardless of influence of closer points. **Small k-values** might also be bad because neighboring points might become overly influential.  
+"k" is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. **Large k-values** could be bad because the class with the largest size might win regardless of influence of closer points. **Small k-values** might also be bad because neighboring points might become overly influential.  
 
 #####1.1 knn - selecting a starting "k-value"
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset: 
@@ -262,7 +262,7 @@ Different methods exist for choosing a start point for "k". Let's use the square
 round(sqrt(nrow(train_X)), digits=2) # 23.19
 ```
 
-Fit the model! Our goal is to predict the classification accuracy of our `Y` variable (whether or not a person has diabetes based on the other `train_X` predictor variables; 1 = yes/pos, 0 = no/neg:
+Fit the model! Our goal is to predict the classification accuracy of our Y variable (whether or not a person has diabetes based on the other `train_X` predictor variables; 1 = yes/pos, 0 = no/neg:
 ```{r}
 library(class)
 set.seed(1)
@@ -288,7 +288,7 @@ How did it do?
 Two common ways of improving model performance are to 1) standardize the data so that scale does not unduly influence classification, and 2) change the k-value. 
 
 #####1.3 knn - scale the data
-Scaling the data is useful so that variables with large values do not bias the prediction. Create a new copy of the "data" dataset called "data_scaled", which will contain scaled values with means equal to 0 and standard deviations equal to 1. Our `Y` variable remains unchanged:
+Scaling the data is useful so that variables with large values do not bias the prediction. Create a new copy of the `features` dataset called `data_scaled`, which will contain scaled values with means equal to 0 and standard deviations equal to 1. Our Y variable remains unchanged:
 ```{r}
 data_scaled = scale(features, center = TRUE, scale = TRUE)
 
@@ -317,7 +317,7 @@ train_label_scaled = Y[classification_split]
 test_label_scaled = Y[-classification_split] 
 ```
 
-2) fit the model on the scaled data  
+2) fit the model this time on the scaled data
 ```{r}
 library(class)
 set.seed(1)
@@ -327,7 +327,7 @@ data_predicted_scaled = knn(train = train_scaled,
                             k = 23, prob = TRUE)
 ```
 
-3) examine the accuracy of predictions on the scaled data:
+3) examine the accuracy of predictions on the scaled data: 
 ```{r}
 library(gmodels)
 CrossTable(x = test_label_scaled, y = data_predicted_scaled, 
@@ -353,7 +353,8 @@ knn_k = knnEval(X = pidd[,-9], grp = pidd[,9],
                  knnvec=seq(1, 51, by = 2), kfold = 10,
                  legpo="bottomright", las = 2)
 ```
-A combination of scaling the data and searching for the best cross-validated "k" can help find the proper `k` value.  
+
+A combination of scaling the data and searching for the best cross-validated "k" can help find the proper "k" value.  
 
 **Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset? (see the solutions file for an answer)  
 
@@ -361,11 +362,11 @@ A combination of scaling the data and searching for the best cross-validated "k"
 Using what you learned above, classify knn predictive accuracies of the `Species` variable in the  "iris" dataset. 
 
 #2.  Linear regression
-Ordinary least squares regression (OLS) can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators.  
+Ordinary least squares (OLS) regression can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators, but we will write it out below just for good practice.  
 
-Recall that we have already defined our Y outcome variable "age" and stored it in the object `Y_reg` as well as our dataframe of features, stored in `data_reg`. Let's fit a model that predicts the `Y_reg` using the other variables in `data_reg` as predictors.  
+This time, we will use the entire `pidd` dataset since we can use the `predict` R function to generate test data. Here, we can just define our Y outcome inside the function (`pidd$age`) and then subset the rest of `pidd` to exclude age as a way to define our predictors.  
 
-Mean squared error (MSE) will be our performance metric. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy. 
+Mean squared error (MSE) and root mean squared error (RMSE) will be our performance metrics. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy; RMSE is on the same unit scale as whatever is being estimated. 
 ```{r}
 # Fit the regression model.
 pidd_age = lm(pidd$age ~ ., data = subset(pidd, select = -age))
@@ -383,16 +384,15 @@ MSE
 sqrt(MSE) #RMSE
 ```
 
-**Big question 2:** What surmise about linear regression and this dataset? (see the solutions file for an answer)  
+**Big question 2:** What might your surmise about linear regression and this dataset? (see the solutions file for an answer)  
 
 ##### Challenge 2
 Code a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
 #3.  Decision trees 
-Decision trees are recursive partitioning methods that divides the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decesion trees attempt to classify data by dividing it into subsets according to a `Y` output variable and based on some predictors.  
+Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decesion trees attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
 
-Let's see how 
-- Let's see how a tree-based method classifies women's participation in the workforce.  
+Let's see how a decision tree classifies diabetes statuses from our dataset.  
 
 Note that we do not have to use `model.matrix` for our decision tree algorithm here because it is adept at handling factor variables:
 ```{r}
@@ -412,7 +412,7 @@ library(rpart.plot)
 rpart.plot(dec_tree) # shadow.col = "lightgray", cex = 1, type = 4, extra = 101) 
 ```
 
-We can also look inside of `dec_tree` to see what we can unpack. "variable.importance" stands out as one we should check out! 
+We can also look inside of `dec_tree` to see what we can unpack. "variable.importance" is one we should check out! 
 ```{r}
 names(dec_tree)
 dec_tree$variable.importance
@@ -420,7 +420,7 @@ dec_tree$variable.importance
 
 In decision trees the main hyperparameter (configuration setting) is the **complexity parameter** (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.  
 
-rpart uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.  
+`rpart` uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.  
 
 Print the results for various CP settings - we want the one with the lowest "xerror". We can also plot the performance estimates for different CP settings. 
 ```{r}
@@ -458,11 +458,11 @@ What are the "minsplit", "cp", and "minbucket" hyperparameters within the "contr
 > HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  
 
 #4. Random forests
-The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest is an **ensemble** method, or model averaging approach. The algorithm was invented by Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see his [1984 CART book](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418)).  
+The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest is an **ensemble** method, or model averaging approach. The algorithm was invented by UC Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see his [1984 CART book](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418)).  
 
-Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"), an algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
+Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"). An algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used by any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
 
-Fit a random forest model that tries to predict the number of people with diabetes using the other variables as our X predictors. If our Y variable is a factor, randomForest will by default perform classification; it is is numeric/integer regression will be performed and if it is omitted it will become unsupervised! 
+Fit a random forest model that predicts the number of people with diabetes using the other variables as our X predictors. If our Y variable is a factor, randomForest will by default perform classification; if it is numeric/integer regression will be performed and if it is omitted it will become unsupervised! 
 ```{r}
 library(randomForest)
 set.seed(1)
@@ -513,16 +513,18 @@ How did it do? Are the accuracies for the training and test sets similar?
 
 1. Try a few other values of mtry - can you find one that has improved performance?
 2. Maxnodes is another tuning parameter for randomForest - does changing it improve your performance?
-3. **(time permitting)** Use the iris dataset to perform classification on the "Species" variable. What are you noticing about model fits between the pidd and iris datasets? 
+3. Use the iris dataset to perform classification on the "Species" variable. What are you noticing about model fits between the pidd and iris datasets? 
 
 # 5. Boosting
+from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf):  
+
 "Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  
 
 The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
 
-However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). (from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf).  
+However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). 
 
-Rather than testing only a single model at a time, it is useful to compare tuning parameters within that single model. Bootstrap is the default, but we want cross-validation. We also want to specify different tuning parameters.  
+Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Also, bootstrap is the default, but we want cross-validation.  
 
 First create two objects - `gbm_control` and `gbm_grid`. `gbm_control` will allow us to tune the cross-validated performance metric, while `gbm_grid` lets us evaluate the model with different characteristics:
 ```{r}
@@ -555,6 +557,8 @@ Fit the model. Note that we will now use area under the ROC curve (called "AUC")
 library(caret)
 library(pROC)
 set.seed(1)
+
+# quickly convert our numeric indicators (1s and 0s) back into their original form ("pos" and "neg")
 trainlab_factor = factor(ifelse(train_label == 1, "pos", "neg"))
 testlab_factor = factor(ifelse(test_label == 1, "pos", "neg"))
 table(trainlab_factor, train_label)
@@ -613,7 +617,7 @@ Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages
 **Big question 5:** What are some defining characteristics of the algorithms we have covered in these five exercises?
 
 # 6. Ensemble methods
-You have learned how to fit several single algorithms and have explored a little about how you can define their different (hyper)parameters. However, the ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
+You have learned some of the characteristics for fitting several individual algorithms and have explored a little about how you can define their different (hyper)parameters. However, the ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
 
 Let's see how the four classification algorithms you learned in this workshop (KNN, decision tree, random forest, and gradient boosted machines) compare to each other and also to binary logistic regression (`glm`) and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
 
@@ -623,15 +627,15 @@ library(SuperLearner)
 listWrappers()
 ```
 
-Instead of splitting the data like before, since we are using cross-validation we actually want to use the entire pidd dataset - cross-validation will perform as many training and test splits as necessary (this is called the number of "folds") for us! 
+Instead of splitting the data like before, since we are using cross-validation we actually want to use the entire `pidd` dataset - cross-validation will perform as many training and test splits as necessary (this is called the number of "folds") for us! 
 ```{r}
 str(pidd)
 
-# convert our Y variable to numeric type
+# convert our Y variable to numeric type for more practice
 Y_sl = ifelse(pidd$diabetes == "pos", 1, 0)
 
 # Now, tell SuperLearner which algorithms to incorporate
-SL_library = c("SL.mean", "SL.knn", "SL.glm", "SL.rpart", "SL.randomForest", "SL.gbm")
+SL_library = c("SL.gbm", "SL.glm", "SL.knn", "SL.mean", "SL.rpart", "SL.randomForest")
 ```
 
 Fit the ensemble:
@@ -641,7 +645,7 @@ library(SuperLearner)
 # See ?set.seed for more information.
 set.seed(1, "L'Ecuyer-CMRG") 
 
-# This may take a minute to execute.
+# This will take a few minutes to execute - take a look at the .HTML file to see the output!
 cv_sl = CV.SuperLearner(Y = Y_sl, X = subset(pidd, select = -diabetes),
                          SL.library = SL_library,
                          family = binomial(),
@@ -651,14 +655,18 @@ cv_sl = CV.SuperLearner(Y = Y_sl, X = subset(pidd, select = -diabetes),
 cv_sl
 ```
 
-> NOTE: Again, this will take a few minutes to complete! See the .HTML or .PDF file for the output!
+> NOTE: Again, this will take a few minutes to complete! See the .HTML file for the output!
 
-Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View and plot results:
+Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the AUC!
 ```{r}
 summary(cv_sl)
 
+# plot the cross-validated risk
 plot(cv_sl) + theme_bw()
 # ggsave("SuperLearner.pdf")
+
+# compute AUC
+cvsl_auc(cv_sl)
 ```
 "Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
 
