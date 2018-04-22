@@ -18,11 +18,12 @@ _An Introduction to Statistical Learning - with Applications in R (2013)_ by Gar
 The following packages are required to run the code in this workshop:
 ```{r, eval = F}
 if (FALSE) {
-  # Run this line manually to install the necessary packages.
-install.packages(c("caret","chemometrics", "ck37r", "class", 
+  # Run these lines manually to install the necessary packages.
+  install.packages(c("caret","chemometrics", "class", 
                   "devtools", "gbm", "ggplot2", "gmodels", 
                   "pROC", "randomForest", "rpart", "rpart.plot", 
                   "SuperLearner"))
+  devtools::install_github("ck37/ck37r")
 }
   
 library(caret) # createDataPartition creates a stratified random split
@@ -95,36 +96,34 @@ More specifically, we can think of machine learning as a bunch of methods to est
 **Regression** is used when the target Y outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
 
 ##### Data preprocessing
-A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training dataset usually consists of a majority portion of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test dataset to evaluate model performance on data the model has not yet seen. **Missing data should be handled** before the splitting process commences.  
+A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training sample usually consists of a majority of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test sample to evaluate model performance on data the model has not yet seen. **Missing data should be handled** before the splitting process commences.  
 
 ##### Model performance
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
 A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the X and Y variables.  
 
-A model that performs well on the training dataset but poorly on the test dataset is saide to be **overfit** because the model performed poorly when given new data - the patterns found in the test data could not be discerned or simply might not exist in the test data.  
+A model that performs well on the training dataset but poorly on the test dataset is said to be **overfit** because the model performed worse than expected when given new data. To some extent the patterns found in the training data may have been random noise and therefore, by random chance, are different in the test data.  
 
 ##### Common performance metrics
 - Accuracy  
 - Mean squared error  
 - Sensitivity and specificity  
 - Area under the ROC curve (AUC)  
-- Cross validated error  
 
 # Workshop goals
 ##### General goals
-1) Learn the basics of coding six machine learning algorithms in R:  
+1) Learn the basics of using six machine learning algorithms in R:  
   - k-nearest neighbor  
   - linear regression  
   - decision tree  
   - random forest  
   - boosting  
   - SuperLearner  
-2) Examine the performances of these models  
+2) Examine the performance of these models  
 3) Vizualize important information:  
   - knn accuracy tables  
   - decision trees  
-  - random forest relative variable importance  
   - random forest variable importance  
   - AUC from different boosting models  
   - SuperLearner cross-validated risk  
@@ -143,43 +142,43 @@ Load the `PimaIndiansDiabetes2` and `iris` datasets
 ```{r}
 library(mlbench)
 
-# load the PimaIndiansDiabetes2 dataset
+# Load the PimaIndiansDiabetes2 dataset.
 data("PimaIndiansDiabetes2") 
 
-# read background information and variable descriptions
+# Read background information and variable descriptions.
 ?PimaIndiansDiabetes2
 
-# rename the dataset to something simpler (pidd = "Pima Indians Diabetes Dataset")
+# Rename the dataset to something simpler (pidd = "Pima Indians Diabetes Dataset").
 pidd = PimaIndiansDiabetes2 
 
-# view the sturcture of pidd
+# View the structure of pidd.
 str(pidd) 
 
-# also load iris dataset for challenge questions
+# Also load iris dataset for challenge questions.
 data(iris)
 str(iris)
 
-# background info/variable descriptions
+# Background info/variable descriptions.
 ?iris
 ```
 
 # Data preprocessing
-Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly identify your Y and X variables and appropriately split your data into training and test sets if neeeded.  
+Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly setup your Y and X variables and appropriately split your data into training and test sets if neeeded.  
 
-One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). When we predict age in our regression example below, we will do this manually for the "diabetes" column to practice. However, functions like `lm` will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
+One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). When we predict age in our regression example below, we will do this manually for the "diabetes" column to practice. However, functions like `lm` will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
 
-> NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data is used and multiple training/testing configurations are utilized. 
+> NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data is used and multiple training/testing splits are utilized. 
 
 # Handling missing data
 Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
 
 However, median imputation is demonstrated below for the classification examples
 ```{r}
-# First, count the number of missing cases in our pidd dataset
-sum(is.na(pidd)) # 652 missing cases
+# First, count the number of missing values across variables in our pidd dataset
+colSums(is.na(pidd))
 
-# Then, compute the proportion of missing cases in pidd
-sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of cases pidd is missing
+# Then, compute the proportion of missing values across all data cells in pidd
+sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of data points are missing
 ```
 
 Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
@@ -188,8 +187,7 @@ Neither the "diabetes" nor "age" columns have any missing cases, so we can go ah
 ```{r}
 library(ck37r)
 
-# run the median impute function
-result = impute_missing_values(pidd)
+result = impute_missing_values(pidd, verbose = TRUE)
 
 # Use the imputed dataframe.
 pidd = result$data
@@ -198,7 +196,7 @@ pidd = result$data
 str(pidd)
 
 # No more missing data and missingness indicators have been added as columns! 
-sum(is.na(pidd)) # 0 missing cases
+sum(is.na(pidd)) # 0 missing values
 ```
 
 # Defining Y outcome vectors and X feature dataframes
