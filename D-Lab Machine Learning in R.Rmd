@@ -20,7 +20,7 @@ The following packages are required to run the code in this workshop:
 if (FALSE) {
   # Run these lines manually to install the necessary packages.
   install.packages(c("caret","chemometrics", "class", 
-                  "devtools", "gbm", "ggplot2", "gmodels", 
+                  "devtools", "dplyr", "gbm", "ggplot2", "gmodels", 
                   "pROC", "randomForest", "rpart", "rpart.plot", 
                   "SuperLearner"))
   devtools::install_github("ck37/ck37r")
@@ -31,6 +31,7 @@ library(chemometrics) # knnEval algorithm
 library(ck37r) # impute_missing_values
 library(class) # knn
 library(devtools) # makes 
+library(dplyr) # data cleaning
 library(gbm) # gbm algorithm
 library(ggplot2) # graphics 
 library(gmodels) # nice cross tabulations
@@ -196,7 +197,7 @@ pidd = result$data
 str(pidd)
 
 # No more missing data and missingness indicators have been added as columns! 
-sum(is.na(pidd)) # 0 missing values
+colSums(is.na(pidd))
 ```
 
 # Defining Y outcome vectors and X feature dataframes
@@ -207,78 +208,78 @@ Assign the outcome variable to its own vector for **CLASSIFICATION tasks:** in t
 names(pidd)
 
 # 1) Define Y for classification (has diabetes? "pos" or "neg")
-Y_fac = pidd$diabetes
-head(Y_fac, n = 20)
+y_fac = pidd$diabetes
+head(y_fac, n = 20)
 
 # 2) Then, convert "pos" to 1 and "neg" to 0. Many algorithms expect 1's for the positive class and 0's for the negative class.
-Y = ifelse(Y_fac == "pos", 1, 0)
-head(Y, n = 20)
+y = as.integer(y_fac == "pos")
+table(y, y_fac, useNA = "ifany")
 
-# 3) Finally, define the X feature/predictor dataframe that excludes the Y outcome
+# 3) Finally, define the X feature/predictor dataframe that excludes the Y outcome.
 features = subset(pidd, select = -diabetes)
-head(features) # "diabetes" column has been successfully removed
+
+# Diabetes column has been successfully removed.
+head(names(features))
 ```
 
-We then can take the "traditional" approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
+We then can take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
 ```{r}
 library(caret)
 
-# set seed for reproducibility
+# Set seed for reproducibility.
 set.seed(1)
 
-# Create a stratified random split
-classification_split = createDataPartition(Y, p=0.70, list=FALSE) 
+# Create a stratified random split.
+training_rows = createDataPartition(y, p = 0.70, list = FALSE) 
 
-train_X = features[classification_split, ] # partition training dataset
-test_X = features[-classification_split, ] # partition test dataset
+train_x = features[training_rows, ] # partition training dataset
+test_x = features[-training_rows, ] # partition test dataset
 
-train_label = Y[classification_split] # partition training Y vector labels
-test_label = Y[-classification_split] # partition test Y vector labels
+train_label = y[training_rows] # partition training Y vector labels
+test_label = y[-training_rows] # partition test Y vector labels
 
-# lengths of our Y label vectors and the  number of rows in our training dataframes are the same for both training and test sets!
-dim(train_X)
+# lengths of our Y label vectors and the number of rows in our training dataframes are the same for both training and test sets!
+dim(train_x)
 length(train_label)
 
-dim(test_X)
+dim(test_x)
 length(test_label)
 ```
 
 ##### Regression setup
-We could do something similar for our lone **REGRESSION task:** linear regression. There are forms of regression that can perform classification (such as `glm`), but the one we use here - `lm` - is not one of them. Hence, we can only predict a continuous/integer Y output variable. 
+We could do something similar for our lone **REGRESSION task:** linear regression. 
 
-Instead, we will use R's handy `predict` function to simply create a test data set based on predictions on all the data. 
+We will use R's handy `predict` function to simply create a pseudo-test sample using predictions on all the data. 
 
 # Algorithm walkthroughs
 #1. k-nearest neighbor (knn)
 The k-nearest neighbor (knn) algorithm is a good machine learning start point because it makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. [Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
 
-"k" is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. **Large k-values** could be bad because the class with the largest size might win regardless of influence of closer points. **Small k-values** might also be bad because neighboring points might become overly influential.  
+"k" is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. **Large k-values** could be bad because the class with the largest size might win regardless of the influence of closer points. **Small k-values** might also be bad because neighboring points might become overly influential.  
 
 #####1.1 knn - selecting a starting "k-value"
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset: 
 ```{r}
-round(sqrt(nrow(train_X)), digits=2) # 23.19
+(sqrt_rows = round(sqrt(nrow(train_x)))) # 23
 ```
 
-Fit the model! Our goal is to predict the classification accuracy of our Y variable (whether or not a person has diabetes based on the other `train_X` predictor variables; 1 = yes/pos, 0 = no/neg:
+Fit the model! Our goal is to predict the classification accuracy of our Y variable (whether or not a person has diabetes based on the other `train_x` predictor variables; 1 = yes/pos, 0 = no/neg:
 ```{r}
 library(class)
+# Set our seed because ties are randomly broken in knn.
 set.seed(1)
-data_predicted = knn(train = train_X, test = test_X,
-                     cl = train_label, k = 23, prob = TRUE)
+knn_result = knn(train = train_x, test = test_x,
+                 cl = train_label, k = sqrt_rows, prob = TRUE)
 ```
 
 Using accuracy as our performance metric, compute a contingency table to see how well the model predicted yes and no:
 ```{r}
 library(gmodels)
-CrossTable(x = test_label, y = data_predicted, 
-           prop.chisq = F,
-           prop.r = F,
-           prop.c = F,
-           prop.t = F)
+CrossTable(x = test_label, y = knn_result, chisq = FALSE,
+           prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
 
 # Compute accuracy - how did we do?
-mean(test_label == data_predicted) # ~ 0.72
+mean(test_label == knn_result) # ~ 0.72
 ```
 How did it do?  
 
@@ -288,76 +289,78 @@ Two common ways of improving model performance are to 1) standardize the data so
 #####1.3 knn - scale the data
 Scaling the data is useful so that variables with large values do not bias the prediction. Create a new copy of the `features` dataset called `data_scaled`, which will contain scaled values with means equal to 0 and standard deviations equal to 1. Our Y variable remains unchanged:
 ```{r}
-data_scaled = scale(features, center = TRUE, scale = TRUE)
+# Scale the dataset after first log-transforming insulin.
+data_scaled = features %>% mutate(insulin = log(insulin)) %>%
+  scale(center = TRUE, scale = TRUE) %>% data.frame()
 
-# Look at the new distributions
-boxplot(features, horizontal = T, las = 1)
-boxplot(data_scaled, horizontal = T, las = 1)
+# Quick function to make a boxplot for each variable in a dataset.
+ggbox = function(df) {
+  ggplot(stack(df),
+        aes(x = factor(ind, levels = rev(names(df))), y = values)) +
+  geom_boxplot() + theme_minimal() + coord_flip() + xlab("")
+}
+
+ggbox(features)
+ggbox(data_scaled)
 ```
 
 Repeat the process:  
 1) split the scaled data  
 ```{r}
-# Use "split" to create the training partition.
-set.seed(1)
-train_scaled = data_scaled[classification_split, ] 
+# Create the training set.
+train_scaled = data_scaled[training_rows, ] 
 
-# Create the training set
-training_scaled = data_scaled[classification_split, ] 
+# Create the test set.
+test_scaled = data_scaled[-training_rows, ] 
 
-# Create the test set
-test_scaled = data_scaled[-classification_split, ] 
+# Extract outcome data for training set.
+train_label_scaled = y[training_rows] 
 
-# Extract outcome data for training set
-train_label_scaled = Y[classification_split] 
-
-# Extract outcome data for test set
-test_label_scaled = Y[-classification_split] 
+# Extract outcome data for test set.
+test_label_scaled = y[-training_rows] 
 ```
 
 2) fit the model this time on the scaled data
 ```{r}
 library(class)
 set.seed(1)
-data_predicted_scaled = knn(train = train_scaled,
-                            test = test_scaled, 
-                            cl = train_label_scaled,
-                            k = 23, prob = TRUE)
+knn_result_scaled = knn(train = train_scaled, test = test_scaled, 
+                        cl = train_label_scaled, k = sqrt_rows, prob = TRUE)
 ```
 
 3) examine the accuracy of predictions on the scaled data: 
 ```{r}
 library(gmodels)
-CrossTable(x = test_label_scaled, y = data_predicted_scaled, 
-           prop.chisq = F,
-           prop.r = F,
-           prop.c = F,
-           prop.t = F)
+CrossTable(x = test_label_scaled, y = knn_result_scaled, 
+           prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
 
 # Compute accuracy
-mean(test_label_scaled == data_predicted_scaled) # ~0.71
+mean(test_label_scaled == knn_result_scaled) # ~0.71
 ```
 
 Did scaling the data help?  
 
 #####1.4 knn - improving performance metrics - change k-value
-Scaling our data actually _reduced_ our accuracy a little. It also helps to investigate the cross-validated errors for multiple k-values at once to see which is ideal. Plot the cross-validated errors:
+
+Scaling our data actually _reduced_ our accuracy a little, although we have not created confidence intervals for a formal statistical test of equality. It also helps to investigate the cross-validated accuracy for multiple k-values at once to see which is ideal. Plot the cross-validated error rates:
+
 ```{r}
 library(chemometrics)
 
 set.seed(1)
-knn_k = knnEval(X = pidd[,-9], grp = pidd[,9], 
-                 train = classification_split, 
-                 knnvec=seq(1, 51, by = 2), kfold = 10,
-                 legpo="bottomright", las = 2)
+knn_k = knnEval(X = data_scaled, grp = y_fac, train = training_rows, 
+                knnvec = c(1, 2, 3, 4, 5, 10, 20, 30, 40, 50),
+                kfold = 20, las = 2)
 ```
 
-A combination of scaling the data and searching for the best cross-validated "k" can help find the proper "k" value.  
+We could choose the k that yields the lowest cross-validated error rate on the training data, or the k with the lowest test error rate. Looks like a k of 40 would be a good choice, especially compared to a small number like 1-4.
+
+A combination of scaling the data and searching for the best cross-validated "k" can help maximize the accuracy of k-nearest neighbors. We don't have time to cover today but integrating kernels, alternative distance metrics, and feature selection are additional ways to maximize the performance.
 
 **Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset? (see the solutions file for an answer)  
 
 ##### Challenge 1  
-Using what you learned above, classify knn predictive accuracies of the `Species` variable in the  "iris" dataset. 
+Using what you learned above, classify knn predictive accuracies of the `Species` variable in the "iris" dataset. 
 
 #2.  Linear regression
 Ordinary least squares (OLS) regression can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators, but we will write it out below just for good practice.  
