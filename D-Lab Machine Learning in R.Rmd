@@ -9,41 +9,60 @@ output:
 ---
 
 # Introduction 
+
 Visit the UC Berkeley [D-Lab](http://dlab.berkeley.edu/) to learn more about our services and resources, including the [Machine Learning Working Group](http://dlab.berkeley.edu/working-groups/machine-learning-working-group-0).  
 
-# Resources
+## Resources
+
 _An Introduction to Statistical Learning - with Applications in R (2013)_ by Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Springer: New York. [Amazon](https://www.amazon.com/Introduction-Statistical-Learning-Applications-Statistics/dp/1461471370) or [free PDF](http://www-bcf.usc.edu/~gareth/ISL/). We encourage you to support the authors by purchasing their textbook!
 
-# Package installation
+## Package installation
+
 The following packages are required to run the code in this workshop:
-```{r, eval = F}
+
+```{r setup, eval = TRUE}
 if (FALSE) {
-  # Run these lines manually to install the necessary packages.
-  install.packages(c("caret","chemometrics", "class", 
-                  "devtools", "dplyr", "gbm", "ggplot2", "gmodels", 
-                  "pROC", "randomForest", "rpart", "rpart.plot", 
-                  "SuperLearner"))
-  devtools::install_github("ck37/ck37r")
-}
+  # Run these lines manually (once) to install the necessary packages.
   
-library(caret) # createDataPartition creates a stratified random split
-library(chemometrics) # knnEval algorithm
-library(ck37r) # impute_missing_values
-library(class) # knn
-library(devtools) # makes 
-library(dplyr) # data cleaning
-library(gbm) # gbm algorithm
-library(ggplot2) # graphics 
-library(gmodels) # nice cross tabulations
-library(pROC) # compute and plot AUC 
-library(randomForest) # random forest algorithm
-library(rpart) # decision tree algorithm
-library(rpart.plot) # nice decision tree plotting
-library(SuperLearner) # ensemble methods
+  # Install packages from CRAN.
+  install.packages(c(# Algorithms
+                     "class", "gbm", "randomForest", "ranger", "rpart", "xgboost",
+                     # Visualization
+                     "ggplot2", "rpart.plot", 
+                     # Machine learning frameworks
+                     "caret", "SuperLearner",
+                     # R utility packages
+                     "devtools", "dplyr",
+                     # Misc
+                     "gmodels", "mlbench", "pROC", "chemometrics"))
+  
+  # Install packages not on CRAN or with old version on CRAN.
+  devtools::install_github(c("ck37/ck37r"))
+}
+
+# Hide the many messages and possible warnings from loading all these packages.
+suppressMessages(suppressWarnings({  
+  library(caret)        # createDataPartition creates a stratified random split
+  library(chemometrics) # knnEval algorithm
+  library(ck37r)        # impute_missing_values, SuperLearner helpers
+  library(class)        # K nearest neighbors
+  library(devtools)     # Allows installing packages from github
+  library(dplyr)        # Data cleaning
+  library(gbm)          # Gradient boosted machines
+  library(ggplot2)      # Graphics 
+  library(gmodels)      # Nice cross tabulations
+  library(magrittr)     # Pipes %>% for data cleaning, installed by dplyr.
+  library(pROC)         # Compute and plot AUC 
+  library(randomForest) # random forest algorithm
+  library(rpart)        # Decision tree algorithm
+  library(rpart.plot)   # Decision tree plotting
+  library(SuperLearner) # Ensemble methods
+}))
 ```
 
-# Brief history of machine learning
-Machine learning evolved from scientific pursuits in computational/information theory, artificial intelligence, and pattern recognition.  
+## Brief history of machine learning
+
+Machine learning evolved from scientific pursuits in statistics, computer science, information theory, artificial intelligence, and pattern recognition.  
 
 How to define machine learning?  
 1) **In general:** algorithms, computers, and other machines that can "learn" without direct input from a human programmer.  
@@ -75,6 +94,7 @@ Seek "actionable insight":
 - ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
 
 # Supervised machine learning
+
 Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method applicable to all cases. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on two main subtypes of supervised machine learning: classification and regression.  
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
@@ -92,14 +112,17 @@ Our function would look like this: $\hat{y} = f(X) + \epsilon$, where $f$ is som
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
 
 ##### Classification or regression?
+
 **Classification** is used when the Y outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
 
 **Regression** is used when the target Y outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$.  
 
 ##### Data preprocessing
+
 A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training sample usually consists of a majority of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test sample to evaluate model performance on data the model has not yet seen. **Missing data should be handled** before the splitting process commences.  
 
 ##### Model performance
+
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
 A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the X and Y variables.  
@@ -107,13 +130,16 @@ A model that performs poorly on the training dataset is **underfit** because it 
 A model that performs well on the training dataset but poorly on the test dataset is said to be **overfit** because the model performed worse than expected when given new data. To some extent the patterns found in the training data may have been random noise and therefore, by random chance, are different in the test data.  
 
 ##### Common performance metrics
+
 - Accuracy  
 - Mean squared error  
 - Sensitivity and specificity  
 - Area under the ROC curve (AUC)  
 
 # Workshop goals
+
 ##### General goals
+
 1) Learn the basics of using six machine learning algorithms in R:  
   - k-nearest neighbor  
   - linear regression  
@@ -140,7 +166,7 @@ What are these other variables? Let's load the data and find out!
 
 # Load the data
 Load the `PimaIndiansDiabetes2` and `iris` datasets
-```{r}
+```{r load_data}
 library(mlbench)
 
 # Load the PimaIndiansDiabetes2 dataset.
@@ -164,6 +190,7 @@ str(iris)
 ```
 
 # Data preprocessing
+
 Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly setup your Y and X variables and appropriately split your data into training and test sets if neeeded.  
 
 One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). When we predict age in our regression example below, we will do this manually for the "diabetes" column to practice. However, functions like `lm` will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
@@ -171,10 +198,11 @@ One additional preprocessing aspect to consider: datasets that contain factor (c
 > NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data is used and multiple training/testing splits are utilized. 
 
 # Handling missing data
+
 Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
 
 However, median imputation is demonstrated below for the classification examples
-```{r}
+```{r review_missingness}
 # First, count the number of missing values across variables in our pidd dataset
 colSums(is.na(pidd))
 
@@ -184,8 +212,8 @@ sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of data points are missing
 
 Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
 
-Neither the "diabetes" nor "age" columns have any missing cases, so we can go ahead and impute the whole dataset! 
-```{r}
+Neither the "diabetes" nor "age" columns have any missing values, so we can go ahead and impute the whole dataset! 
+```{r impute_missing_values}
 library(ck37r)
 
 result = impute_missing_values(pidd, verbose = TRUE)
@@ -201,9 +229,12 @@ colSums(is.na(pidd))
 ```
 
 # Defining Y outcome vectors and X feature dataframes
+
 ##### Classification setup
+
 Assign the outcome variable to its own vector for **CLASSIFICATION tasks:** in this workshop, k-nearest neighbor, decision tree, random forest, gradient boosting, and SuperLearner algorithms. However, keep in mind that these algorithms can also perform regression!
-```{r}
+
+```{r data_prep}
 # View pidd variable names
 names(pidd)
 
@@ -223,7 +254,7 @@ head(names(features))
 ```
 
 We then can take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
-```{r}
+```{r caret_split}
 library(caret)
 
 # Set seed for reproducibility.
@@ -247,17 +278,20 @@ length(test_label)
 ```
 
 ##### Regression setup
+
 We could do something similar for our lone **REGRESSION task:** linear regression. 
 
 We will use R's handy `predict` function to simply create a pseudo-test sample using predictions on all the data. 
 
 # Algorithm walkthroughs
+
 #1. k-nearest neighbor (knn)
 The k-nearest neighbor (knn) algorithm is a good machine learning start point because it makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. [Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
 
 "k" is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. **Large k-values** could be bad because the class with the largest size might win regardless of the influence of closer points. **Small k-values** might also be bad because neighboring points might become overly influential.  
 
-#####1.1 knn - selecting a starting "k-value"
+#####1.1 knn - selecting a starting k value
+
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset: 
 ```{r}
 (sqrt_rows = round(sqrt(nrow(train_x)))) # 23
@@ -284,9 +318,11 @@ mean(test_label == knn_result) # ~ 0.72
 How did it do?  
 
 #####1.2 knn - improving performance metrics
+
 Two common ways of improving model performance are to 1) standardize the data so that scale does not unduly influence classification, and 2) change the k-value. 
 
 #####1.3 knn - scale the data
+
 Scaling the data is useful so that variables with large values do not bias the prediction. Create a new copy of the `features` dataset called `data_scaled`, which will contain scaled values with means equal to 0 and standard deviations equal to 1. Our Y variable remains unchanged:
 ```{r}
 # Scale the dataset after first log-transforming insulin.
@@ -300,8 +336,9 @@ ggbox = function(df) {
   geom_boxplot() + theme_minimal() + coord_flip() + xlab("")
 }
 
-ggbox(features)
-ggbox(data_scaled)
+# Note the much larger scale for insulin, and to a lesser extent glucose.
+ggbox(features) + ggtitle("Distribution of original features")
+ggbox(data_scaled) + ggtitle("Distribution of rescaled features")
 ```
 
 Repeat the process:  
@@ -468,7 +505,7 @@ The random forest algorithm seeks to improve on the performance of a single deci
 Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"). An algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used by any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
 
 Fit a random forest model that predicts the number of people with diabetes using the other variables as our X predictors. If our Y variable is a factor, randomForest will by default perform classification; if it is numeric/integer regression will be performed and if it is omitted it will become unsupervised! 
-```{r}
+```{r rf_fit}
 library(randomForest)
 set.seed(1)
 (rf1 = randomForest(as.factor(train_label) ~ ., 
@@ -538,7 +575,7 @@ However, the cases that the model has difficulty predicting are _upweighted_ so 
 Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Also, bootstrap is the default, but we want cross-validation.  
 
 First create two objects - `gbm_control` and `gbm_grid`. `gbm_control` will allow us to tune the cross-validated performance metric, while `gbm_grid` lets us evaluate the model with different characteristics:
-```{r}
+```{r gbm_prep}
 # Use 10-fold cross-validation with 3-repeats as our evaluation procedure
 # (instead of the default "bootstrap").
 gbm_control = trainControl(method = "repeatedcv",
@@ -568,7 +605,7 @@ Fit the model. Note that we will now use area under the ROC curve (called "AUC")
 
 > NOTE: This will take a few minutes to complete! See the .html file for the output.
 
-```{r}
+```{r gbm_fit, cache = TRUE}
 library(caret)
 library(pROC)
 set.seed(1)
@@ -654,7 +691,8 @@ sl_lib = c("SL.xgboost", "SL.glm", "SL.knn", "SL.mean", "SL.rpart", "SL.ranger")
 ```
 
 Fit the ensemble:
-```{r sl_fit}
+
+```{r cvsl_fit, cache = TRUE}
 library(SuperLearner)
 # This is a seed that is compatible with multicore parallel processing.
 # See ?set.seed for more information.
@@ -672,7 +710,7 @@ summary(cv_sl)
 > NOTE: Again, this will take a few minutes to complete! See the .html file for the output!
 
 Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the AUC!
-```{r}
+```{r cvsl_review}
 summary(cv_sl)
 
 # Plot the cross-validated risk estimate.
