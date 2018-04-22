@@ -365,24 +365,24 @@ Using what you learned above, classify knn predictive accuracies of the `Species
 #2.  Linear regression
 Ordinary least squares (OLS) regression can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators, but we will write it out below just for good practice.  
 
-This time, we will use the entire `pidd` dataset since we can use the `predict` R function to generate test data. Here, we can just define our Y outcome inside the function (`pidd$age`) and then subset the rest of `pidd` to exclude age as a way to define our predictors.  
+This time, we will use the entire `pidd` dataset since we can use the `predict` R function to generate pseudo-test data. Here, we can just define our Y outcome inside the function (`pidd$age`) and then subset the rest of `pidd` to exclude age as a way to define our predictors.  
 
-Mean squared error (MSE) and root mean squared error (RMSE) will be our performance metrics. MSE measures the difference between observed and expected values, with smaller values tending to reflect greater predictive accuracy; RMSE is on the same unit scale as whatever is being estimated. 
+Mean squared error (MSE) and root mean squared error (RMSE) will be our performance metrics. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
 ```{r}
 # Fit the regression model.
-pidd_age = lm(pidd$age ~ ., data = subset(pidd, select = -age))
+reg = lm(age ~ ., data = pidd)
 
 # View the regression results.
-summary(pidd_age) 
+summary(reg) 
 
-# Predict the outcome back onto the data
-pidd_age_predicted = predict(pidd_age, pidd) 
+# Generate predicted values using the original (training) data.
+predictions = predict(reg, pidd) 
 
 # Calculate mean-squared error. 
-MSE = mean((pidd$age - pidd_age_predicted)^2)   
+(mse = mean((pidd$age - predictions)^2))
 
-MSE
-sqrt(MSE) #RMSE
+# Root mean squared error (RMSE).
+sqrt(mse)
 ```
 
 **Big question 2:** What might your surmise about linear regression and this dataset? (see the solutions file for an answer)  
@@ -391,32 +391,34 @@ sqrt(MSE) #RMSE
 Code a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
 #3.  Decision trees 
-Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decesion trees attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
+Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decision trees attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
 
-Let's see how a decision tree classifies diabetes statuses from our dataset.  
+Let's see how a decision tree classifies diabetes status from our dataset.  
 
-Note that we do not have to use `model.matrix` for our decision tree algorithm here because it is adept at handling factor variables:
+Note that we do not have to use `model.matrix` for our decision tree algorithm here because it can work with factor variables directly:
 ```{r}
 library(rpart)
 
-dec_tree = rpart(Y ~ ., data = features,
-            method = "class", # or method ="anova" for a regression tree
-            parms = list(split = "information")) # or "gini" for gini coefficient
+tree = rpart(y ~ ., data = features,
+             # Use method = "anova" for a continuous outcome.
+             method = "class",
+             # Can use "gini" for gini coefficient.
+             parms = list(split = "information")) 
 
 # Here is the text-based display of the decision tree. Yikes!  :^( 
-print(dec_tree)
+print(tree)
 ```
 
-Although interpreting the text can be intimidating, a decision tree's main strength is its tree-like plot, which is much easier to interpret
+Although interpreting the text can be intimidating, a decision tree's main strength is its tree-like plot, which is much easier to interpret.
 ```{r}
 library(rpart.plot)
-rpart.plot(dec_tree) # shadow.col = "lightgray", cex = 1, type = 4, extra = 101) 
+rpart.plot(tree) # shadow.col = "lightgray", cex = 1, type = 4, extra = 101) 
 ```
 
-We can also look inside of `dec_tree` to see what we can unpack. "variable.importance" is one we should check out! 
+We can also look inside of `tree` to see what we can unpack. "variable.importance" is one we should check out! 
 ```{r}
-names(dec_tree)
-dec_tree$variable.importance
+names(tree)
+tree$variable.importance
 ```
 
 In decision trees the main hyperparameter (configuration setting) is the **complexity parameter** (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.  
@@ -425,14 +427,16 @@ In decision trees the main hyperparameter (configuration setting) is the **compl
 
 Print the results for various CP settings - we want the one with the lowest "xerror". We can also plot the performance estimates for different CP settings. 
 ```{r}
-printcp(dec_tree) # print various CP settings
+# Show estimated error rate at different complexity parameter settings.
+printcp(tree)
 
-plotcp(dec_tree) # Plot their performance estimates
+# Plot those estimated error rates.
+plotcp(tree)
 
 # 2 or 14 splits appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. However, a tree with 14 splits has a lower relative error. 
-tree_pruned2 = prune(dec_tree, cp = 0.017724) # 2 splits
+tree_pruned2 = prune(tree, cp = 0.017724) # 2 splits
 
-tree_pruned14 = prune(dec_tree, cp = 0.010000) # 14 splits
+tree_pruned14 = prune(tree, cp = 0.010000) # 14 splits
 
 # Print detailed results, variable importance, and summary of splits.
 ```
@@ -449,7 +453,7 @@ summary(tree_pruned14)
 rpart.plot(tree_pruned14)
 ```
 
-You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type ?rpart to learn more.  
+You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type `?rpart` to learn more.  
 
 **Big question 3:** What do you notice about the tree with 2 splits and the tree with 14 splits? Are there any parts that are identical?  
 
@@ -459,7 +463,7 @@ What are the "minsplit", "cp", and "minbucket" hyperparameters within the "contr
 > HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  
 
 #4. Random forests
-The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest is an **ensemble** method, or model averaging approach. The algorithm was invented by UC Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see his [1984 CART book](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418)).  
+The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest can be viewed as an **ensemble** method, or model averaging approach. The algorithm was invented by UC Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see his [1984 CART book](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418)).  
 
 Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"). An algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used by any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
 
@@ -467,42 +471,48 @@ Fit a random forest model that predicts the number of people with diabetes using
 ```{r}
 library(randomForest)
 set.seed(1)
-rf1 = randomForest(as.factor(train_label) ~ ., 
-                    data = train_X, 
-                    # Number of trees
-                    ntree = 500, 
-                    # Number of variables randomly sampled as candidates at each split.
-                    mtry = 2, 
-                    # We want the importance of predictors to be assessed.
-                    importance = TRUE) 
-
-rf1
+(rf1 = randomForest(as.factor(train_label) ~ ., 
+                   data = train_x, 
+                   # Number of trees
+                   ntree = 500, 
+                   # Number of variables randomly sampled as candidates at each split.
+                   mtry = 2, 
+                   # We want the importance of predictors to be assessed.
+                   importance = TRUE))
 ```
 
 The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$. OOB stands for "out of bag" - and bag is short for "bootstrap aggregation". So OOB estimates performance by comparing the predicted outcome value to the actual value across all trees using only the observations that were not part of the training data for that tree.
 
 We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.
 ```{r}
-# As the function name suggests, this creates a variable importance plot
 varImpPlot(rf1)
 
 # Raw data
 rf1$importance
 ```
 
-You can read up on the [gini coefficient](https://en.wikipedia.org/wiki/Gini_coefficient) if interested. It's basically a measure of diversity or dispersion - a higher gini means the model is classifying better. The gini version does not randomly shuffle the variable cells.  
+You can read up on the [gini coefficient](https://en.wikipedia.org/wiki/Gini_coefficient) if interested. It's basically a measure of diversity or dispersion - a higher gini means the model is classifying better. The gini version does not randomly shuffle the variable values.  
 
 Now, the goal is to see how the model performs on the test dataset:
 ```{r}
-rf_predicted = predict(rf1, newdata = test_X)
-table(rf_predicted, test_label)
+# This will predict the outcome class.
+predicted_label = predict(rf1, newdata = test_x)
+table(predicted_label, test_label)
 ```
 
 Check the accuracy of the test set:
 ```{r}
-mean(rf_predicted == test_label) # ~0.73
+mean(predicted_label == test_label) # ~0.73
+
+# We can also generated probability predictions, which are more granular.
+predicted_prob = as.data.frame(predict(rf1, newdata = test_x, type = "prob"))
+colnames(predicted_prob) = c("no", "yes")
+summary(predicted_prob)
+ggplot(predicted_prob, aes(x = yes)) + geom_histogram() + theme_minimal()
 
 # devtools::install_github("ck37/ck37r")
+
+# Review number of terminal nodes (aka "leaves") across the decision trees.
 summary(ck37r::rf_count_terminal_nodes(rf1))
 ```
 
@@ -529,87 +539,91 @@ Rather than testing only a single model at a time, it is useful to tune the para
 
 First create two objects - `gbm_control` and `gbm_grid`. `gbm_control` will allow us to tune the cross-validated performance metric, while `gbm_grid` lets us evaluate the model with different characteristics:
 ```{r}
-# Choose 10-fold repeated measure cross-validation as our performance metric
-# (instead of the default "bootstrap")
-gbm_control = trainControl(method = "repeatedcv", 
-	repeats = 10,
-	# Calculate class probabilities
-	classProbs = TRUE,
-	# Indicate that our response varaible is binary
-	summaryFunction = twoClassSummary) 
+# Use 10-fold cross-validation with 3-repeats as our evaluation procedure
+# (instead of the default "bootstrap").
+gbm_control = trainControl(method = "repeatedcv",
+                           number = 10L,
+                           repeats = 3L,
+                           # Calculate class probabilities.
+                           classProbs = TRUE,
+                           # Indicate that our response varaible is binary.
+                           summaryFunction = twoClassSummary) 
 
 
 gbm_grid = expand.grid(
   # Number of trees to fit, aka boosting iterations
-  n.trees = seq(1, 1500, by = 100),
-  # Depth of the decision tree (how many splits)
-	interaction.depth = c(1, 3, 5), 
-  # Learning rate: lower means the ensemble will adapt more slowly
-	shrinkage = c(0.01, 0.05, 0.1),
-  # Stop splitting a tree if we only have this many obs in a tree node
-	n.minobsinnode = 10)
+  n.trees = seq(100, 1000, by = 300),
+  # Depth of the decision tree (how many levels of splits).
+	interaction.depth = c(1L, 3L, 5L), 
+  # Learning rate: lower means the ensemble will adapt more slowly.
+	shrinkage = c(0.001, 0.01, 0.1),
+  # Stop splitting a tree if we only have this many obs in a tree node.
+	n.minobsinnode = 10L)
+
+# How many combinations of settings do we end up with?
+nrow(gbm_grid)
 ```
 
 Fit the model. Note that we will now use area under the ROC curve (called "AUC") as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).  
 
-> NOTE: This will take a few minutes to complete! See the .HTML or .PDF file for the output.
+> NOTE: This will take a few minutes to complete! See the .html file for the output.
 
 ```{r}
 library(caret)
 library(pROC)
 set.seed(1)
 
-# quickly convert our numeric indicators (1s and 0s) back into their original form ("pos" and "neg")
+# Convert our numeric indicators (1s and 0s) back into factors ("pos" and "neg")
 trainlab_factor = factor(ifelse(train_label == 1, "pos", "neg"))
 testlab_factor = factor(ifelse(test_label == 1, "pos", "neg"))
 table(trainlab_factor, train_label)
 table(testlab_factor, test_label)
 
 # cbind: caret expects the Y response and X predictors to be part of the same dataframe
-gbm1 = train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_X), 
-             # We want the method gradient boosted machine ("gbm")
+gbm1 = train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_x), 
+             # Use gradient boosted machine ("gbm") algorithm.
              method = "gbm",
              # Use "AUC" as our performance metric, which caret incorrectly calls "ROC"
              metric = "ROC",
-             # Specify our cross-validated performance metric settings
+             # Specify our cross-validated performance metric settings.
              trControl = gbm_control,
-             # Define our gbm model tunings
+             # Define our gbm model tuning grid.
              tuneGrid = gbm_grid,
-             # Keep output hidden (setting to TRUE will print this output)
-             verbose = F)
+             # Hide detailed output (setting to TRUE will print that output).
+             verbose = FALSE)
 
-# See how long this algorithm took to complete
+# See how long this algorithm took to complete.
 gbm1$times 
 
-# Review model summary table
-gbm1 
+# Review model summary table.
+gbm1
 
-# Plot variable importance
+# Plot the performance across all hyperparameter combinations.
+ggplot(gbm1) + theme_bw() + ggtitle("GBM hyperparameter comparison") 
+# ggsave("gbm tuning comparison.png")
+
+# Plot variable importance.
 summary(gbm1, las = 2)
 
-# Generate predicted values
-gbm_predicted = predict(gbm1, test_X)
+# Generate predicted labels.
+gbm_predicted = predict(gbm1, test_x)
 
-# Generate class probabilities
-gbm_probs = predict(gbm1, test_X, type = "prob")
+# Generate class probabilities.
+gbm_probs = predict(gbm1, test_x, type = "prob")
 
 # View final model
-gbm_cm = confusionMatrix(gbm_predicted, testlab_factor)
-gbm_cm
+(gbm_cm = confusionMatrix(gbm_predicted, testlab_factor))
 
 # Define ROC characteristics
-rocCurve = roc(response = testlab_factor,
-	predictor = gbm_probs[, "neg"],
-	levels = rev(levels(testlab_factor)),
-	auc=TRUE, ci=TRUE)
+(rocCurve = roc(response = testlab_factor,
+                predictor = gbm_probs[, "neg"],
+                levels = rev(levels(testlab_factor)),
+                auc = TRUE, ci = TRUE))
 
-# Plot AUC
+# Plot ROC curve with optimal threshold.
 plot(rocCurve, print.thres = "best", main = "GBM", col = "blue") 
-# ggsave("gbm AUC.png")
+# ggsave("gbm ROC.png")
 
-# Plot the cross-validated AUC of the different configurations
-ggplot(gbm1) + theme_bw() + ggtitle("GBM model comparisons") 
-# ggsave("gbm tuning comparison.png")
 ```
 
 Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages/xgboost/index.html) for a more powerful way to boost your trees.  
@@ -632,48 +646,53 @@ Instead of splitting the data like before, since we are using cross-validation w
 ```{r}
 str(pidd)
 
-# convert our Y variable to numeric type for more practice
-Y_sl = ifelse(pidd$diabetes == "pos", 1, 0)
+# Convert our Y variable to integer type.
+y_int = as.integer(pidd$diabetes == "pos")
 
-# Now, tell SuperLearner which algorithms to incorporate
-SL_library = c("SL.gbm", "SL.glm", "SL.knn", "SL.mean", "SL.rpart", "SL.randomForest")
+# Compile the algorithm wrappers to be used.
+sl_lib = c("SL.xgboost", "SL.glm", "SL.knn", "SL.mean", "SL.rpart", "SL.ranger")
 ```
 
 Fit the ensemble:
-```{r}
+```{r sl_fit}
 library(SuperLearner)
 # This is a seed that is compatible with multicore parallel processing.
 # See ?set.seed for more information.
 set.seed(1, "L'Ecuyer-CMRG") 
 
-# This will take a few minutes to execute - take a look at the .HTML file to see the output!
-cv_sl = CV.SuperLearner(Y = Y_sl, X = subset(pidd, select = -diabetes),
-                         SL.library = SL_library,
+# This will take a few minutes to execute - take a look at the .html file to see the output!
+cv_sl = CV.SuperLearner(Y = y_int, X = subset(pidd, select = -diabetes),
+                         SL.library = sl_lib,
                          family = binomial(),
-                         cvControl = list(V = 5),
-                         # Set to T to show details
-                         verbose = F)
-cv_sl
+                         cvControl = list(V = 5L),
+                         verbose = TRUE)
+summary(cv_sl)
 ```
 
-> NOTE: Again, this will take a few minutes to complete! See the .HTML file for the output!
+> NOTE: Again, this will take a few minutes to complete! See the .html file for the output!
 
 Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the AUC!
 ```{r}
 summary(cv_sl)
 
-# plot the cross-validated risk
+# Plot the cross-validated risk estimate.
 plot(cv_sl) + theme_bw()
 # ggsave("SuperLearner.pdf")
 
-# compute AUC
-cvsl_auc(cv_sl)
+# Compute AUC for all estimators.
+auc_table(cv_sl)
+
+# Plot the ROC curve for the best estimator.
+plot_roc(cv_sl)
+
+# Review weight distribution for the SuperLearner
+print(cvsl_weights(cv_sl), row.names = FALSE)
 ```
 "Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
 
 **Big question 6:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
 
 ##### Challenge 6
-1. What are the elements of the CV_SL object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
+1. What are the elements of the `cv_sl` object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
 
-A longer tutorial on SuperLearner is available here: https://github.com/ck37/superlearner-guide
+A longer tutorial on SuperLearner is available here: (https://github.com/ck37/superlearner-guide)
