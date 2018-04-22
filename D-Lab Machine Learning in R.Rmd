@@ -284,14 +284,12 @@ We could do something similar for our lone **REGRESSION task:** linear regressio
 We will use R's handy `predict` function to simply create a pseudo-test sample using predictions on all the data. 
 
 # Algorithm walkthroughs
-
-#1. k-nearest neighbor (knn)
+# 1. k-nearest neighbor (knn)
 The k-nearest neighbor (knn) algorithm is a good machine learning start point because it makes no assumptions about the underlying distribution of the data. To classify a data point, knn uses the characteristics of the points around it to determine how to classify it. [Euclidean distances](https://en.wikipedia.org/wiki/Euclidean_distance) between points are used in this example.  
 
 "k" is the number of neighbors used to classify the point in question. Choosing a proper "k" is integral to finding the best-performing model. **Large k-values** could be bad because the class with the largest size might win regardless of the influence of closer points. **Small k-values** might also be bad because neighboring points might become overly influential.  
 
-#####1.1 knn - selecting a starting k value
-
+##### 1.1 knn - selecting a starting k value
 Different methods exist for choosing a start point for "k". Let's use the square root of the number of rows in the training datset: 
 ```{r}
 (sqrt_rows = round(sqrt(nrow(train_x)))) # 23
@@ -317,11 +315,11 @@ mean(test_label == knn_result) # ~ 0.72
 ```
 How did it do?  
 
-#####1.2 knn - improving performance metrics
+##### 1.2 knn - improving performance metrics
 
 Two common ways of improving model performance are to 1) standardize the data so that scale does not unduly influence classification, and 2) change the k-value. 
 
-#####1.3 knn - scale the data
+##### 1.3 knn - scale the data
 
 Scaling the data is useful so that variables with large values do not bias the prediction. Create a new copy of the `features` dataset called `data_scaled`, which will contain scaled values with means equal to 0 and standard deviations equal to 1. Our Y variable remains unchanged:
 ```{r}
@@ -377,7 +375,7 @@ mean(test_label_scaled == knn_result_scaled) # ~0.71
 
 Did scaling the data help?  
 
-#####1.4 knn - improving performance metrics - change k-value
+##### 1.4 knn - improving performance metrics - change k-value
 
 Scaling our data actually _reduced_ our accuracy a little, although we have not created confidence intervals for a formal statistical test of equality. It also helps to investigate the cross-validated accuracy for multiple k-values at once to see which is ideal. Plot the cross-validated error rates:
 
@@ -399,7 +397,7 @@ A combination of scaling the data and searching for the best cross-validated "k"
 ##### Challenge 1  
 Using what you learned above, classify knn predictive accuracies of the `Species` variable in the "iris" dataset. 
 
-#2.  Linear regression
+# 2.  Linear regression
 Ordinary least squares (OLS) regression can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators, but we will write it out below just for good practice.  
 
 This time, we will use the entire `pidd` dataset since we can use the `predict` R function to generate pseudo-test data. Here, we can just define our Y outcome inside the function (`pidd$age`) and then subset the rest of `pidd` to exclude age as a way to define our predictors.  
@@ -427,7 +425,7 @@ sqrt(mse)
 ##### Challenge 2
 Code a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
-#3.  Decision trees 
+# 3.  Decision trees 
 Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decision trees attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
 
 Let's see how a decision tree classifies diabetes status from our dataset.  
@@ -499,7 +497,7 @@ What are the "minsplit", "cp", and "minbucket" hyperparameters within the "contr
 
 > HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  
 
-#4. Random forests
+# 4. Random forests
 The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest can be viewed as an **ensemble** method, or model averaging approach. The algorithm was invented by UC Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see his [1984 CART book](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418)).  
 
 Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"). An algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used by any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
