@@ -107,7 +107,7 @@ X are the independent/input/predictor/feature variables
 
 Supervised machine learning methods learn a target function $f$ that best maps X to Y based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
 
-Our function would look like this: $\hat{y} = f(X) + \epsilon$, where $f$ is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero. Therefore, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
+Our function would look like this: $y = f(X) + \epsilon$, where $f$ is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero. Therefore, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
 
 **How to define machine learning? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
