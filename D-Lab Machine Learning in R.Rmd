@@ -323,7 +323,7 @@ Two common ways of improving model performance are to 1) standardize the data so
 ##### 1.3 knn - scale the data
 
 Scaling the data is useful so that variables with large values do not bias the prediction. Create a new copy of the `features` dataset called `data_scaled`, which will contain scaled values with means equal to 0 and standard deviations equal to 1. Our Y variable remains unchanged:
-```{r}
+```{r boxplots}
 # Scale the dataset after first log-transforming insulin.
 data_scaled = features %>% mutate(insulin = log(insulin)) %>%
   scale(center = TRUE, scale = TRUE) %>% data.frame()
@@ -380,7 +380,7 @@ Did scaling the data help?
 
 Scaling our data actually _reduced_ our accuracy a little, although we have not created confidence intervals for a formal statistical test of equality. It also helps to investigate the cross-validated accuracy for multiple k-values at once to see which is ideal. Plot the cross-validated error rates:
 
-```{r}
+```{r cross-validated k}
 library(chemometrics)
 
 set.seed(1)
@@ -448,7 +448,7 @@ print(tree)
 ```
 
 Although interpreting the text can be intimidating, a decision tree's main strength is its tree-like plot, which is much easier to interpret.
-```{r}
+```{r plot_tree}
 library(rpart.plot)
 rpart.plot(tree) # shadow.col = "lightgray", cex = 1, type = 4, extra = 101) 
 ```
@@ -464,7 +464,7 @@ In decision trees the main hyperparameter (configuration setting) is the **compl
 `rpart` uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.  
 
 Print the results for various CP settings - we want the one with the lowest "xerror". We can also plot the performance estimates for different CP settings. 
-```{r}
+```{r plotcp_tree}
 # Show estimated error rate at different complexity parameter settings.
 printcp(tree)
 
@@ -481,13 +481,13 @@ tree_pruned14 = prune(tree, cp = 0.010000) # 14 splits
 ```{r eval = F}
 summary(tree_pruned2) 
 ```
-```{r}
+```{r plot_tree_pruned2}
 rpart.plot(tree_pruned2)
 ```
 ```{r eval = F}
 summary(tree_pruned14) 
 ```
-```{r}
+```{r plot_tree_pruned14}
 rpart.plot(tree_pruned14)
 ```
 
@@ -522,7 +522,7 @@ set.seed(1)
 The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$. OOB stands for "out of bag" - and bag is short for "bootstrap aggregation". So OOB estimates performance by comparing the predicted outcome value to the actual value across all trees using only the observations that were not part of the training data for that tree.
 
 We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.
-```{r}
+```{r rf_varImpPlot}
 varImpPlot(rf1)
 
 # Raw data
@@ -539,7 +539,7 @@ table(predicted_label, test_label)
 ```
 
 Check the accuracy of the test set:
-```{r}
+```{r prob_hist}
 mean(predicted_label == test_label) # ~0.73
 
 # We can also generated probability predictions, which are more granular.
