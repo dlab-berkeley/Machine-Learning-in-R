@@ -391,7 +391,9 @@ knn_k = knnEval(X = data_scaled, grp = y_fac, train = training_rows,
 
 We could choose the k that yields the lowest cross-validated error rate on the training data, or the k with the lowest test error rate. Looks like a k of 40 would be a good choice, especially compared to a small number like 1-4.
 
-A combination of scaling the data and searching for the best cross-validated "k" can help maximize the accuracy of k-nearest neighbors. We don't have time to cover today but integrating kernels, alternative distance metrics, and feature selection are additional ways to maximize the performance.
+A combination of scaling the data and searching for the best cross-validated "k" can help maximize the accuracy of k-nearest neighbors. We don't have time to cover today but integrating kernels, alternative distance metrics, and feature selection are additional ways to maximize the performance.  
+
+See [page 105 of Wu et al's 2018 paper](https://www.sciencedirect.com/science/article/pii/S2352914817301405) to see how our KNN stacks up to their comparative KNN reference study.  
 
 **Big question 1:** What might you conclude about the k-nearest neighbors algorithm and this particular dataset? (see the solutions file for an answer)  
 
