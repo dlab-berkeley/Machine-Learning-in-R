@@ -697,11 +697,9 @@ library(SuperLearner)
 set.seed(1, "L'Ecuyer-CMRG") 
 
 # This will take a few minutes to execute - take a look at the .html file to see the output!
-cv_sl = CV.SuperLearner(Y = y_int, X = subset(pidd, select = -diabetes),
-                         SL.library = sl_lib,
-                         family = binomial(),
-                         cvControl = list(V = 5L),
-                         verbose = TRUE)
+cv_sl = CV.SuperLearner(Y = y_int, X = data_scaled, verbose = TRUE,
+                        SL.library = sl_lib, family = binomial(),
+                        cvControl = list(V = 10L, stratifyCV = TRUE))
 summary(cv_sl)
 ```
 
@@ -709,10 +707,9 @@ summary(cv_sl)
 
 Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the AUC!
 ```{r cvsl_review}
-summary(cv_sl)
 
 # Plot the cross-validated risk estimate.
-plot(cv_sl) + theme_bw()
+plot(cv_sl) + theme_minimal()
 # ggsave("SuperLearner.pdf")
 
 # Compute AUC for all estimators.
@@ -724,6 +721,7 @@ plot_roc(cv_sl)
 # Review weight distribution for the SuperLearner
 print(cvsl_weights(cv_sl), row.names = FALSE)
 ```
+
 "Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
 
 **Big question 6:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
