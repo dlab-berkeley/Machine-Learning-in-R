@@ -89,6 +89,7 @@ Modern topics:
 The importance of statistics:  
 - [Welling's commentary](https://www.ics.uci.edu/~welling/publications/papers/WhyMLneedsStatistics.pdf)  
 - [Srivastava's discussion](https://www.analyticsvidhya.com/blog/2015/07/difference-machine-learning-statistical-modeling/)  
+- [Breiman's take](https://projecteuclid.org/euclid.ss/1009213726)  
 
 Seek "actionable insight":  
 - ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
