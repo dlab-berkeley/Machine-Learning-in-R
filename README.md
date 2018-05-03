@@ -24,12 +24,16 @@ RStudio Binder:
 
 ## Assumed participant background
 
-We assume that participants have familiarity with basic R syntax and
-statistical concepts such as mean and standard deviation.
+We assume that participants have familiarity with:
+
+* basic R syntax
+* statistical concepts such as mean and standard deviation
 
 ## Technology requirements
 
-Please bring a laptop with [R version](https://cloud.r-project.org/)
-3.4 or greater installed in advance. The [RStudio
-editor](https://www.rstudio.com/products/rstudio/download/#download) is
+Please bring a laptop with the following:
+
+* [R version](https://cloud.r-project.org/)
+3.4 or greater
+* [RStudio editor](https://www.rstudio.com/products/rstudio/download/#download) is
 highly recommended but not required.
