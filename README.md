@@ -37,3 +37,7 @@ Please bring a laptop with the following:
 3.4 or greater
 * [RStudio editor](https://www.rstudio.com/products/rstudio/download/#download) is
 highly recommended but not required.
+
+## Resources
+
+Browse the resources listed on the [D-Lab Machine Learning Working Group repository](https://github.com/dlab-berkeley/MachineLearningWG). Scroll down to see books, courses at UC Berkeley, online classes, and other resources and groups to help you along your machine learning journey!  
