@@ -34,7 +34,7 @@ We assume that participants have familiarity with:
 Please bring a laptop with the following:
 
 * [R version](https://cloud.r-project.org/)
-3.4 or greater
+3.5 or greater
 * [RStudio editor](https://www.rstudio.com/products/rstudio/download/#download) is
 highly recommended but not required.
 
