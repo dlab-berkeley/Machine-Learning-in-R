@@ -195,7 +195,7 @@ Data peprocessing is an integral first step in machine learning workflows. Becau
 
 One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). When we predict age in our regression example below, we will do this manually for the "diabetes" column to practice. However, functions like `lm` will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
 
-> NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data is used and multiple training/testing splits are utilized. 
+> NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data are used and multiple training/testing splits are utilized. 
 
 # Handling missing data
 
