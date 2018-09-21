@@ -201,7 +201,7 @@ One additional preprocessing aspect to consider: datasets that contain factor (c
 
 Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
 
-Median imputation is also useful, but knn imputation is demonstrated below for the classification examples
+Median imputation is also useful, but k-nearest neighbor (knn) imputation is demonstrated below for the classification examples
 ```{r review_missingness}
 # First, count the number of missing values across variables in our pidd dataset
 colSums(is.na(pidd))
@@ -210,7 +210,7 @@ colSums(is.na(pidd))
 sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of data points are missing
 ```
 
-Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
+Now, knn impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
 
 Neither the "diabetes" nor "age" columns have any missing values, so we can go ahead and impute the whole dataset! 
 ```{r impute_missing_values}
