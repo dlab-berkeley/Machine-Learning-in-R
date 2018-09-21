@@ -82,7 +82,6 @@ Modern topics:
 - [Turing Test: 50 years later](http://www.cs.bilkent.edu.tr/~akman/jour-papers/mam/mam2000.pdf)  
 - [computer vision](http://www.sciencedirect.com/science/article/pii/S1071581916301264)  
 - [data cleaning](http://www.betterevaluation.org/sites/default/files/data_cleaning.pdf)  
-- [machine learning software, tools, and methods](http://achcoop.ca/Data%20Mining%20Practical%20Machine%20Learning%20Tools%20and%20Techniques/)  
 - [robotics](https://arxiv.org/abs/1708.04677)  
 - [cloud computing](https://arxiv.org/abs/1707.07452)  
 
