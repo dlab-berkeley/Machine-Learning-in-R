@@ -250,7 +250,7 @@ table(y, y_fac, useNA = "ifany")
 features = subset(pidd, select = -diabetes)
 
 # Diabetes column has been successfully removed.
-head(names(features))
+names(features)
 ```
 
 We then can take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
@@ -281,7 +281,7 @@ length(test_label)
 
 We could do something similar for our lone **REGRESSION task:** linear regression. 
 
-We will use R's handy `predict` function to simply create a pseudo-test sample using predictions on all the data. 
+Instead, we will use R's handy `predict` function to simply create a pseudo-test sample using predictions on all the data. 
 
 # Algorithm walkthroughs
 # 1. k-nearest neighbor (knn)
