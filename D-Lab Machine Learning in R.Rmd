@@ -166,6 +166,7 @@ What are these other variables? Let's load the data and find out!
 
 # Load the data
 Load the `PimaIndiansDiabetes2` and `iris` datasets
+
 ```{r load_data}
 library(mlbench)
 
@@ -210,13 +211,15 @@ colSums(is.na(pidd))
 sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of data points are missing
 ```
 
-Now, knn impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
+Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
 
 Neither the "diabetes" nor "age" columns have any missing values, so we can go ahead and impute the whole dataset! 
 ```{r impute_missing_values}
 library(ck37r)
 
-result = impute_missing_values(pidd, verbose = TRUE)
+result = impute_missing_values(pidd, 
+                               verbose = TRUE,
+                               type = "standard")
 
 # Use the imputed dataframe.
 pidd = result$data
@@ -241,6 +244,7 @@ names(pidd)
 # 1) Define Y for classification (has diabetes? "pos" or "neg")
 y_fac = pidd$diabetes
 head(y_fac, n = 20)
+
 
 # 2) Then, convert "pos" to 1 and "neg" to 0. Many algorithms expect 1's for the positive class and 0's for the negative class.
 y = as.integer(y_fac == "pos")
