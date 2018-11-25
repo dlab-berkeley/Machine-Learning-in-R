@@ -310,7 +310,7 @@ gmodels::CrossTable(x = test_label, y = knn_result, chisq = FALSE,
 caret::confusionMatrix(knn_result, factor(test_label))
 
 # Compute accuracy - how did we do?
-mean(test_label == knn_result) # ~ 0.72
+mean(test_label == knn_result) # ~ 0.71
 ```
 How did it do?  
 
@@ -454,7 +454,7 @@ table(predicted_label, test_label)
 
 Check the accuracy of the test set:
 ```{r prob_hist}
-mean(predicted_label == test_label) # ~0.72
+mean(predicted_label == test_label) # ~0.73
 
 # We can also generated probability predictions, which are more granular.
 predicted_prob = as.data.frame(predict(rf1, newdata = test_x, type = "prob"))
