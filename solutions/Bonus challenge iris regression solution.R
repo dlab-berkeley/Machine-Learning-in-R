@@ -1,6 +1,5 @@
 ### Big question 2 answer: by using only an inflexible OLS linear regression model, we are assuming that linear relationships among the data - we don't know this for sure. 
 
-
 ### Challenge 2: iris regression solution
 
 # Define Y response variable
@@ -34,4 +33,8 @@ MSE_iris = mean((Y_iris - iris_predicted)^2)
 
 MSE_iris
 sqrt(MSE_iris) # RMSE
+
+
+
+
  
