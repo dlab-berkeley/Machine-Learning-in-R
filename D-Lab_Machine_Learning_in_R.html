@@ -11,6 +11,7 @@
 
 <meta name="author" content="Evan Muzzall and Chris Kennedy" />
 
+<meta name="date" content="2018-11-25" />
 
 <title>Introduction to Machine Learning in R</title>
 
@@ -1474,7 +1475,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Introduction to Machine Learning in R</h1>
 <h4 class="author"><em>Evan Muzzall and Chris Kennedy</em></h4>
-<h4 class="date"><em>8/27/2018</em></h4>
+<h4 class="date"><em>11/25/2018</em></h4>
 
 </div>
 
@@ -1689,8 +1690,8 @@ str(iris)</code></pre>
 <pre><code>## Help on topic 'iris' was found in the following packages:
 ## 
 ##   Package               Library
-##   h2o                   /Users/evan.admin/Library/R/3.5/library
 ##   datasets              /Library/Frameworks/R.framework/Versions/3.5/Resources/library
+##   h2o                   /Users/evan.admin/Library/R/3.5/library
 ## 
 ## 
 ## Using the first match ...</code></pre>
@@ -1698,7 +1699,7 @@ str(iris)</code></pre>
 <div id="data-preprocessing-1" class="section level1">
 <h1>Data preprocessing</h1>
 <p>Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly setup your Y and X variables and appropriately split your data into training and test sets if neeeded.</p>
-<p>One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as <a href="https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f">one-hot encoding</a>. You can do this manually with the <code>model.matrix</code> R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). When we predict age in our regression example below, we will do this manually for the “diabetes” column to practice. However, functions like <code>lm</code> will internally expand factor variables such as the <code>diabetes</code> factor predictor into numeric indicators.</p>
+<p>One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as <a href="https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f">one-hot encoding</a>. You can do this manually with the <code>model.matrix</code> R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). Doing this manually is always good practice. However, functions like <code>lm</code> will internally expand factor variables such as the <code>diabetes</code> factor predictor into numeric indicators.</p>
 <blockquote>
 <p>NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where <em>all</em> the data are used and multiple training/testing splits are utilized.</p>
 </blockquote>
@@ -1706,7 +1707,7 @@ str(iris)</code></pre>
 <div id="handling-missing-data" class="section level1">
 <h1>Handling missing data</h1>
 <p>Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the <a href="http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf">mice</a> and <a href="https://gking.harvard.edu/amelia">Amelia II</a> R packages).</p>
-<p>Median imputation is also useful, but k-nearest neighbor (knn) imputation is demonstrated below for the classification examples</p>
+<p>Median imputation is also useful, but k-nearest neighbor (knn) imputation is demonstrated below:</p>
 <pre class="r"><code># First, count the number of missing values across variables in our pidd dataset
 colSums(is.na(pidd))</code></pre>
 <pre><code>## pregnant  glucose pressure  triceps  insulin     mass pedigree      age 
@@ -1833,8 +1834,13 @@ set.seed(1)
 knn_result = class::knn(train = train_x, test = test_x,
                  cl = train_label, k = sqrt_rows, prob = TRUE)</code></pre>
 <p>Using accuracy as our performance metric, compute a contingency table to see how well the model predicted yes and no:</p>
-<pre class="r"><code>gmodels::CrossTable(x = test_label, y = knn_result, chisq = FALSE,
-           prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)</code></pre>
+<pre class="r"><code>gmodels::CrossTable(x = test_label, y = knn_result, 
+                    # Unfortunately, proportions default to TRUE so we can set them to FALSE to get simpler results. 
+                    chisq = FALSE,
+                    prop.chisq = FALSE, 
+                    prop.r = FALSE, 
+                    prop.c = FALSE, 
+                    prop.t = FALSE)</code></pre>
 <pre><code>## 
 ##  
 ##    Cell Contents
@@ -1886,21 +1892,20 @@ caret::confusionMatrix(knn_result, factor(test_label))</code></pre>
 ##        'Positive' Class : 0               
 ## </code></pre>
 <pre class="r"><code># Compute accuracy - how did we do?
-mean(test_label == knn_result) # ~ 0.72</code></pre>
+mean(test_label == knn_result) </code></pre>
 <pre><code>## [1] 0.7130435</code></pre>
 <p>How did it do?</p>
 </div>
 <div id="knn---improving-performance-metrics" class="section level5">
 <h5>1.2 knn - improving performance metrics</h5>
 <p>Two common ways of improving model performance are to 1) standardize the data so that scale does not unduly influence classification, and 2) change the k-value.</p>
-<p>Remember that our knn imputation from the <code>ck37::impute_missing_values</code> function above has already centered and scaled our data for us.</p>
+<p>Remember that our knn imputation from the <code>ck37::impute_missing_values</code> function above has already centered and scaled our data for us so we can focus on changing the value of <code>k</code>.</p>
+<blockquote>
+<p>Note: More practice is always good for data preprocessing and splitting. In your own time, consider repeating all steps above, except use “standard” instead of “knn” as the method inside <code>impute_missing_values</code> function in the “Handling missing data” section above. Do your results change? Why or why not?</p>
+</blockquote>
 </div>
 <div id="knn---improving-performance-metrics---change-k-value" class="section level5">
 <h5>1.3 knn - improving performance metrics - change k-value</h5>
-<p>On this particular dataset however, know that scaling the data does not help performance improve by any significant amount in its current configuration.</p>
-<blockquote>
-<p>Note: More practice is always good for data preprocessing and splitting. In your own time, consider repeating all steps above, except use “standard” instead of “knn” as the method inside <code>impute_missing_values</code> function in the “Handling missing data” section above.</p>
-</blockquote>
 <p>It also helps to investigate the cross-validated accuracy for multiple k-values at once to see which is ideal. Plot the cross-validated error rates:</p>
 <pre class="r"><code>set.seed(1)
 knn_k = chemometrics::knnEval(X = subset(pidd, select = -diabetes), grp = y_fac, train = training_rows, 
@@ -2100,7 +2105,7 @@ table(predicted_label, test_label)</code></pre>
 ##               0 124  39
 ##               1  24  43</code></pre>
 <p>Check the accuracy of the test set:</p>
-<pre class="r"><code>mean(predicted_label == test_label) # ~0.72</code></pre>
+<pre class="r"><code>mean(predicted_label == test_label) </code></pre>
 <pre><code>## [1] 0.726087</code></pre>
 <pre class="r"><code># We can also generated probability predictions, which are more granular.
 predicted_prob = as.data.frame(predict(rf1, newdata = test_x, type = &quot;prob&quot;))
@@ -2201,11 +2206,11 @@ gbm1 = caret::train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_x),
 gbm1$times </code></pre>
 <pre><code>## $everything
 ##    user  system elapsed 
-##  84.940   0.205  85.297 
+##  84.099   0.091  84.221 
 ## 
 ## $final
 ##    user  system elapsed 
-##   0.136   0.000   0.137 
+##   0.137   0.000   0.136 
 ## 
 ## $prediction
 ## [1] NA NA NA</code></pre>
@@ -2401,11 +2406,23 @@ cv_sl = SuperLearner::CV.SuperLearner(Y = y_int, X = subset(pidd, select = -diab
                         SL.library = sl_lib, family = binomial(),
                         cvControl = list(V = 10L, stratifyCV = TRUE))</code></pre>
 <pre><code>## Number of covariates in All is: 13</code></pre>
+<pre><code>## Loading required package: xgboost</code></pre>
+<pre><code>## 
+## Attaching package: 'xgboost'</code></pre>
+<pre><code>## The following object is masked from 'package:dplyr':
+## 
+##     slice</code></pre>
 <pre><code>## CV SL.xgboost_All</code></pre>
 <pre><code>## CV SL.glm_All</code></pre>
 <pre><code>## CV SL.knn_All</code></pre>
 <pre><code>## CV SL.mean_All</code></pre>
 <pre><code>## CV SL.rpart_All</code></pre>
+<pre><code>## Loading required package: ranger</code></pre>
+<pre><code>## 
+## Attaching package: 'ranger'</code></pre>
+<pre><code>## The following object is masked from 'package:randomForest':
+## 
+##     importance</code></pre>
 <pre><code>## CV SL.ranger_All</code></pre>
 <pre><code>## Number of covariates in All is: 13</code></pre>
 <pre><code>## CV SL.xgboost_All</code></pre>
@@ -3223,7 +3240,7 @@ print(cvsl_weights(cv_sl), row.names = FALSE)</code></pre>
 ##  5 xgboost 0.00000 0.00000 0.00000 0.00000
 ##  6    mean 0.00000 0.00000 0.00000 0.00000</code></pre>
 <p>“Discrete SL” is when the SuperLearner chooses the single algorithm with the lowest risk. “SuperLearner” is a weighted average of multiple algorithms, or an “ensemble”. In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.</p>
-<p><strong>Big question 6:</strong> Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?</p>
+<p><strong>Big question 5:</strong> Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?</p>
 <div id="challenge-5" class="section level5">
 <h5>Challenge 5</h5>
 <ol style="list-style-type: decimal">
@@ -3234,12 +3251,101 @@ print(cvsl_weights(cv_sl), row.names = FALSE)</code></pre>
 </div>
 <div id="bonus-algorithm-example---ordinary-least-squares-ols-regression" class="section level1">
 <h1>Bonus algorithm example - Ordinary least squares (OLS) regression</h1>
-<p>OLS can be used when the target Y variable is continuous. Remember that under the hood, <code>lm</code> is one-hot encoding factors to indicators, but try writing it out for practice.</p>
-<p>This time, we will use the entire <code>iris</code> dataset since we can use the <code>predict</code> R function to generate pseudo-test data. Here, we can just define our Y outcome inside the function (iris$Species) and then subset the rest of iris to exclude Species as a way to define our predictors.</p>
+<p>OLS can be used when the target Y variable is continuous. Remember that under the hood, <code>lm</code> is one-hot encoding factors to indicators, but try writing it out for practice if you get the chance.</p>
 <p>Mean squared error (MSE) and root mean squared error (RMSE) will be our performance metrics. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting.</p>
+<p>Here is an example that predicts age from the <code>pidd</code> dataset:</p>
+<pre class="r"><code># Define Y response variable
+Y_reg = pidd$age
+
+# Remove outcome variable from the X dataframe
+X_reg = subset(pidd, select = -age)
+
+# This will convert factors to indicators but will also add an extra constant column for estimating the intercept
+X_reg = data.frame(model.matrix( ~ ., X_reg))
+
+str(X_reg)</code></pre>
+<pre><code>## 'data.frame':    768 obs. of  14 variables:
+##  $ X.Intercept. : num  1 1 1 1 1 1 1 1 1 1 ...
+##  $ pregnant     : num  0.64 -0.844 1.233 -0.844 -1.141 ...
+##  $ glucose      : num  0.862 -1.201 2.008 -1.07 0.501 ...
+##  $ pressure     : num  -0.0327 -0.5173 -0.6788 -0.5173 -2.6171 ...
+##  $ triceps      : num  0.558 -0.0146 0.1381 -0.5873 0.558 ...
+##  $ insulin      : num  0.92 -0.761 0.359 -0.518 0.105 ...
+##  $ mass         : num  0.165 -0.846 -1.322 -0.629 1.537 ...
+##  $ pedigree     : num  0.468 -0.365 0.604 -0.92 5.481 ...
+##  $ diabetespos  : num  1 0 1 0 1 0 1 0 1 1 ...
+##  $ miss_glucose : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ miss_pressure: num  0 0 0 0 0 0 0 1 0 0 ...
+##  $ miss_triceps : num  0 0 1 0 0 1 0 1 0 1 ...
+##  $ miss_insulin : num  1 1 1 0 0 1 0 1 0 1 ...
+##  $ miss_mass    : num  0 0 0 0 0 0 0 0 0 1 ...</code></pre>
+<pre class="r"><code># Remove the extra intercept column, we don't need to store it in our dataset
+X_reg = X_reg[, -1]
+
+str(X_reg)</code></pre>
+<pre><code>## 'data.frame':    768 obs. of  13 variables:
+##  $ pregnant     : num  0.64 -0.844 1.233 -0.844 -1.141 ...
+##  $ glucose      : num  0.862 -1.201 2.008 -1.07 0.501 ...
+##  $ pressure     : num  -0.0327 -0.5173 -0.6788 -0.5173 -2.6171 ...
+##  $ triceps      : num  0.558 -0.0146 0.1381 -0.5873 0.558 ...
+##  $ insulin      : num  0.92 -0.761 0.359 -0.518 0.105 ...
+##  $ mass         : num  0.165 -0.846 -1.322 -0.629 1.537 ...
+##  $ pedigree     : num  0.468 -0.365 0.604 -0.92 5.481 ...
+##  $ diabetespos  : num  1 0 1 0 1 0 1 0 1 1 ...
+##  $ miss_glucose : num  0 0 0 0 0 0 0 0 0 0 ...
+##  $ miss_pressure: num  0 0 0 0 0 0 0 1 0 0 ...
+##  $ miss_triceps : num  0 0 1 0 0 1 0 1 0 1 ...
+##  $ miss_insulin : num  1 1 1 0 0 1 0 1 0 1 ...
+##  $ miss_mass    : num  0 0 0 0 0 0 0 0 0 1 ...</code></pre>
+<pre class="r"><code># Fit the regression model; lm() will automatically add a temporary intercept column
+reg_fit = lm(Y_reg ~ ., data = X_reg)
+
+# View the output
+summary(reg_fit) </code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = Y_reg ~ ., data = X_reg)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -2.0186 -0.4689 -0.1364  0.2945  3.4350 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   -0.12570    0.04540  -2.769  0.00577 ** 
+## pregnant       0.43548    0.02955  14.735  &lt; 2e-16 ***
+## glucose        0.04535    0.03838   1.182  0.23768    
+## pressure       0.20771    0.03092   6.717 3.66e-11 ***
+## triceps        0.11359    0.04130   2.751  0.00609 ** 
+## insulin        0.21212    0.04292   4.943 9.50e-07 ***
+## mass          -0.18053    0.03984  -4.532 6.80e-06 ***
+## pedigree       0.04090    0.02885   1.418  0.15672    
+## diabetespos    0.09025    0.07069   1.277  0.20210    
+## miss_glucose  -0.10086    0.34626  -0.291  0.77092    
+## miss_pressure -0.31757    0.14800  -2.146  0.03221 *  
+## miss_triceps   0.22744    0.08442   2.694  0.00722 ** 
+## miss_insulin   0.09935    0.07582   1.310  0.19047    
+## miss_mass     -0.14170    0.24833  -0.571  0.56843    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.7643 on 754 degrees of freedom
+## Multiple R-squared:  0.4258, Adjusted R-squared:  0.4159 
+## F-statistic: 43.01 on 13 and 754 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code># Predict outcome for the training data
+reg_predicted = predict(reg_fit, X_reg)
+
+# Calculate mean-squared error
+MSE_reg = mean((Y_reg - reg_predicted)^2)
+
+MSE_reg</code></pre>
+<pre><code>## [1] 0.5734452</code></pre>
+<pre class="r"><code>sqrt(MSE_reg) # RMSE</code></pre>
+<pre><code>## [1] 0.7572617</code></pre>
 <p><strong>Bonus big question:</strong> What might you surmise about linear regression and the pidd and iris datasets?</p>
 <div id="bonus-challenge" class="section level5">
 <h5>Bonus challenge</h5>
+<p>This time, we will use the entire <code>iris</code> dataset since we can use the <code>predict</code> R function to generate pseudo-test data. Here, we can just define our Y outcome inside the function (iris$Species) and then subset the rest of iris to exclude Species as a way to define our predictors.</p>
 <p>Code a regression model that predicts one of the numeric variables from the “iris” dataset.</p>
 </div>
 </div>
