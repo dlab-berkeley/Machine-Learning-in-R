@@ -215,7 +215,7 @@ Now, median impute the missing values! We also want to create missingness indica
 
 Neither the "diabetes" nor "age" columns have any missing values, so we can go ahead and impute the whole dataset! 
 
-> Note: see the help files `?impute_missing_values` to see that the data are centered and scaled when "knn" is specified as the argument to the "type" parameter. 
+> Note: view the help files for `?impute_missing_values` to see that the data are centered and scaled when "knn" is specified as the argument to the "type" parameter. You can also center and scale your data manually using R's builtin `scale` function - type `?scale` to learn more.  
 
 
 ```{r impute_missing_values}
