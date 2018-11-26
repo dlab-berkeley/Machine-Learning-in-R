@@ -303,14 +303,19 @@ knn_result = class::knn(train = train_x, test = test_x,
 
 Using accuracy as our performance metric, compute a contingency table to see how well the model predicted yes and no:
 ```{r}
-gmodels::CrossTable(x = test_label, y = knn_result, chisq = FALSE,
-           prop.chisq = FALSE, prop.r = FALSE, prop.c = FALSE, prop.t = FALSE)
+gmodels::CrossTable(x = test_label, y = knn_result, 
+                    # Unfortunately, proportions default to TRUE so we can set them to FALSE to get simpler results. 
+                    chisq = FALSE,
+                    prop.chisq = FALSE, 
+                    prop.r = FALSE, 
+                    prop.c = FALSE, 
+                    prop.t = FALSE)
 
 # or
 caret::confusionMatrix(knn_result, factor(test_label))
 
 # Compute accuracy - how did we do?
-mean(test_label == knn_result) # ~ 0.71
+mean(test_label == knn_result) 
 ```
 How did it do?  
 
@@ -318,13 +323,11 @@ How did it do?
 
 Two common ways of improving model performance are to 1) standardize the data so that scale does not unduly influence classification, and 2) change the k-value. 
 
-Remember that our knn imputation from the `ck37::impute_missing_values` function above has already centered and scaled our data for us. 
+Remember that our knn imputation from the `ck37::impute_missing_values` function above has already centered and scaled our data for us so we can focus on changing the value of `k`. 
+
+> Note: More practice is always good for data preprocessing and splitting. In your own time, consider repeating all steps above, except use "standard" instead of "knn" as the method inside `impute_missing_values` function in the "Handling missing data" section above. Do your results change? Why or why not? 
 
 ##### 1.3 knn - improving performance metrics - change k-value
-
-On this particular dataset however, know that scaling the data does not help performance improve by any significant amount in its current configuration.  
-
-> Note: More practice is always good for data preprocessing and splitting. In your own time, consider repeating all steps above, except use "standard" instead of "knn" as the method inside `impute_missing_values` function in the "Handling missing data" section above.  
 
 It also helps to investigate the cross-validated accuracy for multiple k-values at once to see which is ideal. Plot the cross-validated error rates:
 
@@ -454,7 +457,7 @@ table(predicted_label, test_label)
 
 Check the accuracy of the test set:
 ```{r prob_hist}
-mean(predicted_label == test_label) # ~0.73
+mean(predicted_label == test_label) 
 
 # We can also generated probability predictions, which are more granular.
 predicted_prob = as.data.frame(predict(rf1, newdata = test_x, type = "prob"))
