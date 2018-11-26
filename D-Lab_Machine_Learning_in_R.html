@@ -1720,7 +1720,7 @@ sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of data points are missing</c
 <p>Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.</p>
 <p>Neither the “diabetes” nor “age” columns have any missing values, so we can go ahead and impute the whole dataset!</p>
 <blockquote>
-<p>Note: see the help files <code>?impute_missing_values</code> to see that the data are centered and scaled when “knn” is specified as the argument to the “type” parameter.</p>
+<p>Note: view the help files for <code>?impute_missing_values</code> to see that the data are centered and scaled when “knn” is specified as the argument to the “type” parameter. You can also center and scale your data manually using R’s builtin <code>scale</code> function - type <code>?scale</code> to learn more.</p>
 </blockquote>
 <pre class="r"><code>result = ck37r::impute_missing_values(pidd, 
                                verbose = TRUE,
@@ -2206,11 +2206,11 @@ gbm1 = caret::train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_x),
 gbm1$times </code></pre>
 <pre><code>## $everything
 ##    user  system elapsed 
-##  84.099   0.091  84.221 
+##  86.987   0.860  88.876 
 ## 
 ## $final
 ##    user  system elapsed 
-##   0.137   0.000   0.136 
+##   0.136   0.000   0.136 
 ## 
 ## $prediction
 ## [1] NA NA NA</code></pre>
