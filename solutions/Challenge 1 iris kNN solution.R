@@ -37,7 +37,7 @@ CrossTable(x = test_iris_labels, y = iris_predicted_knn,
            prop.t = FALSE)
 
 # compute accuracy
-mean(test_iris_labels == iris_predicted_knn) # ~ 96% accuracy! 
+mean(test_iris_labels == iris_predicted_knn) 
 
 # Plot Petal.Length and Petal.Width - can you guess why accuracy was so high? 
 ggplot(iris, aes(x = Petal.Length, y = Petal.Width, color = Species, shape = Species)) + 
