@@ -7,3 +7,7 @@ output:
     toc: yes
     toc_float: yes
 ---
+
+# Ordinary least squares example
+
+# lasso
