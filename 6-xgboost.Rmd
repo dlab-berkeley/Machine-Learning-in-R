@@ -1,0 +1,111 @@
+---
+title: "XGBoost"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 4. Boosting
+from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf):  
+
+"Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  
+
+The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
+
+However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). 
+
+Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Also, bootstrap is the default, but we want cross-validation.  
+
+First create two objects - `gbm_control` and `gbm_grid`. `gbm_control` will allow us to tune the cross-validated performance metric, while `gbm_grid` lets us evaluate the model with different characteristics:
+```{r gbm_prep}
+# Use 10-fold cross-validation with 3-repeats as our evaluation procedure
+# (instead of the default "bootstrap").
+gbm_control = trainControl(method = "repeatedcv",
+                           number = 10L,
+                           repeats = 3L,
+                           # Calculate class probabilities.
+                           classProbs = TRUE,
+                           # Indicate that our response varaible is binary.
+                           summaryFunction = twoClassSummary) 
+
+
+gbm_grid = expand.grid(
+  # Number of trees to fit, aka boosting iterations
+  n.trees = seq(100, 1000, by = 300),
+  # Depth of the decision tree (how many levels of splits).
+	interaction.depth = c(1L, 3L, 5L), 
+  # Learning rate: lower means the ensemble will adapt more slowly.
+	shrinkage = c(0.001, 0.01, 0.1),
+  # Stop splitting a tree if we only have this many obs in a tree node.
+	n.minobsinnode = 10L)
+
+# How many combinations of settings do we end up with?
+nrow(gbm_grid)
+```
+
+Fit the model. Note that we will now use area under the ROC curve (called "AUC") as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).  
+
+> NOTE: This will take a few minutes to complete! See the .html file for the output.
+
+```{r gbm_fit, cache = TRUE}
+set.seed(1)
+
+# Convert our numeric indicators (1s and 0s) back into factors ("pos" and "neg")
+trainlab_factor = factor(ifelse(train_label == 1, "pos", "neg"))
+testlab_factor = factor(ifelse(test_label == 1, "pos", "neg"))
+table(trainlab_factor, train_label)
+table(testlab_factor, test_label)
+
+# cbind: caret expects the Y response and X predictors to be part of the same dataframe
+gbm1 = caret::train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_x), 
+             # Use gradient boosted machine ("gbm") algorithm.
+             method = "gbm",
+             # Use "AUC" as our performance metric, which caret incorrectly calls "ROC"
+             metric = "ROC",
+             # Specify our cross-validated performance metric settings.
+             trControl = gbm_control,
+             # Define our gbm model tuning grid.
+             tuneGrid = gbm_grid,
+             # Hide detailed output (setting to TRUE will print that output).
+             verbose = FALSE)
+
+# See how long this algorithm took to complete.
+gbm1$times 
+
+# Review model summary table.
+gbm1
+
+# Plot the performance across all hyperparameter combinations.
+ggplot(gbm1) + theme_bw() + ggtitle("GBM hyperparameter comparison") 
+# ggsave("gbm tuning comparison.png")
+
+# Plot variable importance.
+summary(gbm1, las = 2)
+
+# Generate predicted labels.
+gbm_predicted = predict(gbm1, test_x)
+
+# Generate class probabilities.
+gbm_probs = predict(gbm1, test_x, type = "prob")
+
+# View final model
+(gbm_cm = confusionMatrix(gbm_predicted, testlab_factor))
+
+# Define ROC characteristics
+(rocCurve = pROC::roc(response = testlab_factor,
+                predictor = gbm_probs[, "neg"],
+                levels = rev(levels(testlab_factor)),
+                auc = TRUE, ci = TRUE))
+
+# Plot ROC curve with optimal threshold.
+plot(rocCurve, print.thres = "best", main = "GBM", col = "blue") 
+# ggsave("gbm ROC.png")
+
+```
+
+Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages/xgboost/index.html) for a more powerful way to boost your trees.  
+
+##### Challenge 4
+**Big question 4:** What are some defining characteristics of the algorithms we have covered in these five exercises?
