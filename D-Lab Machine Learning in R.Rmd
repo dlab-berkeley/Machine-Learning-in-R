@@ -55,17 +55,16 @@ colSums(is.na(pidd))
 sum(is.na(pidd)) / (nrow(pidd) * ncol(pidd)) # ~9% of data points are missing
 ```
 
-Now, knn impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
+Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. Thus, we will add some additional columns to our data frame.  
 
-Neither the "diabetes" nor "age" columns have any missing values, so we can go ahead and impute the whole dataset! 
+Neither the "diabetes" nor "age" columns have any missing values, so we can go ahead and impute the whole dataset.  
 
-> Note: view the help files for `?impute_missing_values` to see that the data are centered and scaled when "knn" is specified as the argument to the "type" parameter. You can also center and scale your data manually using R's builtin `scale` function - type `?scale` to learn more.  
-
+> Note: we will also have to manually center and scale these data using the `scale` function. If you select "knn" as the method, values will be automatically centered and scaled. 
 
 ```{r impute_missing_values}
 result = ck37r::impute_missing_values(pidd, 
                                verbose = TRUE,
-                               type = "knn")
+                               type = "standard")
 
 # Use the imputed dataframe.
 pidd = result$data
