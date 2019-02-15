@@ -9,13 +9,11 @@ output:
 ---
 # Introduction 
 
-Visit the UC Berkeley [D-Lab](http://dlab.berkeley.edu/) to learn more about our services and resources, including the [Machine Learning Working Group](http://dlab.berkeley.edu/working-groups/machine-learning-working-group-0).  
+[Visit the UC Berkeley D-Lab](http://dlab.berkeley.edu/) to learn more about our services and resources, [including the Machine Learning Working Group](http://dlab.berkeley.edu/working-groups/machine-learning-working-group-0).  
 
 ## Resources
 
 _An Introduction to Statistical Learning - with Applications in R (2013)_ by Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Springer: New York. [Amazon](https://www.amazon.com/Introduction-Statistical-Learning-Applications-Statistics/dp/1461471370) or [free PDF](http://www-bcf.usc.edu/~gareth/ISL/). We encourage you to support the authors by purchasing their textbook!  
-
-Also [view the resources](https://github.com/dlab-berkeley/MachineLearningWG) in the Machine Learning Working Group repository to learn more.  
 
 ## Package installation
 

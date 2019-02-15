@@ -1,0 +1,428 @@
+a, a > code {
+  color: #ff0000;
+    text-decoration: none;
+}
+
+
+**************
+ *
+ * Font size and colours
+ *
+ **************/
+
+
+.Large { font-size: 144% }
+.large { font-size: 120% }
+.small { font-size: 90% }
+.footnotesize { font-size: 80% }
+.scriptsize { font-size: 70% }
+.tiny { font-size: 60% }
+
+.black { color: black; }
+.red { color: red; }
+.blue { color: blue; }
+.green { color: green; }
+.yellow { color: yellow; }
+.orange { color: orange; }
+.purple { color: purple; }
+.gray { color: gray; }
+.grey { color: gray; }
+.white { color: white; }
+
+.bold { font-weight: bold; }
+.bolder { font-weight: bolder; }
+
+
+/******************
+ * 
+ * Coloured content boxes
+ *
+ ****************/
+
+
+.content-box { 
+    box-sizing: content-box;
+    	background-color: #e2e2e2;
+  /* Total width: 160px + (2 * 20px) + (2 * 8px) = 216px
+     Total height: 80px + (2 * 20px) + (2 * 8px) = 136px
+     Content box width: 160px
+     Content box height: 80px */
+}
+
+
+.content-box-blue,
+.content-box-gray,
+.content-box-grey,
+.content-box-army,
+.content-box-green,
+.content-box-purple,
+.content-box-red,
+.content-box-yellow {
+    border-radius: 15px;
+    margin: 0 0 25px;
+    overflow: hidden;
+    padding: 20px;
+    width: 100%;
+}
+
+.content-box-blue {
+    background-color: #F0F8FF;
+
+}
+
+.content-box-gray {
+    background-color: #e2e2e2;
+}
+
+.content-box-grey {
+	background-color: #F5F5F5;
+}
+
+.content-box-army {
+	background-color: #737a36;
+}
+
+.content-box-green {
+	background-color: #d9edc2;
+}
+
+.content-box-purple {
+	background-color: #e2e2f9;
+}
+
+.content-box-red {
+	background-color: #f9dbdb;
+}
+
+.content-box-yellow {
+	background-color: #fef5c4;
+}
+
+
+.full-width {
+    display: flex;
+    width: 100%;
+    flex: 1 1 auto;
+}
+
+
+
+/***********
+ *
+ * Changed CSS
+ *
+ **************/
+
+.opacity{
+    opacity: 0.5;
+}
+
+.opacity20{
+    opacity: 0.2;
+}
+
+.opacity100{
+    opacity: 1.0;
+}
+
+
+.blur {
+    -webkit-filter: blur(5px);
+    -moz-filter: blur(10px);
+    -o-filter: blur(5px);
+    -ms-filter: blur(5px);
+    filter: blur(5px);
+}
+
+
+.grayscale img {
+    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+    filter: grayscale(100%);
+}
+
+
+
+
+
+
+/**************
+ *
+ * Fancy stuff
+ *
+ **************/
+
+
+.rotate-left {
+    -webkit-transform: rotate(-2deg);
+    -moz-transform: rotate(-2deg);
+    transform: rotate(-2deg); 
+}
+
+.rotate-right {
+    -webkit-transform: rotate(2deg);
+    -moz-transform: rotate(2deg);
+    transform: rotate(2deg);     
+}
+
+
+
+/********** 
+ * 
+ * Image stuff
+ *
+ ************/
+
+
+.polaroid img {
+    border: 10px solid #fff;
+    border-bottom: 45px solid #fff;
+    -webkit-box-shadow: 3px 3px 3px #111;
+    -moz-box-shadow: 3px 3px 3px #111;
+    box-shadow: 3px 3px 3px #111;
+}
+
+
+
+.shadow {
+    -moz-border-radius: 5px;
+    -moz-box-shadow: 5px 5px 5px #aaa;
+    -webkit-box-shadow: 5px 5px 5px #aaa;
+    box-shadow: 5px 5px 5px #aaa;
+    border-radius: 2px;  
+}
+
+.footnote {
+  position: absolute;
+  bottom: 3em;
+  padding-right: 4em;
+  font-size: 90%;
+}
+.remark-code-line-highlighted     { background-color: #ffff88; }
+
+.hljs-github .hljs {
+    background: #e7e8e2;
+}
+    
+    .remark-slide-content {
+      background-color: #FFFFFF;
+        border-top: 80px solid #23373B;
+      font-size: 20px;
+      font-weight: 300;
+      line-height: 1.5;
+      padding: 1em 2em 1em 2em
+    }
+    
+    .yourturn {
+      background-color: #FFFFFF;
+        border-top: 80px solid #B22222;
+      font-size: 20px;
+      font-weight: 300;
+      line-height: 1.5;
+      padding: 1em 2em 1em 2em
+    }
+  
+  .title-slide .inverse .remark-slide-content {
+    background-color: #FFFFFF;
+    background-size: cover;
+    border-top: 0px;
+  }
+  
+  .inverse .remark-slide-number {
+    display: none;
+  }
+  
+  .inverse {
+    background-color: #23373B;
+      text-shadow: none;
+  }
+  .inverse h1, .inverse h2, .inverse h3 {
+    color: #f3f3f3;
+  }
+  /* Two-column layout */
+    .left-column {
+      color: #777;
+        width: 20%;
+      height: 92%;
+      float: left;
+    }
+  .left-column h2:last-of-type, .left-column h3:last-child {
+    color: #000;
+  }
+  .right-column {
+    width: 75%;
+    float: right;
+    padding-top: 1em;
+  }
+  .pull-left {
+    float: left;
+    width: 47%;
+  }
+  .pull-right {
+    float: right;
+    width: 47%;
+  }
+  .pull-left-wide {
+    float: left;
+    width: 75%;
+  }
+  .pull-right-narrow {
+    float: right;
+    width: 25%;
+  }
+  .pull-right-wide {
+    float: right;
+    width: 75%;
+  }
+  .pull-left-narrow {
+    float: left;
+    width: 25%;
+  }
+  .pull-left-3 {
+    float: left;
+    width: 30%;
+  }
+  .pull-right-70 {
+    float: right;
+    width: 70%;
+  }
+  .pull-right ~ * {
+    clear: both;
+  }
+  img, video, iframe {
+    max-width: 100%;
+  }
+  blockquote {
+    border-left: solid 5px lightgray;
+    padding-left: 1em;
+  }
+  table {
+    margin: auto;
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+  }
+  table thead th { border-bottom: 1px solid #ddd; }
+    th, td { padding: 5px; }
+    thead, tfoot, tr:nth-child(even) { background: #eee }
+        
+        @page { margin: 0; }
+      @media print {
+        .remark-slide-scaler {
+          width: 100% !important;
+          height: 100% !important;
+          transform: scale(1) !important;
+          top: 0 !important;
+          left: 0 !important;
+        }
+      }
+      
+      .remark-slide-content > h1 {
+        font-family: 'Fira Sans';
+        font-weight: normal;
+        font-size: 45px;
+        margin-top: -95px;
+        margin-left: -00px;
+        color: #FFFFFF;
+      }
+      
+      .remark-slide-content > inverse {
+        width: 112px;
+        height: 47px;
+        border-bottom: 1px solid black;
+        position: absolute;
+      }
+      
+      .remark-slide-content > h2 {
+        padding-top: -15px;
+        padding-bottom: 00px;
+        color: #1A292C;
+          text-shadow: none;
+        font-weight: 400;
+        font-size: 35px;
+        text-align: left;
+        margin-left: 00px;
+      }
+      
+      .remark-slide-content > h3 {
+        padding-top: -15px;
+        padding-bottom: 10px;
+        color: #1A292C;
+          text-shadow: none;
+        font-weight: 400;
+        font-size: 30px;
+        text-align: left;
+        margin-left: 00px;
+      }
+      
+      .title-slide {
+        background-color: #FFFFFF;
+          border-top: 80px solid #FFFFFF;
+      }
+      
+      .title-slide > h1  {
+        color: #1A292C;
+          font-size: 40px;
+        text-shadow: none;
+        font-weight: 400;
+        text-align: left;
+        margin-left: 15px;
+        padding-top: 80px;
+      }
+      .title-slide > h2  {
+        margin-top: -25px;
+        padding-bottom: -20px;
+        color: #1A292C;
+          text-shadow: none;
+        font-weight: 300;
+        font-size: 35px;
+        text-align: left;
+        margin-left: 15px;
+      }
+      .title-slide > h3  {
+        color: #1A292C;
+          text-shadow: none;
+        font-weight: 300;
+        font-size: 25px;
+        text-align: left;
+        margin-left: 15px;
+        margin-bottom: -30px;
+      }
+      
+      .remark-slide-number {
+        position: inherit;
+      }
+
+      .remark-slide-number .progress-bar-container {
+        position: absolute;
+        bottom: 0;
+        height: 4px;
+        display: block;
+        left: 0;
+        right: 0;
+      }
+
+      .remark-slide-number .progress-bar {
+        height: 100%;
+        background-color: red;
+      }
+      
+      .title-hex{
+        height: 60px;
+        align: middle;
+        float: right;
+      }
+      
+      
+      /* Removes colored bar from top of the slide resulting in a clear slide */
+.clear {
+  border-top: 0px solid #FFFFFF;
+  border-bottom: 0px solid #FFFFFF;
+}
+
+.clear > h1 {
+  font-family: 'Fira Sans';
+  font-weight: normal;
+  font-size: 45px;
+  margin-top: -95px;
+  margin-left: -00px;
+  color: #FFFFFF;
+}
