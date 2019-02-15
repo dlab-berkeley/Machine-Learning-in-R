@@ -1,0 +1,71 @@
+---
+title: "Ensembling with SuperLearner"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 5. Ensemble methods
+You have learned some of the characteristics for fitting several individual algorithms and have explored a little about how you can define their different (hyper)parameters. However, the ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
+
+Let's see how the four classification algorithms you learned in this workshop (KNN, decision tree, random forest, and gradient boosted machines) compare to each other and also to binary logistic regression (`glm`) and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
+
+A "wrapper" is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:
+```{r}
+SuperLearner::listWrappers()
+```
+
+Instead of splitting the data like before, since we are using cross-validation we actually want to use the entire `pidd` dataset - cross-validation will perform as many training and test splits as necessary (this is called the number of "folds") for us! 
+```{r}
+str(pidd)
+
+# Convert our Y variable to integer type.
+y_int = as.integer(pidd$diabetes == "pos")
+
+# Compile the algorithm wrappers to be used.
+sl_lib = c("SL.xgboost", "SL.glm", "SL.knn", "SL.mean", "SL.rpart", "SL.ranger")
+```
+
+Fit the ensemble:
+
+```{r cvsl_fit, cache = TRUE}
+# This is a seed that is compatible with multicore parallel processing.
+# See ?set.seed for more information.
+set.seed(1, "L'Ecuyer-CMRG") 
+
+# This will take a few minutes to execute - take a look at the .html file to see the output!
+cv_sl = SuperLearner::CV.SuperLearner(Y = y_int, X = subset(pidd, select = -diabetes), verbose = TRUE,
+                        SL.library = sl_lib, family = binomial(),
+                        cvControl = list(V = 10L, stratifyCV = TRUE))
+summary(cv_sl)
+```
+
+> NOTE: Again, this will take a few minutes to complete! See the .html file for the output!
+
+Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the AUC!
+```{r cvsl_review}
+
+# Plot the cross-validated risk estimate.
+plot(cv_sl) + theme_minimal()
+# ggsave("SuperLearner.pdf")
+
+# Compute AUC for all estimators.
+auc_table(cv_sl)
+
+# Plot the ROC curve for the best estimator.
+plot_roc(cv_sl)
+
+# Review weight distribution for the SuperLearner
+print(cvsl_weights(cv_sl), row.names = FALSE)
+```
+
+"Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
+
+**Big question 5:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
+
+##### Challenge 5
+1. What are the elements of the `cv_sl` object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like a dataframe).
+
+A longer tutorial on SuperLearner is available here: (https://github.com/ck37/superlearner-guide)
