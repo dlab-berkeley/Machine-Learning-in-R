@@ -264,3 +264,17 @@ Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cra
 What are these other variables? Load the data and find out! Open "2-preprocessing.Rmd" to get started. 
 
 ---
+
+# Ordinary least squares example
+
+Ordinary least squares (OLS) regression can be used when the target Y variable is continuous. Let's try to predict age from the "pidd" dataset using the other variables as predictors. OLS computes a best fit line that minimizes the vertical squared and summed distances from each point to calculate the model's goodness of fit.  
+
+Mean squared error (MSE) and root mean squared error (RMSE) are quick ways to evaluate performance. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
+
+Remember that under the hood, `lm` is one-hot encoding factors to indicators, but `model.matrix` can be used to do this manually.  
+
+---
+
+# Lasso
+
+---
