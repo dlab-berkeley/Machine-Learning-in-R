@@ -7,13 +7,6 @@ output:
     toc: yes
     toc_float: yes
 ---
-# Introduction 
-
-[Visit the UC Berkeley D-Lab](http://dlab.berkeley.edu/) to learn more about our services and resources, [including the Machine Learning Working Group](http://dlab.berkeley.edu/working-groups/machine-learning-working-group-0).  
-
-## Resources
-
-_An Introduction to Statistical Learning - with Applications in R (2013)_ by Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Springer: New York. [Amazon](https://www.amazon.com/Introduction-Statistical-Learning-Applications-Statistics/dp/1461471370) or [free PDF](http://www-bcf.usc.edu/~gareth/ISL/). We encourage you to support the authors by purchasing their textbook!  
 
 ## Package installation
 
@@ -56,106 +49,10 @@ suppressMessages(suppressWarnings({
 }))
 ```
 
-## Brief history of machine learning
 
-Machine learning evolved from scientific pursuits in statistics, computer science, information theory, artificial intelligence, and pattern recognition.  
 
-How to define machine learning?  
-1) **In general:** algorithms, computers, and other machines that can "learn" without direct input from a human programmer.  
-2) **Practically:** sets of tools for investigating/modeling/understanding data.  
-3)  **Specifically:** (see below)
 
-A proto-example:  
-- [Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html)  
 
-Rapid advances:   
-- [McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html)  
-- [Turing test](http://www.jstor.org/stable/pdf/2251299.pdf)  
-- [Rosenblatt's perceptron](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
-- [Samuels and the game of checkers](http://ucelinks.cdlib.org:8888/sfx_local?sid=google&auinit=AL&aulast=Samuel&atitle=Some+studies+in+machine+learning+using+the+game+of+checkers&id=doi:10.1147/rd.33.0210&title=IBM+Journal+of+Research+and+Development&volume=3&issue=3&date=1959&spage=210&issn=0018-8646)  
 
-Modern topics:  
-- [Turing Test: 50 years later](http://www.cs.bilkent.edu.tr/~akman/jour-papers/mam/mam2000.pdf)  
-- [computer vision](http://www.sciencedirect.com/science/article/pii/S1071581916301264)  
-- [data cleaning](http://www.betterevaluation.org/sites/default/files/data_cleaning.pdf)  
-- [robotics](https://arxiv.org/abs/1708.04677)  
-- [cloud computing](https://arxiv.org/abs/1707.07452)  
 
-The importance of statistics:  
-- [Welling's commentary](https://www.ics.uci.edu/~welling/publications/papers/WhyMLneedsStatistics.pdf)  
-- [Srivastava's discussion](https://www.analyticsvidhya.com/blog/2015/07/difference-machine-learning-statistical-modeling/)  
-- [Breiman's take](https://projecteuclid.org/euclid.ss/1009213726)  
 
-Seek "actionable insight":  
-- ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
-
-# Supervised machine learning
-
-Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method applicable to all cases. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on classification, although a simple regression example is provided as a bonus challenge. 
-
-The syntax for supervised machine learning algorithms can be thought of like this:  
-
-Y ~ X~1~ + X~2~ + X~3~… X~n~
-
-Y is the dependent/response/target/outcome variable  
-X are the independent/input/predictor/feature variables  
-
-Supervised machine learning methods learn a target function $f$ that best maps X to Y based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
-
-Our function would look like this: $y = f(X) + \epsilon$, where $f$ is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero. Therefore, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
-
-**How to define machine learning? (revisited)**  
-More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
-
-##### Classification or regression?
-
-**Classification** is used when the Y outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
-
-**Regression** is used when the target Y outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$. See the bonus challenge for a regression example.  
-
-##### Data preprocessing
-
-A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training sample usually consists of a majority of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test sample to evaluate model performance on data the model has not yet seen. **Missing data should be handled** before the splitting process commences.  
-
-##### Model performance
-
-**Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
-
-A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the X and Y variables.  
-
-A model that performs well on the training dataset but poorly on the test dataset is said to be **overfit** because the model performed worse than expected when given new data. To some extent the patterns found in the training data may have been random noise and therefore, by random chance, are different in the test data.  
-
-##### Common performance metrics
-
-- Accuracy  
-- Mean squared error  
-- Sensitivity and specificity  
-- Area under the ROC curve (AUC)  
-
-# Workshop goals
-
-##### General goals
-
-1) Learn the basics of using five machine learning algorithms in R:  
-  - k-nearest neighbor  
-  - decision tree  
-  - random forest  
-  - boosting  
-  - SuperLearner  
-  - linear regression (bonus)  
-2) Examine the performance of these models  
-3) Vizualize important information:  
-  - knn accuracy tables  
-  - decision trees  
-  - random forest variable importance  
-  - AUC from different boosting models  
-  - SuperLearner cross-validated risk  
-4) Simultaneously compare multiple algorithms in an ensemble  
-
-##### Specific goals
-Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) to investigate the following questions:  
-
-1) **Binary classification examples:** How reliably can different machine learning algorithms predict a person's diabetes status using the other variables?  
-2) **Bonus regression example:** How well can a person's age be predicted using the other variables?  
-
-What are these other variables? Load the data and find out! Open "2-preprocessing.Rmd" to get started. 

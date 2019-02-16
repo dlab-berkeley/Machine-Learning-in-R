@@ -1,61 +1,24 @@
----
-title: "Introduction to Machine Learning in R"
-subtitle: ""
-author: "D-Lab - Evan Muzzall and Chris Kennedy"
-date: "February 2, 2019 (updated: `r Sys.Date()`)"
-output:
-  xaringan::moon_reader:
-    css: ["scrollable.css", "mtheme_max.css", "fonts_mtheme_max.css"]
-    self_contained: false
-    lib_dir: libs
-    chakra: libs/remark-latest.min.js
-    nature:
-      ratio: '16:9'
-      highlightStyle: github
-      highlightLines: true
-      countIncrementalSlides: false
-      slideNumberFormat: |
-        <div class="progress-bar-container">
-          <div class="progress-bar" style="width: calc(%current% / %total% * 100%);">
-          </div>
-        </div>`
-    seal: false   
----
-
-```{r setup, include=FALSE, cache=FALSE}
-# Set global R options
-options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
-# Set global knitr chunk options
-knitr::opts_chunk$set(
-  fig.align = "center", 
-  #cache = TRUE,
-  error = FALSE,
-  message = FALSE, 
-  warning = FALSE, 
-  collapse = TRUE,
-  eval = FALSE
-)
-library(ggplot2)
-# This is good for getting the ggplot background consistent with
-# the html background color
-thm <- theme_bw() + 
-  theme(
-    panel.background = element_rect(fill = "transparent", colour = NA), 
-    plot.background = element_rect(fill = "transparent", colour = NA),
-    legend.position = "top",
-    legend.background = element_rect(fill = "transparent", colour = NA),
-    legend.key = element_rect(fill = "transparent", colour = NA)
-  )
-theme_set(thm)
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Introduction to Machine Learning in R</title>
+    <meta charset="utf-8">
+    <meta name="author" content="D-Lab - Evan Muzzall and Chris Kennedy" />
+    <link rel="stylesheet" href="scrollable.css" type="text/css" />
+    <link rel="stylesheet" href="mtheme_max.css" type="text/css" />
+    <link rel="stylesheet" href="fonts_mtheme_max.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
 
 
-```
+
 
 class: title-slide   
-<a href="https://github.com/dlab-berkeley/Machine-Learning-in-R"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
+&lt;a href="https://github.com/dlab-berkeley/Machine-Learning-in-R"&gt;&lt;img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"&gt;&lt;/a&gt;
 
 
-<br><br><br><br>
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
 # .font130[Introduction to Machine Learning in R]
 
 ### Evan Muzzall and Chris Kennedy  
@@ -98,7 +61,7 @@ _An Introduction to Statistical Learning - with Applications in R (2013)_ by Gar
   
 Or (advanced):
   * Copy the github clone URL (https or ssh version)
-  * In RStudio select File -> New Project -> Version Control -> Git and paste the repository URL
+  * In RStudio select File -&gt; New Project -&gt; Version Control -&gt; Git and paste the repository URL
 
 ---
 
@@ -137,7 +100,7 @@ Rapid advances:
 - [McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html)  
 - [Turing test](http://www.jstor.org/stable/pdf/2251299.pdf)  
 - [Rosenblatt's perceptron](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
-- [Samuels and the game of checkers](http://ucelinks.cdlib.org:8888/sfx_local?sid=google&auinit=AL&aulast=Samuel&atitle=Some+studies+in+machine+learning+using+the+game+of+checkers&id=doi:10.1147/rd.33.0210&title=IBM+Journal+of+Research+and+Development&volume=3&issue=3&date=1959&spage=210&issn=0018-8646)  
+- [Samuels and the game of checkers](http://ucelinks.cdlib.org:8888/sfx_local?sid=google&amp;auinit=AL&amp;aulast=Samuel&amp;atitle=Some+studies+in+machine+learning+using+the+game+of+checkers&amp;id=doi:10.1147/rd.33.0210&amp;title=IBM+Journal+of+Research+and+Development&amp;volume=3&amp;issue=3&amp;date=1959&amp;spage=210&amp;issn=0018-8646)  
 
 Modern topics:  
 - [Turing Test: 50 years later](http://www.cs.bilkent.edu.tr/~akman/jour-papers/mam/mam2000.pdf)  
@@ -171,24 +134,24 @@ Y ~ X~1~ + X~2~ + X~3~… X~n~
 Y is the dependent/response/target/outcome variable  
 X are the independent/input/predictor/feature variables  
 
-Supervised machine learning methods learn a target function $f$ that best maps X to Y based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
+Supervised machine learning methods learn a target function `\(f\)` that best maps X to Y based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
 
 ---
 
 # Supervised machine learning
 
-Our function would look like this: $y = f(X) + \epsilon$, where $f$ is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of X, and averages to zero. Therefore, we can predict Y using $\hat{y} = \hat{f}(X)$ for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
+Our function would look like this: `\(y = f(X) + \epsilon\)`, where `\(f\)` is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Epsilon `\(\epsilon\)` is the random error, is independent of X, and averages to zero. Therefore, we can predict Y using `\(\hat{y} = \hat{f}(X)\)` for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
 
 **How to define machine learning? (revisited)**  
-More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
+More specifically, we can think of machine learning as a bunch of methods to estimate `\(f\)`!  
 
 ---
 
 # Classification or regression?
 
-**Classification** is used when the Y outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: $Pr(Y = 1 | X)$. This can be extended to multi-level classification as well.  
+**Classification** is used when the Y outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: `\(Pr(Y = 1 | X)\)`. This can be extended to multi-level classification as well.  
 
-**Regression** is used when the target Y outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: $E(Y | X)$. See the bonus challenge for a regression example.  
+**Regression** is used when the target Y outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: `\(E(Y | X)\)`. See the bonus challenge for a regression example.  
 
 ---
 
@@ -280,9 +243,7 @@ class: center
 # What is an artificial neural network? 
 
 "Perceptron"
-```{r, out.width = "600px", echo = F, eval = TRUE}
-knitr::include_graphics("slide_img/ann.png")
-```
+&lt;img src="slide_img/ann.png" width="600px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -328,9 +289,7 @@ class: center
 
 # What is an activation function?
 
-```{r, out.width = "500px", echo = F, eval = TRUE}
-knitr::include_graphics("slide_img/actfun.png")
-```
+&lt;img src="slide_img/actfun.png" width="500px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -338,9 +297,7 @@ class: center
 
 # What makes a neural network "deep"?
 
-```{r, out.width = "700px", echo = F, eval = TRUE}
-knitr::include_graphics("slide_img/deep.png")
-```
+&lt;img src="slide_img/deep.png" width="700px" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -381,19 +338,22 @@ knitr::include_graphics("slide_img/deep.png")
 [Load the MNIST dataset](http://yann.lecun.com/exdb/mnist/) using the built-in function `mnist = dataset_mnist()` and assign the training and test X and Y variables: 
 
 #### Training set
-```{r eval=F}
+
+```r
 x_train = mnist$train$x  
 y_train = mnist$train$y
 ```
 
 #### Validation (test) set
-```{r eval=F}
+
+```r
 x_test = mnist$test$x  
 y_test = mnist$test$y
 ```
 
 #### Note the array dimension differences
-```{r eval=F}
+
+```r
 str(mnist$train$x)
 str(x_train)
 ```
@@ -402,21 +362,24 @@ str(x_train)
 # Part 1: `array_reshape`
 This function converts our 3D tensor (samples, height, width) to a 2D one (samples, input shape). 
 
-```{r eval=F}
+
+```r
 x_train = array_reshape(x_train, c(nrow(x_train), height * width))
 
 x_test = array_reshape(x_test, c(nrow(x_test), height * width))
 ```
 
 #### Check new dimensions (2D)
-```{r eval=F}
+
+```r
 str(x_train)
 
 str(x_test) 
 ```
 
 #### Gray rescale:  
-```{r eval=F}
+
+```r
 x_train = x_train / 255
 
 x_test = x_test / 255
@@ -427,7 +390,8 @@ x_test = x_test / 255
 # Part 1: `to_categorical`
 Convert integer vector to binary class matrix. Specify the train and test labels and the number of Y classes (10, the numbers 0 thru 9).  
 
-```{r eval=F}
+
+```r
 y_train = to_categorical(y_train, 10) 
 
 y_test = to_categorical(y_test, 10)
@@ -445,20 +409,21 @@ This function allows us to build a linear stack of layers. We will make a model 
 
 # Part 1
 
-```{r eval=FALSE}
+
+```r
 model = keras_model_sequential()
 
-model %>%
+model %&gt;%
   
 *# (INPUT LAYER + HIDDEN LAYER)
-  layer_dense(units = 256, activation = 'relu', input_shape = c(784)) %>%
+  layer_dense(units = 256, activation = 'relu', input_shape = c(784)) %&gt;%
   
-  layer_dropout(rate = 0.4) %>% 
+  layer_dropout(rate = 0.4) %&gt;% 
   
 *# (HIDDEN LAYER) 
-  layer_dense(units = 128, activation = 'relu') %>%
+  layer_dense(units = 128, activation = 'relu') %&gt;%
   
-  layer_dropout(rate = 0.3) %>%
+  layer_dropout(rate = 0.3) %&gt;%
   
 *# (OUTPUT LAYER)
   layer_dense(units = 10, activation = 'softmax')
@@ -477,8 +442,9 @@ Here we can define the performance evaluation metrics to be incorporated into th
   
 **Performance metric:** We can just choose accuracy since we are tasked with a multinomial classification problem of ten handwritten digits.  
 
-```{r eval=FALSE}
-model %>%
+
+```r
+model %&gt;%
   compile(loss = 'categorical_crossentropy',
           optimizer = optimizer_rmsprop(lr = 0.001),
           metrics = c('accuracy'))`
@@ -493,8 +459,9 @@ We are almost ready to train the model, but we first need to provide a few more 
 - Batch size: number of samples from the training set to be used in a single epoch. An "iteration" is the number of batches necessary to complete one epoch, where gradients are computed relative to the loss of the individual batch. 
 - Validation split: percentage of data to be used as the validation set (0.2 means last 20%).  
 
-```{r eval=F}
-history = model %>%
+
+```r
+history = model %&gt;%
   fit(x_train, y_train, epochs = 30, batch_size = 128, validation_split = 0.2)
 ```
 
@@ -502,8 +469,9 @@ history = model %>%
 # Part 1: `evaluate`
 Predict on the test set!  
 
-```{r eval=F}
-model %>% evaluate(x_test, y_test)
+
+```r
+model %&gt;% evaluate(x_test, y_test)
 ```
 
 ---
@@ -529,7 +497,8 @@ Part 2
 
 Now that you are warmed up, let's see what Keras can do when we have our own folders of images. Here we have two folders of [dogs](http://vision.stanford.edu/aditya86/ImageNetDogs/) and [people](http://pascal.inrialpes.fr/data/human/), located in training and validation directories. 
 
-```{r}
+
+```r
 train_path = "data-raw/dog-human/TRAIN"
 
 val_path = "data-raw/dog-human/VAL"
@@ -538,7 +507,8 @@ val_path = "data-raw/dog-human/VAL"
 ## `list_files`
 Listing the files prints the full file paths of our images.  
 
-```{r}
+
+```r
 train_images = list.files(train_path, full.names = TRUE, recursive = TRUE)
 
 val_images = list.files(val_path, full.names = TRUE, recursive = TRUE)
@@ -560,7 +530,8 @@ We can fit the model like before, by defining the number of units in each layer,
 # Part 2: `image_data_generator`
 This function [performs data augmentation](https://keras.rstudio.com/reference/image_data_generator.html). It contains many tunable parameters, but we will just use the rescale to the gray channel. 
 
-```{r}
+
+```r
 train_datagen = keras::image_data_generator(rescale = 1/255)  
 
 val_datagen = keras::image_data_generator(rescale = 1/255)
@@ -575,7 +546,7 @@ Here we can configure the training model. You will need to define:
 - Output class: binary
 - Color profile: grayscale
 
-> Remember this is a Pythonic "method"! 
+&gt; Remember this is a Pythonic "method"! 
 
 ---
 
@@ -585,7 +556,8 @@ Fit the model!
 
 Same as Part 1, except we need to first flatten the three dimensional array to one dimension:  
 
-```{r}
+
+```r
 layer_flatten(input_shape = c(img_width, img_height, 1))
 ```
 
@@ -601,8 +573,9 @@ This fits the training model configuration (using `flow_from_directory`)
 - Validation data: the validation model 
 - Validation steps: the number of batch runs needed to complete one full iteration of validation.  
 
-```{r}
-history = model %>%
+
+```r
+history = model %&gt;%
   fit_generator(train_gen, steps_per_epoch = as.integer(num_train_samples / batch_size),
   epochs = epochs, validation_data = val_gen, validation_steps = as.integer(num_validation_samples / batch_size))
 ```
@@ -612,8 +585,9 @@ history = model %>%
 # Part 2: `evaluate_generator`
 Predict on the validation data! 
 
-```{r}
-model %>% evaluate_generator(generator = val_gen, steps = 10)
+
+```r
+model %&gt;% evaluate_generator(generator = val_gen, steps = 10)
 ```
 
 ---
@@ -643,3 +617,53 @@ Lakhani, P. 2018. [Hello_World_Deep_Learning.](https://github.com/paras42/Hello_
 [View the resouces listed](https://github.com/dlab-berkeley/Deep-Learning-in-R/blob/master/README.md) in this repository's readme file. 
 
 Images [borrowed from Qingkai Kong's ANNs in Python workshop.](https://github.com/qingkaikong/20181129_ANN_basics_DLab)
+    </textarea>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"slideNumberFormat": "<div class=\"progress-bar-container\">   <div class=\"progress-bar\" style=\"width: calc(%current% / %total% * 100%);\">   </div> </div>` "
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+})();
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
