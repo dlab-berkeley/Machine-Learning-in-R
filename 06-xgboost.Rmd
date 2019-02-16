@@ -1,13 +1,7 @@
----
-title: "XGBoost"
-output: html_document
----
+# XGBoost
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+## Overview
 
-# 4. Boosting
 from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf):  
 
 "Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  

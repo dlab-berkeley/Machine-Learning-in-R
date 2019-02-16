@@ -1,13 +1,7 @@
----
-title: "Ensembling with SuperLearner"
-output: html_document
----
+# Ensembles
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+## Overview
 
-# 5. Ensemble methods
 You have learned some of the characteristics for fitting several individual algorithms and have explored a little about how you can define their different (hyper)parameters. However, the ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
 
 Let's see how the four classification algorithms you learned in this workshop (KNN, decision tree, random forest, and gradient boosted machines) compare to each other and also to binary logistic regression (`glm`) and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!  

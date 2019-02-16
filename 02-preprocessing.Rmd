@@ -1,14 +1,6 @@
----
-title: "Introduction to Machine Learning in R - data preprocessing"
-author: "Evan Muzzall and Chris Kennedy"
-date: "2/15/2019"
-output:
-  html_document:
-    toc: yes
-    toc_float: yes
----
+# Preprocessing
 
-# Load the data
+## Load the data
 Load the `PimaIndiansDiabetes2` and `iris` datasets
 
 ```{r load_data}
@@ -34,7 +26,7 @@ str(iris)
 ?iris
 ```
 
-# Data preprocessing
+## Data preprocessing
 
 Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly setup your Y and X variables and appropriately split your data into training and test sets if neeeded.  
 
@@ -42,7 +34,7 @@ One additional preprocessing aspect to consider: datasets that contain factor (c
 
 > NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data are used and multiple training/testing splits are utilized. 
 
-# Handling missing data
+## Handling missing data
 
 Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
 
@@ -76,7 +68,7 @@ str(pidd)
 colSums(is.na(pidd))
 ```
 
-# Defining Y outcome vectors and X feature dataframes
+## Defining Y outcome vectors and X feature dataframes
 
 ##### Classification setup
 

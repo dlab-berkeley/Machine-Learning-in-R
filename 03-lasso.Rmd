@@ -1,14 +1,6 @@
----
-title: "Introduction to Machine Learning in R - lasso"
-author: "Evan Muzzall and Chris Kennedy"
-date: "2/15/2019"
-output:
-  html_document:
-    toc: yes
-    toc_float: yes
----
+# Lasso and OLS
 
-# Ordinary least squares example
+## Ordinary least squares example
 OLS can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators, but try writing it out for practice if you get the chance. 
 
 
@@ -56,4 +48,4 @@ This time, we will use the entire `iris` dataset since we can use the `predict` 
 
 Code a regression model that predicts one of the numeric variables from the "iris" dataset. 
 
-# lasso
+## Lasso

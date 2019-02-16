@@ -1,13 +1,7 @@
----
-title: "Random Forests"
-output: html_document
----
+# Random Forests
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+## Overview
 
-# 3. Random forests
 The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest can be viewed as an **ensemble** method, or model averaging approach. The algorithm was invented by UC Berkeley's own Leo Breiman in 2001, who was also a co-creator of decision trees (see his [1984 CART book](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418)).  
 
 Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"). An algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used by any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
