@@ -1,33 +1,64 @@
----
-title: "Introduction to Machine Learning in R - decision trees"
-author: "Evan Muzzall and Chris Kennedy"
-date: "2/15/2019"
-output:
-  html_document:
-    toc: yes
-    toc_float: yes
----
+# Decision Trees
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decision trees attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
+
+Let's see how a decision tree classifies diabetes status from our dataset.  
+
+Note that we do not have to use `model.matrix` for our decision tree algorithm here because it can work with factor variables directly:
+```{r}
+tree = rpart::rpart(y ~ ., data = features,
+             # Use method = "anova" for a continuous outcome.
+             method = "class",
+             # Can use "gini" for gini coefficient.
+             parms = list(split = "information")) 
+# Here is the text-based display of the decision tree. Yikes!  :^( 
+print(tree)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+Although interpreting the text can be intimidating, a decision tree's main strength is its tree-like plot, which is much easier to interpret.
+```{r plot_tree}
+rpart.plot::rpart.plot(tree) 
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+We can also look inside of `tree` to see what we can unpack. "variable.importance" is one we should check out! 
+```{r}
+names(tree)
+tree$variable.importance
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+In decision trees the main hyperparameter (configuration setting) is the **complexity parameter** (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.  
+
+`rpart` uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.  
+
+Print the results for various CP settings - we want the one with the lowest "xerror". We can also plot the performance estimates for different CP settings. 
+```{r plotcp_tree}
+# Show estimated error rate at different complexity parameter settings.
+printcp(tree)
+# Plot those estimated error rates.
+plotcp(tree)
+# Trees of similar sizes might appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. However, a tree with 14 splits has a lower relative error. 
+tree_pruned2 = prune(tree, cp = 0.047) # 3 splits
+tree_pruned14 = prune(tree, cp = 0.011) # 14 splits
+# Print detailed results, variable importance, and summary of splits.
+```
+```{r eval = F}
+summary(tree_pruned2) 
+```
+```{r plot_tree_pruned2}
+rpart.plot(tree_pruned2)
+```
+```{r eval = F}
+summary(tree_pruned14) 
+```
+```{r plot_tree_pruned14}
+rpart.plot(tree_pruned14)
+```
+
+You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type `?rpart` to learn more.  
+
+**Big question 2:** What do you notice about the tree with 3 splits and the tree with 14 splits? Are there any parts that are identical?  
+
+##### Challenge 2
+What are the "minsplit", "cp", and "minbucket" hyperparameters within the "control" parameter? Use the iris dataset to construct a decision tree that utilized the `rpart.control` hyperparameter.  
+
+> HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  
