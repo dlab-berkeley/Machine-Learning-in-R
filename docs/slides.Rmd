@@ -1,5 +1,5 @@
 ---
-title: "Introduction to Deep Learning in R"
+title: "Introduction to Machine Learning in R"
 subtitle: ""
 author: "D-Lab - Evan Muzzall and Chris Kennedy"
 date: "Dec 14, 2018 (updated: `r Sys.Date()`)"
