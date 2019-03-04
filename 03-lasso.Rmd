@@ -1,51 +1,40 @@
-# Lasso and OLS
+# OLS and lasso
 
-## Ordinary least squares example
-OLS can be used when the target Y variable is continuous. Remember that under the hood, `lm` is one-hot encoding factors to indicators, but try writing it out for practice if you get the chance. 
+# OLS in 8 steps
 
+Below is an example of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
 
-
-Mean squared error (MSE) and root mean squared error (RMSE) will be our performance metrics. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
-
-Here is an example that predicts age from the `pidd` dataset:
 ```{r}
-# Define Y response variable
+# 1. Define Y response variable
 Y_reg = pidd$age
 
-# Remove outcome variable from the X dataframe
+# 2. Remove outcome variable from the X dataframe
 X_reg = subset(pidd, select = -age)
 
-# This will convert factors to indicators but will also add an extra constant column for estimating the intercept
+# 3. Convert factors to indicators but will also add an extra constant column for estimating the intercept
 X_reg = data.frame(model.matrix( ~ ., X_reg))
 
 str(X_reg)
 
-# Remove the extra intercept column, we don't need to store it in our dataset
+# 4. Remove the extra intercept column, we don't need to store it in our dataset
 X_reg = X_reg[, -1]
 
 str(X_reg)
 
-# Fit the regression model; lm() will automatically add a temporary intercept column
+# 5. Fit the regression model; lm() will automatically add a temporary intercept column
 reg_fit = lm(Y_reg ~ ., data = X_reg)
 
-# View the output
+# 6. View the output
 summary(reg_fit) 
 
-# Predict outcome for the training data
+# 7. Predict outcome for the training data
 reg_predicted = predict(reg_fit, X_reg)
 
-# Calculate mean-squared error
+# 8. Calculate mean-squared error
 MSE_reg = mean((Y_reg - reg_predicted)^2)
 
 MSE_reg
 sqrt(MSE_reg) # RMSE
 ```
 
-**Bonus big question:** What might you surmise about linear regression and the pidd and iris datasets? 
-
-##### Bonus challenge
-This time, we will use the entire `iris` dataset since we can use the `predict` R function to generate pseudo-test data. Here, we can just define our Y outcome inside the function (iris$Species) and then subset the rest of iris to exclude Species as a way to define our predictors.  
-
-Code a regression model that predicts one of the numeric variables from the "iris" dataset. 
-
-## Lasso
+# Lasso
