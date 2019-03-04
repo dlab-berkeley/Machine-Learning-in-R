@@ -16,19 +16,19 @@ if (FALSE) {
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages
-                     "devtools", "dplyr",
+                     "remotes", "dplyr",
                      # Misc
                      "mlbench", "pROC"))
   
   # Install packages not on CRAN or with old version on CRAN.
-  devtools::install_github(c("ck37/ck37r"))
+  remotes::install_github(c("ck37/ck37r"))
 }
 
 # Hide the many messages and possible warnings from loading all these packages.
 suppressMessages(suppressWarnings({  
   library(caret)        # createDataPartition creates a stratified random split
   library(ck37r)        # impute_missing_values, SuperLearner helpers
-  library(devtools)     # Allows installing packages from github
+  library(remotes)     # Allows installing packages from github
   library(dplyr)        # Data cleaning
   library(gbm)          # Gradient boosted machines
   library(ggplot2)      # Graphics 
