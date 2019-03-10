@@ -1,7 +1,7 @@
 # Preprocessing
 
 ## Load the data
-Load the `PimaIndiansDiabetes2` and `iris` datasets
+Load the "PimaIndiansDiabetes2" and "iris" datasets
 
 ```{r load_data}
 library(mlbench)
