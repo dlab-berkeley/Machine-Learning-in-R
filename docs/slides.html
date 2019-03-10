@@ -100,7 +100,7 @@ Rapid advances:
 - [McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html)  
 - [Turing test](http://www.jstor.org/stable/pdf/2251299.pdf)  
 - [Rosenblatt's perceptron](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
-- [Samuels and the game of checkers](http://ucelinks.cdlib.org:8888/sfx_local?sid=google&amp;auinit=AL&amp;aulast=Samuel&amp;atitle=Some+studies+in+machine+learning+using+the+game+of+checkers&amp;id=doi:10.1147/rd.33.0210&amp;title=IBM+Journal+of+Research+and+Development&amp;volume=3&amp;issue=3&amp;date=1959&amp;spage=210&amp;issn=0018-8646)  
+- [Samuel and the game of checkers](https://ieeexplore.ieee.org/search/searchresult.jsp?searchWithin=%22Publication%20Number%22:5288520&amp;searchWithin=%22Volume%22:3&amp;searchWithin=%22Issue%22:3&amp;searchWithin=%22Start%20Page%22:210)  
 
 Modern topics:  
 - [Turing Test: 50 years later](http://www.cs.bilkent.edu.tr/~akman/jour-papers/mam/mam2000.pdf)  
@@ -140,7 +140,7 @@ Supervised machine learning methods learn a target function `\(f\)` that best ma
 
 # Supervised machine learning
 
-Our function would look like this: `\(y = f(X) + \epsilon\)`, where `\(f\)` is some function that relates our X predictor variables to Y in an unknown way thus we must estimate it. Epsilon `\(\epsilon\)` is the random error, is independent of X, and averages to zero. Therefore, we can predict Y using `\(\hat{y} = \hat{f}(X)\)` for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
+Our function would look like this: `\(y = f(X) + \epsilon\)`, where `\(f\)` is some function that relates our `\(X\)` predictor variables to `\(Y\)` in an unknown way thus we must estimate it. Epsilon `\(\epsilon\)` is the random error, is independent of `\(X\)`, and averages to zero. Therefore, we can predict `\(Y\)` using `\(\hat{y} = \hat{f}(X)\)` for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
 
 **How to define machine learning? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate `\(f\)`!  
@@ -149,9 +149,9 @@ More specifically, we can think of machine learning as a bunch of methods to est
 
 # Classification or regression?
 
-**Classification** is used when the Y outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: `\(Pr(Y = 1 | X)\)`. This can be extended to multi-level classification as well.  
+**Classification** is used when the `\(Y\)` outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: `\(Pr(Y = 1 | X)\)`. This can be extended to multi-level classification as well.  
 
-**Regression** is used when the target Y outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: `\(E(Y | X)\)`. See the bonus challenge for a regression example.  
+**Regression** is used when the target `\(Y\)` outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: `\(E(Y | X)\)`.  
 
 ---
 
@@ -165,7 +165,7 @@ A longstanding first step is to split a dataset into **"training"** and **"test"
 
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
-A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the X and Y variables.  
+A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the `\(X\)` and `\(Y\)` variables.  
 
 A model that performs well on the training dataset but poorly on the test dataset is said to be **overfit** because the model performed worse than expected when given new data. To some extent the patterns found in the training data may have been random noise and therefore, by random chance, are different in the test data.  
 
@@ -222,23 +222,88 @@ Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cra
 
 1) **Lasso regression example:** How well can a person's age be predicted using the other variables?  
 
-2) **Binary classification examples:** How reliably can different machine learning algorithms predict a person's diabetes status using the other variables?  
+2) **Binary classification examples:** How reliably can different algorithms predict a person's diabetes status using the other variables?  
 
-What are these other variables? Load the data and find out! Open "2-preprocessing.Rmd" to get started. 
+What are these other variables? Load the data and find out! Open **"1-overview.Rmd"** to install and import the necessary packages for this workshop. Then, open **"2-preprocessing.Rmd"** to get started with the data.  
+
+---
+
+# Data preprocessing
+
+A first task will be to split our data into training and test sets. This not only allows us to build a model on training data and evaluate its performance on test/holdout data, but it is also a good way to get familiar with cross-validation. 
+
+The short version is that we need to:  
+1. Define Y outcome and X predictor variables  
+2. Remove Y variables from X predictor datasets  
+3. Convert factors to indicators (if necessary)  
+4. Define training and test datasets  
+
+---
+
+# Cross-validation
+
+(add text here)
+
+![asdf](K-fold_cross_validation_EN.jpg)
+
+[4 fold cross-validation image by Fabian Flöck - Own work, CC BY-SA 3.0](https://commons.wikimedia.org/w/index.php?curid=51562781)
+
+---
+
+# What is regression? 
+
+Regression analysis is a technique to infer the relationship between a `\(Y\)` outcome variable and `\(X\)` predictor variable(s) and how much `\(Y\)` changes when `\(X\)` is altered. 
+
+This algorithm ["regresses"](https://stats.stackexchange.com/questions/207425/why-do-we-say-the-outcome-variable-is-regressed-on-the-predictors/207621) `\(Y\)` onto `\(X\)`. Although individual examples may differ (you could regress `\(X\)` onto `\(Y\)`), in simpler terminology we want to see how our `\(X\)` variables can be used to predict `\(Y\)` for this example. 
+
+Regression allows us to ask useful questions of our data, such as: 
+1. Is there a relationship between `\(Y\)` and `\(X\)` variables? 
+2. How strong are these relationships? 
+3. How can `\(Y\)` be predicted for certain values of `\(X\)`? 
+4. How well can the model be used to predict `\(Y\)` when new data are used? 
+
+Linear regression can be thought of as the simplest form of supervised machine learning and can be used for both inference and prediction.  
+
+---
+
+# Regression syntax
+
+In its simplest form, the syntax looks like this: 
+`\(Y = β0 + β1X + ε\)` 
+
+Y = dependent/outcome/target/response variable  
+X = independent/predictor/input/explanatory variable  
+epsilon = error  
+β0 = intercept  
+β1X = slope for that particular feature  
 
 ---
 
 # Ordinary least squares example
 
-Ordinary least squares (OLS) regression can be used when the target Y variable is continuous. Let's try to predict age from the "pidd" dataset using the other variables as predictors. OLS computes a best fit line that minimizes the vertical squared and summed distances from each point to calculate the model's goodness of fit.  
+[Ordinary least squares (OLS)](https://en.wikipedia.org/wiki/Ordinary_least_squares) regression is the simplest use case when the target `\(Y\)` variable is continuous. OLS computes a best fit line that minimizes the vertical squared and summed distances from each point to calculate the model's goodness of fit. Our refresher example will predict age from the [Pima Indians Diabetes Database](https://www.kaggle.com/uciml/pima-indians-diabetes-database) (abbreviated as "pidd") using the other variables as predictors.  
 
 Mean squared error (MSE) and root mean squared error (RMSE) are quick ways to evaluate performance. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
 
-Remember that under the hood, `lm` is one-hot encoding factors to indicators, but `model.matrix` can be used to do this manually.  
+Remember that under the hood, `lm` is one-hot encoding factors to indicators, but `model.matrix` was already manually used to do so.  
 
 ---
 
 # Lasso
+
+Lasso (least absolute shrinkage and selection operator) is a form of variable selection regression that applies penalization to the coefficients through sparsity. It shrinks coefficients of the features that are not related to the outcome variable to zero, thus removing them to provide an ostensibly simpler model for interpretation.  
+
+Sparsity: "Loosely speaking, a sparse statistical model is one in which only a relatively small number of parameters (or predictors) play an important role." (Hastie et al. 2016:1) aka a subset of the original variables. 
+
+Lambda `\(\lambda\)` is the regularization coefficient, or the degree to which the beta coefficients should be penalized.  
+
+When `\(\lambda\)` is zero, ordinary least squares regression is performed. 
+
+Alpha `\(\alpha\)` determines the type of model; 1 indicates lasso penalty, 0 indicates ridge penalty, and anything inbetween indicates elastic net. 
+
+---
+
+# Decision trees
 
 ---
     </textarea>

@@ -1,7 +1,7 @@
-### Big question 3 answer: The decision tree with 2 splits is exactly the same as the top part of the tree with 14 splits! 
+### Big question 2 answer: The decision tree with 2 splits is exactly the same as the top part of the tree with 14 splits! 
 
 
-### Challenge 3 iris decision tree solution
+### Challenge 2 iris decision tree solution
 
 # Isolate Y response variable ("Species").
 Y_dt = iris$Species

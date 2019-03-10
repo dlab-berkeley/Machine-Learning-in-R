@@ -1,8 +1,8 @@
-### Big question 5 answer:
-
-# knn: uses neighboring points to classify point in question, makes no assumptions about data distribution
+### Big question 4 answer:
 
 # lm: assumes a linear relationship exists between Y and X variables
+
+# lasso: sets some predictor coefficients to zero if they are not related to the outcome
 
 # rpart: partitions feature space into smaller subspaces, tries to minimize RSS or classification error (% of training observations that do not belong to the majority class), generally have high variance, a single tree is likely to overfit, larger trees can be pruned back to smaller trees with lower test error
 

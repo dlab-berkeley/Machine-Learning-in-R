@@ -1,6 +1,6 @@
-### Big question 4 answer: recall that single decision trees have a tendency to overfit because they are using a single tree and all the features to reprsent the data. Bagged (bootstrap aggregated) trees do something similar, but bootstrap the single tree a specified number of times and then takes an average of the performance across those trees. These methods ensure that the "most important" splits always occur at the top of the tree, which can mask other important splits. Random forest on the other hand, resamples a specified number of trees but only uses a subset of the predictors at each split, thus giving all variables a chance to be split at the top of a tree - average performance is then computed across the trees. 
+### Big question 3 answer: recall that single decision trees have a tendency to overfit because they are using a single tree and all the features to reprsent the data. Bagged (bootstrap aggregated) trees do something similar, but bootstrap the single tree a specified number of times and then takes an average of the performance across those trees. These methods ensure that the "most important" splits always occur at the top of the tree, which can mask other important splits. Random forest on the other hand, resamples a specified number of trees but only uses a subset of the predictors at each split, thus giving all variables a chance to be split at the top of a tree - average performance is then computed across the trees. 
 
-### Challenge 4 randomForest solution
+### Challenge 3 randomForest solution
 
 # 1 Change mtry, # 2 change maxnodes, and fit the model
 set.seed(1)

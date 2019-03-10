@@ -32,13 +32,15 @@ Data peprocessing is an integral first step in machine learning workflows. Becau
 
 One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). Doing this manually is always good practice. However, functions like `lm` will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
 
+For the regression setup, we will use `model.matrix` to convert the "diabetes" status variable ("pos" or "neg") to an indicator, since Lasso expects a matrix of input variables. If we leave "diabetes" as a factor, it will convert the entire matrix to character type - an unacceptable input format for Lasso. 
+
 > NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data are used and multiple training/testing splits are utilized. 
 
 ## Handling missing data
 
 Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing case) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](http://www.stefvanbuuren.nl/publications/mice%20in%20r%20-%20draft.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages).  
 
-Median imputation is also useful, but k-nearest neighbor (knn) imputation is demonstrated below:
+K-nearest neighbor imputation can also be useful, median imputation is demonstrated below:
 ```{r review_missingness}
 # First, count the number of missing values across variables in our pidd dataset
 colSums(is.na(pidd))
@@ -51,7 +53,7 @@ Now, median impute the missing values! We also want to create missingness indica
 
 Neither the "diabetes" nor "age" columns have any missing values, so we can go ahead and impute the whole dataset.  
 
-> Note: we will also have to manually center and scale these data using the `scale` function. If you select "knn" as the method, values will be automatically centered and scaled. 
+> Note: since our data are on different scales (e.g., age in years, number of times pregnant, etc.) we will also want to manually center and scale these data using the `scale` function if you select "standard" (median) imputation as the method. If you select "knn" as the method, values will be automatically centered and scaled. 
 
 ```{r impute_missing_values}
 result = ck37r::impute_missing_values(pidd, 
@@ -61,18 +63,87 @@ result = ck37r::impute_missing_values(pidd,
 # Use the imputed dataframe.
 pidd = result$data
 
-# view new columns
+# View new columns.
 str(pidd)
 
 # No more missing data and missingness indicators have been added as columns! 
 colSums(is.na(pidd))
 ```
 
+Scale the data to a mean of 0 and standard deviation of 1
+```{r}
+# Save missingness indicators in separate variable
+missing = pidd[, 10:14]
+head(missing)
+
+# Scale only the numeric variables (but exclude the missingness indicators)
+pidd = pidd[,-10:-14] %>% dplyr::mutate_if(is.numeric, scale);
+
+# Re-add the missingness indicators and onvert to data frame
+pidd = data.frame(cbind(pidd, missing))
+
+# Inspect
+str(pidd)
+```
+
 ## Defining Y outcome vectors and X feature dataframes
+
+##### Regression setup
+
+Assign the outcome variable (age) to its own vector for **REGRESSION tasks:** (lasso). Remember that lasso can also perform classification! 
+
+```{r data_prep}
+# View pidd variable names
+names(pidd)
+
+# 1) Define Y for regression (what is a person's age?).
+Y_reg = pidd$age
+
+# View the ages of the first twenty individuals.
+head(Y_reg, n = 20)
+
+# 2) Define the X feature/predictor dataframe that excludes the Y outcome age. 
+features_reg = subset(pidd, select = -age)
+
+# Age column has been successfully removed.
+names(features_reg)
+
+# 3) One hot encode diabetes from factor to indicator type
+features_reg_mat = as.matrix(model.matrix(~ . ,  data = features_reg))
+
+head(features_reg_mat)
+
+# 4) Remove added Intercept column
+features_reg_mat = features_reg_mat[, -1]
+
+colnames(features_reg_mat)
+```
+
+We then can take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
+```{r caret_split}
+# Set seed for reproducibility.
+set.seed(1)
+
+# Create a stratified random split.
+training_rows_reg = caret::createDataPartition(Y_reg, p = 0.70, list = FALSE) 
+
+train_x_reg = features_reg_mat[training_rows_reg, ] # partition training dataset
+test_x_reg = features_reg_mat[-training_rows_reg, ] # partition test dataset
+
+train_val_reg = Y_reg[training_rows_reg] # partition training Y vector labels
+test_val_reg = Y_reg[-training_rows_reg] # partition test Y vector labels
+
+# lengths of our Y label vectors and the number of rows in our training dataframes are the same for both training and test sets!
+dim(train_x_reg)
+length(train_val_reg)
+
+dim(test_x_reg)
+length(test_val_reg)
+```
 
 ##### Classification setup
 
-Assign the outcome variable to its own vector for **CLASSIFICATION tasks:** in this workshop, k-nearest neighbor, decision tree, random forest, gradient boosting, and SuperLearner algorithms. However, keep in mind that these algorithms can also perform regression!
+Assign the outcome variable to its own vector for **CLASSIFICATION tasks:** (decision tree, random forest, gradient boosting, and SuperLearner algorithms). However, keep in mind that these algorithms can also perform regression!
 
 ```{r data_prep}
 # View pidd variable names

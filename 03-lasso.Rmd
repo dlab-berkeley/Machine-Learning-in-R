@@ -2,39 +2,84 @@
 
 # OLS in 8 steps
 
-Below is an example of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
+Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
 
 ```{r}
-# 1. Define Y response variable
-Y_reg = pidd$age
+# Look at Y and X variables
+head(train_val_reg, n = 20)
 
-# 2. Remove outcome variable from the X dataframe
-X_reg = subset(pidd, select = -age)
+head(train_x_reg, n = 20)
 
-# 3. Convert factors to indicators but will also add an extra constant column for estimating the intercept
-X_reg = data.frame(model.matrix( ~ ., X_reg))
+# Fit the regression model; lm() will automatically add a temporary intercept column
+reg_fit = lm(train_val_reg ~ ., data = as.data.frame(train_x_reg))
 
-str(X_reg)
-
-# 4. Remove the extra intercept column, we don't need to store it in our dataset
-X_reg = X_reg[, -1]
-
-str(X_reg)
-
-# 5. Fit the regression model; lm() will automatically add a temporary intercept column
-reg_fit = lm(Y_reg ~ ., data = X_reg)
-
-# 6. View the output
+# View the output
 summary(reg_fit) 
 
-# 7. Predict outcome for the training data
-reg_predicted = predict(reg_fit, X_reg)
+# Predict outcome for the training data
+reg_predicted = predict(reg_fit, as.data.frame(test_x_reg))
 
 # 8. Calculate mean-squared error
-MSE_reg = mean((Y_reg - reg_predicted)^2)
+MSE_reg = mean((test_val_reg - reg_predicted)^2)
 
 MSE_reg
+
 sqrt(MSE_reg) # RMSE
 ```
 
 # Lasso
+
+Fit the lasso! However, because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
+
+```{r}
+lasso = cv.glmnet(train_x_reg, train_val_reg, family = "gaussian", alpha = 1)
+```
+
+Visualize the distribution of lamba. 
+```{r}
+plot(lasso)
+```
+
+Show plot of different lambda values: 
+```{r}
+plot(lasso$glmnet.fit, xvar = "lambda", label = T)
+```
+
+Show the minimum MSE:
+```{r}
+lasso$lambda.min
+```
+
+Show higher lambda within [one standard error](https://stats.stackexchange.com/questions/80268/empirical-justification-for-the-one-standard-error-rule-when-using-cross-validat) of performance of the minimum
+```{r}
+lasso$lambda.1se
+```
+
+Look at the coefficients
+```{r}
+coef(lasso, s = "lambda.1se")
+```
+
+Look at the coefficients for lambda.min
+```{r}
+coef(lasso, s = "lambda.min")
+```
+
+Predict on the test set
+```{r}
+predictions = predict(lasso, s = lasso$lambda.1se, newx = as.matrix(test_x_reg))
+```
+
+Calculate MSE and RMSE:
+```{r}
+# Calculate mean-squared error.
+mean((predictions - test_val_reg)^2)
+
+# Calculate root mean-squared error.
+sqrt(mean((predictions - test_val_reg)^2))
+```
+
+**Big question 1:** What are the statistical assupmtions for OLS regression? What are the statistical assumptions for Lasso? 
+
+##### Challenge 1
+Construct a lasso to predict the "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "insulin"? 
