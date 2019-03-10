@@ -109,7 +109,7 @@ This workshop will utilize a variety of packages to install and organize the cod
 * Algorithms: "gbm", "randomForest", "ranger", "rpart", "xgboost"  
 * Visualization: "ggplot2", "rpart.plot"  
 * Machine learning frameworks: "caret", "SuperLearner"  
-* R utility packages: "devtools", "dplyr"  
+* R utility packages: "remotes", "dplyr"  
 * Miscellaneous: "mlbench", "pROC"
 
 ### Manually run the lone code chunk inside 1-overview.Rmd to install the packages
