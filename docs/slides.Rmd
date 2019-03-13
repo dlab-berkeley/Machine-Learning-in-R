@@ -85,7 +85,7 @@ _An Introduction to Statistical Learning - with Applications in R (2013)_ by Gar
 
 [Click here to install R 3.4 or greater](https://cloud.r-project.org/)   
 
-[Click here to install RStudio](https://www.rstudio.com/products/rstudio/download/)  
+[Click here to install RStudio (Open Source License FREE)](https://www.rstudio.com/products/rstudio/download/)  
 
 ---
 
@@ -117,12 +117,12 @@ This workshop will utilize a variety of packages to install and organize the cod
 
 ---
 
-# Brief history of machine learning
+# Machine learning defined
 
 Machine learning evolved from scientific pursuits in statistics, computer science, information theory, artificial intelligence, and pattern recognition.  
 
 How to define machine learning?  
-1) **In general:** algorithms, computers, and other machines that can "learn" without direct input from a human programmer.  
+1) **Generally:** algorithms, computers, and other machines that can "learn" without direct input from a human programmer.  
 2) **Practically:** sets of tools for investigating/modeling/understanding data.  
 3)  **Specifically:** (see below)
 
@@ -162,11 +162,11 @@ Seek "actionable insight":
 
 # Supervised machine learning
 
-Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method applicable to all cases. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). In this workshop we will focus on classification, although a simple regression example is provided as a bonus challenge. 
+Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method applicable to all cases. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). We will begin with Ordinary Least Squares (OLS) and Lasso regression, followed by tree-based and ensemble classification methods. 
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
 
-Y ~ X~1~ + X~2~ + X~3~… X~n~
+Y ~ $X_{1}$ + $X_{2}$ + $X_{3}$… $X_{n}$
 
 Y is the dependent/response/target/outcome variable  
 X are the independent/input/predictor/feature variables  
@@ -177,9 +177,9 @@ Supervised machine learning methods learn a target function $f$ that best maps X
 
 # Supervised machine learning
 
-Our function would look like this: $y = f(X) + \epsilon$, where $f$ is some function that relates our $X$ predictor variables to $Y$ in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of $X$, and averages to zero. Therefore, we can predict $Y$ using $\hat{y} = \hat{f}(X)$ for new data (call the test dataset) and evaluate how well the algorithm learned the target function when introduced to new data.  
+Our function would look like this: $y = f(X) + \epsilon$, where $f$ is some function that relates our $X$ predictor variables to $Y$ in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of $X$, and averages to zero. Therefore, we can predict $Y$ using $\hat{y} = \hat{f}(X)$ for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets)) and evaluate how well the algorithm learned the target function when introduced to new data.  
 
-**How to define machine learning? (revisited)**  
+**How to define machine learning, specifically? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
 
 ---
@@ -257,7 +257,7 @@ class: left
 
 Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) to investigate the following questions:  
 
-1) **Lasso regression example:** How well can a person's age be predicted using the other variables?  
+1) **Lasso regression example:** How well can a person's age be predicted using the other diabetes-related variables?  
 
 2) **Binary classification examples:** How reliably can different algorithms predict a person's diabetes status using the other variables?  
 
