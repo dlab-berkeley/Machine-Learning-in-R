@@ -44,3 +44,7 @@ Browse resources listed on the [D-Lab Machine Learning Working Group repository]
 ## Slideshow
 
 The slides were made using [xaringan](https://github.com/yihui/xaringan), which is a wrapper for [remark.js](https://remarkjs.com/#1). Check out Chapter 7 if you are interested in making your own! The theme borrows from Brad Boehmke's presentation on [Decision Trees, Bagging, and Random Forests - with an example implementation in R](https://bradleyboehmke.github.io/random-forest-training/slides-source.html#1).  
+
+## Getting started
+
+Open the [slides.html](/docs/slides.html) file in the docs folder to get started! 
