@@ -47,4 +47,4 @@ The slides were made using [xaringan](https://github.com/yihui/xaringan), which 
 
 ## Getting started
 
-Open the [slides.html](/docs/slides.html) file in the docs folder to get started! 
+Open the **slides.html** file in the docs folder to get started! 
