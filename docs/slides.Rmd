@@ -355,7 +355,19 @@ Alpha $\alpha$ determines the type of model; 1 indicates lasso penalty, 0 indica
 
 # Decision trees
 
-Decision trees are a standard alternative to linear regression and make no assumptions about the data; they split the data into smaller and smaller subgrioups of $X$ covariates in terms of $Y$ and split on each predictor. 
+Decision trees are a standard alternative to linear regression and make no assumptions about the data; they split the data into smaller and smaller subgrioups of $X$ covariates in terms of $Y$ and split on each predictor. How does it work? 
+
+A decision tree predicts that an observation belongs to its correct class. 
+
+For basic classification, we are no longer using MSE or RMSE but instead classification error rate. 
+
+To determine the top split ("root node"), the model looks at all cutpoints to see which group stands out as the best split. The "complexity parameter" can be used to [prune](https://en.wikipedia.org/wiki/Decision_tree_pruning) the tree to a lesser number of splits and removes unnecessary information. 
 
 ---
+
+# Decision trees
+
+.center[![](dt.jpg)]
+
+--- 
 

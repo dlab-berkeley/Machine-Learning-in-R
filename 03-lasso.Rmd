@@ -82,4 +82,4 @@ sqrt(mean((predictions - test_val_reg)^2))
 **Big question 1:** What are the statistical assupmtions for OLS regression? What are the statistical assumptions for Lasso? 
 
 ##### Challenge 1
-Construct a lasso to predict the "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "insulin"? 
+Construct a lasso to predict the "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
