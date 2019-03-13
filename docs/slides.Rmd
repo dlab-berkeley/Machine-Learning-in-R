@@ -356,6 +356,8 @@ When $\lambda$ is zero, ordinary least squares regression is performed.
 
 Alpha $\alpha$ determines the type of model; 1 indicates lasso penalty, 0 indicates ridge penalty, and anything inbetween indicates elastic net.  
 
+Be sure to [read the glmnet vignette](https://web.stanford.edu/~hastie/Papers/Glmnet_Vignette.pdf).  
+
 ### Open "3-lasso.Rmd" to work through the regression examples. 
 
 ---
