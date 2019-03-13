@@ -1,6 +1,6 @@
 # OLS and lasso
 
-# OLS in 8 steps
+# OLS refresher
 
 Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
 
