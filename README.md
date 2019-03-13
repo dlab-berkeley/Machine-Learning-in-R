@@ -39,3 +39,8 @@ highly recommended but not required.
 ## Resources
 
 Browse resources listed on the [D-Lab Machine Learning Working Group repository](https://github.com/dlab-berkeley/MachineLearningWG). Scroll down to see code examples in R and Python, books, courses at UC Berkeley, online classes, and other resources and groups to help you along your machine learning journey!  
+
+
+## Slideshow
+
+The slides were made using [xaringan](https://github.com/yihui/xaringan). Check out Chapter 7 if you are interested in making your own! Our style follows that of Brad Boehmke's presentation on [Decision Trees, Bagging, and Random Forests - with an example implementation in R](https://bradleyboehmke.github.io/random-forest-training/slides-source.html#1). 
