@@ -114,7 +114,6 @@ This workshop will utilize a variety of packages to install and organize the cod
 
 ### Manually run the lone code chunk inside 1-overview.Rmd to install the packages
 
-
 ---
 
 # Machine learning defined
@@ -141,10 +140,10 @@ Rapid advances:
 
 Modern topics:  
 - [Turing Test: 50 years later](http://www.cs.bilkent.edu.tr/~akman/jour-papers/mam/mam2000.pdf)  
-- [computer vision](http://www.sciencedirect.com/science/article/pii/S1071581916301264)  
-- [data cleaning](http://www.betterevaluation.org/sites/default/files/data_cleaning.pdf)  
-- [robotics](https://arxiv.org/abs/1708.04677)  
-- [cloud computing](https://arxiv.org/abs/1707.07452)  
+- [Computer vision](http://www.sciencedirect.com/science/article/pii/S1071581916301264)  
+- [Data cleaning](http://www.betterevaluation.org/sites/default/files/data_cleaning.pdf)  
+- [Robotics](https://arxiv.org/abs/1708.04677)  
+- [Cloud computing](https://arxiv.org/abs/1707.07452)  
 
 ---
 
@@ -156,7 +155,7 @@ The importance of statistics:
 - [Breiman's take](https://projecteuclid.org/euclid.ss/1009213726)  
 
 Seek "actionable insight":  
-- ["actionable insight"](https://www.techopedia.com/definition/31721/actionable-insight)  
+- [Actionable insight](https://www.techopedia.com/definition/31721/actionable-insight)  
 
 ---
 
@@ -166,18 +165,18 @@ Selecting a machine learning algorithm depends on the characteristics of the pro
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
 
-Y ~ $X_{1}$ + $X_{2}$ + $X_{3}$… $X_{n}$
+$Y$ ~ $X_{1}$ + $X_{2}$ + $X_{3}$… $X_{n}$
 
-Y is the dependent/response/target/outcome variable  
-X are the independent/input/predictor/feature variables  
+$Y$ is the dependent/response/target/outcome variable  
+$X$ are the independent/input/predictor/feature/covariate variables  
 
-Supervised machine learning methods learn a target function $f$ that best maps X to Y based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
+Supervised machine learning methods learn a target function $f$ that best maps $X$ to $Y$ based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
 
 ---
 
 # Supervised machine learning
 
-Our function would look like this: $y = f(X) + \epsilon$, where $f$ is some function that relates our $X$ predictor variables to $Y$ in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of $X$, and averages to zero. Therefore, we can predict $Y$ using $\hat{y} = \hat{f}(X)$ for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets)) and evaluate how well the algorithm learned the target function when introduced to new data.  
+Our function would look like this: $y = f(X) + \epsilon$ where $f$ is some function that relates our $X$ predictor variables to $Y$ in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of $X$ and averages to zero. Therefore, we can predict $Y$ using $\hat{y} = \hat{f}(X)$ for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets)) and evaluate how well the algorithm learned the target function when introduced to new data.  
 
 **How to define machine learning, specifically? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
@@ -223,15 +222,15 @@ class: left
 
 ### 1) Learn the basics of using five machine learning algorithms in R:  
 
-- lasso (prefaced by an ordinary least squares regression refresher)
-- decision tree  
-- random forest  
-- boosting  
+- Lasso (prefaced by an ordinary least squares regression refresher)
+- Decision tree  
+- Random forest  
+- Boosting  
 - SuperLearner  
   
 ### 2) Vizualize important information:  
-- decision trees  
-- random forest variable importance  
+- Decision trees  
+- Random forest variable importance  
 - AUC from different boosting models  
 - SuperLearner cross-validated risk   
 
@@ -240,16 +239,16 @@ class: left
 # Workshop goals
 
 ### 3) Examine the performance of these models  
-- lasso penalization coefficient, (root) mean-squared error
-- mean decrease accuracy
-- accuracy
+- Lasso penalization coefficient, (root) mean-squared error
+- Mean decrease accuracy
+- Accuracy
 - AUC
-- cross-validated risk
+- Cross-validated risk
 
 ### 4) Simultaneously compare multiple algorithms in an ensemble  
-- compare various tunings of multiple algorithms at once
-- weighted ensemble average
-- discrete winner
+- Compare various tunings of multiple algorithms at once
+- Weighted ensemble average
+- Discrete winner
 
 ---
 
@@ -261,7 +260,7 @@ Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cra
 
 2) **Binary classification examples:** How reliably can different algorithms predict a person's diabetes status using the other variables?  
 
-Open **"2-preprocessing.Rmd"** to get started with the data.  
+### Open "2-preprocessing.Rmd" to get started with the data.  
 
 ---
 
@@ -271,9 +270,11 @@ A first task will be to split our data into training and test sets. This not onl
 
 The short version is that we need to:  
 1. Define $Y$ outcome and $X$ predictor variables  
-2. Remove $Y$ variables from $X$ predictor datasets  
-3. Convert factors to indicators (if necessary)  
-4. Define training and test datasets  
+2. Remove $Y$ variable from $X$ predictor datasets  
+3. Handle missing data (if present)  
+4. Scale data (if necessary)  
+5. Convert factors to indicators (if necessary)  
+6. Define training and test datasets  
 
 ---
 
@@ -315,13 +316,15 @@ Simple (one $Y$ and one $X$ variable) linear (relationship between parameters be
 
 # Regression syntax
 
-In its simplest form, the syntax looks like this: $Y = β0 + β1X + ε$ 
+The syntax for simple regression looks like this: $Y = β0 + β1X + ε$ 
 
-$Y$ = dependent/outcome/target/response variable  
-$X$ = independent/predictor/input/explanatory variable  
-epsilon  ${\epsilon}$ = error  
+$Y$ = dependent/response/target/outcome variable  
+$X$ = independent/input/predictor/feature/covariate variables  
 $β0$ = intercept  
 $β1X$ = slope for that particular feature  
+epsilon  ${\epsilon}$ = error  
+
+Remember that in multivariate regression, there is more than one $X$ variable. 
 
 ---
 
@@ -331,7 +334,9 @@ $β1X$ = slope for that particular feature
 
 [Mean squared error (MSE) and root mean squared error (RMSE)](https://en.wikipedia.org/wiki/Mean_squared_error) are quick ways to evaluate performance. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
 
-Remember that under the hood, `lm` is one-hot encoding factors to indicators, but `model.matrix` was already manually used to do so.  
+Remember that under the hood, [`lm`](https://www.rdocumentation.org/packages/stats/versions/3.5.2/topics/lm) is one-hot encoding factors to indicators, but [`model.matrix`](https://www.rdocumentation.org/packages/stats/versions/3.5.2/topics/model.matrix) was already manually used to do so.  
+
+Also be sure to [check out this blog post](http://blog.yhat.com/posts/r-lm-summary.html) on how to fit and interpret linear models. 
 
 ---
 
@@ -349,7 +354,9 @@ Lambda $\lambda$ is the regularization coefficient, or the degree to which the b
 
 When $\lambda$ is zero, ordinary least squares regression is performed. 
 
-Alpha $\alpha$ determines the type of model; 1 indicates lasso penalty, 0 indicates ridge penalty, and anything inbetween indicates elastic net. 
+Alpha $\alpha$ determines the type of model; 1 indicates lasso penalty, 0 indicates ridge penalty, and anything inbetween indicates elastic net.  
+
+### Open "3-lasso.Rmd" to work through the regression examples. 
 
 ---
 
@@ -368,6 +375,8 @@ To determine the top split ("root node"), the model looks at all cutpoints to se
 # Decision trees
 
 .center[![](dt.jpg)]
+
+### Open "4-decision-trees.Rmd" to work through the decision tree examples. 
 
 --- 
 
