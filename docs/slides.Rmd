@@ -2,7 +2,7 @@
 title: "Introduction to Machine Learning in R"
 subtitle: ""
 author: "D-Lab - Evan Muzzall and Chris Kennedy"
-date: "February 2, 2019 (updated: `r Sys.Date()`)"
+date: "March 13, 2019 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     css: ["scrollable.css", "mtheme_max.css", "fonts_mtheme_max.css"]
