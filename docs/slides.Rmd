@@ -270,8 +270,8 @@ Open **"2-preprocessing.Rmd"** to get started with the data.
 A first task will be to split our data into training and test sets. This not only allows us to build a model on training data and evaluate its performance on test/holdout data, but it is also a good way to get familiar with cross-validation. 
 
 The short version is that we need to:  
-1. Define Y outcome and X predictor variables  
-2. Remove Y variables from X predictor datasets  
+1. Define $Y$ outcome and $X$ predictor variables  
+2. Remove $Y$ variables from $X$ predictor datasets  
 3. Convert factors to indicators (if necessary)  
 4. Define training and test datasets  
 
@@ -279,9 +279,21 @@ The short version is that we need to:
 
 # Cross-validation
 
-.center[![desctipion of image](K-fold_cross_validation_EN.jpg)]
+[Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics%29) is a way to measure model performance of an entire dataset by repeating the splitting process _k_ number of times then combining/averaging performance across all iterations. 
 
-.center[[4 fold cross-validation image by Fabian Flöck - Own work, CC BY-SA 3.0](https://commons.wikimedia.org/w/index.php?curid=51562781)]
+.center[![](K-fold_cross_validation_EN.jpg)]
+
+---
+
+# Algorithms
+
+What is an [algorithm](https://en.wikipedia.org/wiki/Outline_of_machine_learning#Machine_learning_algorithms)?
+
+.center[![](giphy-dog.gif)]
+
+.center[[Read Texas Am GIF by Texas A&M University](https://giphy.com/gifs/tamu-dog-page-3LrK7Q7UhF5MnhZ5ja)]
+
+Sounds difficult! Instead, scroll down a bit further to check out the [methods](https://en.wikipedia.org/wiki/Outline_of_machine_learning#Machine_learning_methods) section and get a handle on topics covered in this workshop.   
 
 ---
 
@@ -289,7 +301,7 @@ The short version is that we need to:
 
 Regression analysis is a technique to infer the relationship between a $Y$ outcome variable and $X$ predictor variable(s) and how much $Y$ changes when $X$ is altered. 
 
-This algorithm ["regresses"](https://stats.stackexchange.com/questions/207425/why-do-we-say-the-outcome-variable-is-regressed-on-the-predictors/207621) $Y$ onto $X$. Although individual examples may differ (you could regress $X$ onto $Y$), in simpler terminology we want to see how our $X$ variables can be used to predict $Y$ for this example. 
+This algorithm ["regresses"](https://stats.stackexchange.com/questions/207425/why-do-we-say-the-outcome-variable-is-regressed-on-the-predictors/207621) $Y$ onto $X$. In simpler terminology we want to see how our $X$ variables can be used to predict $Y$ for this example. 
 
 Regression allows us to ask useful questions of our data, such as: 
 1. Is there a relationship between $Y$ and $X$ variables? 
@@ -297,20 +309,19 @@ Regression allows us to ask useful questions of our data, such as:
 3. How can $Y$ be predicted for certain values of $X$? 
 4. How well can the model be used to predict $Y$ when new data are used? 
 
-Linear regression can be thought of as the simplest form of supervised machine learning and can be used for both inference and prediction.  
+Simple (one $Y$ and one $X$ variable) linear (relationship between parameters being estimated) regression can be thought of as the simplest form of supervised machine learning and can be used for both prediction and inference. 
 
 ---
 
 # Regression syntax
 
-In its simplest form, the syntax looks like this: 
-$Y = β0 + β1X + ε$ 
+In its simplest form, the syntax looks like this: $Y = β0 + β1X + ε$ 
 
-Y = dependent/outcome/target/response variable  
-X = independent/predictor/input/explanatory variable  
-epsilon = error  
-β0 = intercept  
-β1X = slope for that particular feature  
+$Y$ = dependent/outcome/target/response variable  
+$X$ = independent/predictor/input/explanatory variable  
+epsilon  ${\epsilon}$ = error  
+$β0$ = intercept  
+$β1X$ = slope for that particular feature  
 
 ---
 
@@ -318,7 +329,7 @@ epsilon = error
 
 [Ordinary least squares (OLS)](https://en.wikipedia.org/wiki/Ordinary_least_squares) regression is the simplest use case when the target $Y$ variable is continuous. OLS computes a best fit line that minimizes the vertical squared and summed distances from each point to calculate the model's goodness of fit. Our refresher example will predict age from the [Pima Indians Diabetes Database](https://www.kaggle.com/uciml/pima-indians-diabetes-database) (abbreviated as "pidd") using the other variables as predictors.  
 
-Mean squared error (MSE) and root mean squared error (RMSE) are quick ways to evaluate performance. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
+[Mean squared error (MSE) and root mean squared error (RMSE)](https://en.wikipedia.org/wiki/Mean_squared_error) are quick ways to evaluate performance. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
 
 Remember that under the hood, `lm` is one-hot encoding factors to indicators, but `model.matrix` was already manually used to do so.  
 
@@ -326,9 +337,13 @@ Remember that under the hood, `lm` is one-hot encoding factors to indicators, bu
 
 # Lasso
 
-Lasso (least absolute shrinkage and selection operator) is a form of variable selection regression that applies penalization to the coefficients through sparsity. It shrinks coefficients of the features that are not related to the outcome variable to zero, thus removing them to provide an ostensibly simpler model for interpretation.  
+[Lasso (least absolute shrinkage and selection operator)](https://en.wikipedia.org/wiki/Lasso_(statistics%29) is a form of variable selection regression that applies penalization to the coefficients through sparsity. It shrinks coefficients of the features that are not related to the outcome variable to zero, thus removing them to provide an ostensibly simpler model for interpretation.  
 
 Sparsity: "Loosely speaking, a sparse statistical model is one in which only a relatively small number of parameters (or predictors) play an important role." (Hastie et al. 2016:1) aka a subset of the original variables. 
+
+---
+
+# Lasso
 
 Lambda $\lambda$ is the regularization coefficient, or the degree to which the beta coefficients should be penalized.  
 
@@ -339,6 +354,8 @@ Alpha $\alpha$ determines the type of model; 1 indicates lasso penalty, 0 indica
 ---
 
 # Decision trees
+
+Decision trees are a standard alternative to linear regression and make no assumptions about the data; they split the data into smaller and smaller subgrioups of $X$ covariates in terms of $Y$ and split on each predictor. 
 
 ---
 
