@@ -10,7 +10,7 @@ if (FALSE) {
   
   # Install packages from CRAN.
   install.packages(c(# Algorithms
-                     "gbm", "randomForest", "ranger", "rpart", "xgboost",
+                     "gbm", "glmnet", "randomForest", "ranger", "rpart", "xgboost",
                      # Visualization
                      "ggplot2", "rpart.plot", 
                      # Machine learning frameworks
@@ -30,6 +30,7 @@ suppressMessages(suppressWarnings({
   library(ck37r)        # impute_missing_values, SuperLearner helpers
   library(remotes)     # Allows installing packages from github
   library(dplyr)        # Data cleaning
+  library(glmnet)       # lasso 
   library(gbm)          # Gradient boosted machines
   library(ggplot2)      # Graphics 
   library(magrittr)     # Pipes %>% for data cleaning, installed by dplyr.

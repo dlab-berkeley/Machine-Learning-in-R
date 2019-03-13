@@ -40,6 +40,8 @@ Visualize the distribution of lamba.
 plot(lasso)
 ```
 
+> NOTE: when log(lamba) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. If log(lambda) is negative, it means lambda is close to zero and we are approaching the OLS solution. 
+
 Show plot of different lambda values: 
 ```{r}
 plot(lasso$glmnet.fit, xvar = "lambda", label = T)
