@@ -261,7 +261,7 @@ Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cra
 
 2) **Binary classification examples:** How reliably can different algorithms predict a person's diabetes status using the other variables?  
 
-What are these other variables? Load the data and find out! Open **"1-overview.Rmd"** to install and import the necessary packages for this workshop. Then, open **"2-preprocessing.Rmd"** to get started with the data.  
+Open **"2-preprocessing.Rmd"** to get started with the data.  
 
 ---
 
@@ -279,11 +279,9 @@ The short version is that we need to:
 
 # Cross-validation
 
-(add text here)
+.center[![desctipion of image](K-fold_cross_validation_EN.jpg)]
 
-![asdf](K-fold_cross_validation_EN.jpg)
-
-[4 fold cross-validation image by Fabian Flöck - Own work, CC BY-SA 3.0](https://commons.wikimedia.org/w/index.php?curid=51562781)
+.center[[4 fold cross-validation image by Fabian Flöck - Own work, CC BY-SA 3.0](https://commons.wikimedia.org/w/index.php?curid=51562781)]
 
 ---
 
