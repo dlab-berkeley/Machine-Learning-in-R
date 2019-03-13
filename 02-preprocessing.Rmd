@@ -79,6 +79,9 @@ head(missing)
 # Scale only the numeric variables (but exclude the missingness indicators)
 pidd = pidd[,-10:-14] %>% dplyr::mutate_if(is.numeric, scale);
 
+names(pidd)
+
+
 # Re-add the missingness indicators and onvert to data frame
 pidd = data.frame(cbind(pidd, missing))
 
