@@ -47,7 +47,7 @@ The slides were made using [xaringan](https://github.com/yihui/xaringan), which 
 
 ## Getting started
 
-Please install the following packages before the workshop date. Contact us if you have questions! 
+Please install the following packages before the workshop date. Copy/paste the code below into your console or a script and run it. This code can also be found in the **01-overview.Rmd** file in this repository. 
 
 ```
 install.packages(c(# Algorithms
@@ -64,8 +64,8 @@ install.packages(c(# Algorithms
 
 If you are prompted by the question, "Do you want to install from sources the package which needs compilation? (Yes/no/cancel)", type no in your console and press Enter. 
 
-... and, the most recent version of ck37r 
-
-`remotes::install_github(c("ck37/ck37r"))`
+... and, the most recent version of ck37r: `remotes::install_github(c("ck37/ck37r"))`
 
 Then, open the **slides.html** file in the docs folder to get started! 
+
+Contact us if you have questions! 
