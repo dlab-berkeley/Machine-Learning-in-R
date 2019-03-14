@@ -28,7 +28,7 @@ str(iris)
 
 ## Data preprocessing
 
-Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly setup your Y and X variables and appropriately split your data into training and test sets if neeeded.  
+Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly setup your *y* and *x* variables and appropriately split your data into training and test sets if neeeded.  
 
 One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). Doing this manually is always good practice. However, functions like `lm` will internally expand factor variables such as the `diabetes` factor predictor into numeric indicators.  
 
@@ -78,7 +78,7 @@ pidd = ck37r::standardize(pidd, skip_vars = c("age", "diabetes", "miss_glucose",
 str(pidd)
 ```
 
-## Defining Y outcome vectors and X feature dataframes
+## Defining *y* outcome vectors and *x* feature dataframes
 
 ##### Regression setup
 
@@ -123,8 +123,8 @@ test_x_reg = reg_feat[-training_rows_reg, ] # partition test dataset
 names(train_x_reg)
 names(test_x_reg)
 
-train_val_reg = train_x_reg$age # define the training set Y vector values (age)
-test_val_reg = test_x_reg$age # define the test set Y vector values (age)
+train_y_reg = train_x_reg$age # define the training set y vector values (age)
+test_y_reg = test_x_reg$age # define the test set y vector values (age)
 
 # Remove "age" from train_val_reg and test_val_reg
 train_x_reg = subset(train_x_reg, select = -age)
@@ -134,12 +134,12 @@ test_x_reg = subset(test_x_reg, select = -age)
 names(train_x_reg)
 names(test_x_reg)
 
-# lengths of our Y values and the number of rows in our training dataframes are the same for both training and test sets!
+# lengths of our y values and the number of rows in our training dataframes are the same for both training and test sets!
 dim(train_x_reg)
-length(train_val_reg)
+length(train_y_reg)
 
 dim(test_x_reg)
-length(test_val_reg)
+length(test_y_reg)
 ```
 
 ##### Classification setup
@@ -150,7 +150,7 @@ Assign the outcome variable to its own vector for **CLASSIFICATION tasks:** (dec
 # View pidd variable names
 names(pidd)
 
-# 1) Define Y for classification (has diabetes? "pos" or "neg")
+# 1) Define y for classification (has diabetes? "pos" or "neg")
 y_fac = pidd$diabetes
 head(y_fac, n = 20)
 
@@ -158,13 +158,13 @@ head(y_fac, n = 20)
 y = as.integer(y_fac == "pos")
 table(y, y_fac, useNA = "ifany")
 
-# 3) Finally, define the X feature/predictor dataframe that excludes the Y outcome.
+# 3) Finally, define the x feature/predictor dataframe that excludes the y outcome.
 features = subset(pidd, select = -diabetes)
 
 # Diabetes column has been successfully removed.
 names(features)
 
-# Finally, scale the "age" variable since we did not do this for purposes of regression setup
+# Finally, scale the "age" variable in place since we did not do this for purposes of regression setup
 features$age = scale(features$age, center = T, scale = T)
 
 # View the updated data
@@ -182,10 +182,10 @@ training_rows = caret::createDataPartition(y, p = 0.70, list = FALSE)
 train_x = features[training_rows, ] # partition training dataset
 test_x = features[-training_rows, ] # partition test dataset
 
-train_label = y[training_rows] # partition training Y vector labels
-test_label = y[-training_rows] # partition test Y vector labels
+train_label = y[training_rows] # partition training y vector labels
+test_label = y[-training_rows] # partition test y vector labels
 
-# lengths of our Y label vectors and the number of rows in our training dataframes are the same for both training and test sets!
+# lengths of our y label vectors and the number of rows in our training dataframes are the same for both training and test sets!
 dim(train_x)
 length(train_label)
 
