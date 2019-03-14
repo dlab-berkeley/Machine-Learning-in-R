@@ -75,6 +75,8 @@ This workshop will utilize a variety of packages to install and organize the cod
 * R utility packages: "remotes", "dplyr"  
 * Miscellaneous: "mlbench", "pROC"
 
+* Chris Kennedy's R Toolkit: "ck37r"
+
 ### Manually run the lone code chunk inside 1-overview.Rmd to install the packages
 
 ---
@@ -128,18 +130,18 @@ Selecting a machine learning algorithm depends on the characteristics of the pro
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
 
-`\(Y\)` ~ `\(X_{1}\)` + `\(X_{2}\)` + `\(X_{3}\)`… `\(X_{n}\)`
+`\(y\)` ~ `\(x_{1}\)` + `\(x_{2}\)` + `\(x_{3}\)`… `\(x_{n}\)`
 
-`\(Y\)` is the dependent/response/target/outcome variable  
-`\(X\)` are the independent/input/predictor/feature/covariate variables  
+`\(y\)` is the dependent/response/target/outcome variable  
+`\(x\)` are the independent/input/predictor/feature/covariate variables  
 
-Supervised machine learning methods learn a target function `\(f\)` that best maps `\(X\)` to `\(Y\)` based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
+Supervised machine learning methods learn a target function `\(f\)` that best maps `\(x\)` to `\(y\)` based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
 
 ---
 
 # Supervised machine learning
 
-Our function would look like this: `\(y = f(X) + \epsilon\)` where `\(f\)` is some function that relates our `\(X\)` predictor variables to `\(Y\)` in an unknown way thus we must estimate it. Epsilon `\(\epsilon\)` is the random error, is independent of `\(X\)` and averages to zero. Therefore, we can predict `\(Y\)` using `\(\hat{y} = \hat{f}(X)\)` for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets)) and evaluate how well the algorithm learned the target function when introduced to new data.  
+Our function would look like this: `\(y = f(x) + \epsilon\)` where `\(f\)` is some function that relates our `\(x\)` predictor variables to `\(y\)` in an unknown way thus we must estimate it. Epsilon `\(\epsilon\)` is the random error, is independent of `\(x\)` and averages to zero. Therefore, we can predict `\(y\)` using `\(\hat{y} = \hat{f}(x)\)` for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets)) and evaluate how well the algorithm learned the target function when introduced to new data.  
 
 **How to define machine learning, specifically? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate `\(f\)`!  
@@ -148,9 +150,9 @@ More specifically, we can think of machine learning as a bunch of methods to est
 
 # Classification or regression?
 
-**Classification** is used when the `\(Y\)` outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: `\(Pr(Y = 1 | X)\)`. This can be extended to multi-level classification as well.  
+**Classification** is used when the `\(y\)` outcome variable is categorical/discrete. Binary examples generally refer to a yes/no situation where a 1 is prediction of the "yes" category and 0 as the "no". Classification models the probability that the outcome variable is 1 based on the covariates: `\(Pr(y = 1 | x)\)`. This can be extended to multi-level classification as well.  
 
-**Regression** is used when the target `\(Y\)` outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: `\(E(Y | X)\)`.  
+**Regression** is used when the target `\(y\)` outcome variable is continuous. Regression models the conditional expectation (conditional mean) of the outcome variable given the covariates: `\(E(y | x)\)`.  
 
 ---
 
@@ -164,7 +166,7 @@ A longstanding first step is to split a dataset into **"training"** and **"test"
 
 **Performance metrics** are used to see how well a model predicts a specified outcome on training and test datasets.  
 
-A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the `\(X\)` and `\(Y\)` variables.  
+A model that performs poorly on the training dataset is **underfit** because it is not able to discern relationships between the `\(x\)` and `\(y\)` variables.  
 
 A model that performs well on the training dataset but poorly on the test dataset is said to be **overfit** because the model performed worse than expected when given new data. To some extent the patterns found in the training data may have been random noise and therefore, by random chance, are different in the test data.  
 
@@ -232,8 +234,8 @@ Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cra
 A first task will be to split our data into training and test sets. This not only allows us to build a model on training data and evaluate its performance on test/holdout data, but it is also a good way to get familiar with cross-validation. 
 
 The short version is that we need to:  
-1. Define `\(Y\)` outcome and `\(X\)` predictor variables  
-2. Remove `\(Y\)` variable from `\(X\)` predictor datasets  
+1. Define `\(y\)` outcome and `\(x\)` predictor variables  
+2. Remove `\(y\)` variable from `\(x\)` predictor datasets  
 3. Handle missing data (if present)  
 4. Scale data (if necessary)  
 5. Convert factors to indicators (if necessary)  
@@ -263,37 +265,37 @@ Sounds difficult! Instead, scroll down a bit further to check out the [methods](
 
 # What is regression? 
 
-Regression analysis is a technique to infer the relationship between a `\(Y\)` outcome variable and `\(X\)` predictor variable(s) and how much `\(Y\)` changes when `\(X\)` is altered. 
+Regression analysis is a technique to infer the relationship between a `\(y\)` outcome variable and `\(x\)` predictor variable(s) and how much `\(y\)` changes when `\(x\)` is altered. 
 
-This algorithm ["regresses"](https://stats.stackexchange.com/questions/207425/why-do-we-say-the-outcome-variable-is-regressed-on-the-predictors/207621) `\(Y\)` onto `\(X\)`. In simpler terminology we want to see how our `\(X\)` variables can be used to predict `\(Y\)` for this example. 
+This algorithm ["regresses"](https://stats.stackexchange.com/questions/207425/why-do-we-say-the-outcome-variable-is-regressed-on-the-predictors/207621) `\(y\)` onto `\(x\)`. In simpler terminology we want to see how our `\(x\)` variables can be used to predict `\(y\)` for this example. 
 
 Regression allows us to ask useful questions of our data, such as: 
-1. Is there a relationship between `\(Y\)` and `\(X\)` variables? 
+1. Is there a relationship between `\(y\)` and `\(x\)` variables? 
 2. How strong are these relationships? 
-3. How can `\(Y\)` be predicted for certain values of `\(X\)`? 
-4. How well can the model be used to predict `\(Y\)` when new data are used? 
+3. How can `\(y\)` be predicted for certain values of `\(x\)`? 
+4. How well can the model be used to predict `\(y\)` when new data are used? 
 
-Simple (one `\(Y\)` and one `\(X\)` variable) linear (relationship between parameters being estimated) regression can be thought of as the simplest form of supervised machine learning and can be used for both prediction and inference. 
+Simple (one `\(y\)` and one `\(x\)` variable) linear (relationship between parameters being estimated) regression can be thought of as the simplest form of supervised machine learning and can be used for both prediction and inference. 
 
 ---
 
 # Regression syntax
 
-The syntax for simple regression looks like this: `\(Y = β0 + β1X + ε\)` 
+The syntax for simple regression looks like this: `\(Y = β0 + β1x + ε\)` 
 
-`\(Y\)` = dependent/response/target/outcome variable  
-`\(X\)` = independent/input/predictor/feature/covariate variables  
+`\(y\)` = dependent/response/target/outcome variable  
+`\(x\)` = independent/input/predictor/feature/covariate variables  
 `\(β0\)` = intercept  
-`\(β1X\)` = slope for that particular feature  
+`\(β1x\)` = slope for that particular feature  
 epsilon  `\({\epsilon}\)` = error  
 
-Remember that in multivariate regression, there is more than one `\(X\)` variable. 
+Remember that in multivariate regression, there is more than one `\(x\)` variable. 
 
 ---
 
 # Ordinary least squares example
 
-[Ordinary least squares (OLS)](https://en.wikipedia.org/wiki/Ordinary_least_squares) regression is the simplest use case when the target `\(Y\)` variable is continuous. OLS computes a best fit line that minimizes the vertical squared and summed distances from each point to calculate the model's goodness of fit. Our refresher example will predict age from the [Pima Indians Diabetes Database](https://www.kaggle.com/uciml/pima-indians-diabetes-database) (abbreviated as "pidd") using the other variables as predictors.  
+[Ordinary least squares (OLS)](https://en.wikipedia.org/wiki/Ordinary_least_squares) regression is the simplest use case when the target `\(y\)` variable is continuous. OLS computes a best fit line that minimizes the vertical squared and summed distances from each point to calculate the model's goodness of fit. Our refresher example will predict age from the [Pima Indians Diabetes Database](https://www.kaggle.com/uciml/pima-indians-diabetes-database) (abbreviated as "pidd") using the other variables as predictors.  
 
 [Mean squared error (MSE) and root mean squared error (RMSE)](https://en.wikipedia.org/wiki/Mean_squared_error) are quick ways to evaluate performance. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
 
@@ -327,7 +329,7 @@ Be sure to [read the glmnet vignette](https://web.stanford.edu/~hastie/Papers/Gl
 
 # Decision trees
 
-Decision trees are a standard alternative to linear regression and make no assumptions about the data; they split the data into smaller and smaller subgrioups of `\(X\)` covariates in terms of `\(Y\)` and split on each predictor. How does it work? 
+Decision trees are a standard alternative to linear regression and make no assumptions about the data; they split the data into smaller and smaller subgrioups of `\(x\)` covariates in terms of `\(y\)` and split on each predictor. How does it work? 
 
 A decision tree predicts that an observation belongs to its correct class. 
 
