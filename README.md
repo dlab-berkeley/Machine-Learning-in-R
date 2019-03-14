@@ -47,7 +47,7 @@ The slides were made using [xaringan](https://github.com/yihui/xaringan), which 
 
 ## Getting started
 
-Be sure to [install R](https://cloud.r-project.org/) and [RStudio Desktop Open Source License FREE](https://www.rstudio.com/products/rstudio/download/). Also install the following packages before the workshop date. Contact us if you have questions! 
+Please install the following packages before the workshop date. Contact us if you have questions! 
 
 ```
 install.packages(c(# Algorithms
