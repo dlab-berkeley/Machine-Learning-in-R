@@ -5,13 +5,16 @@
 Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
 
 ```{r}
-# Look at Y and X variables
-head(train_val_reg, n = 20)
+# Look at y and x variables
 
+# Look at ages of first 20 individuals
+head(train_y_reg, n = 20)
+
+# Look at features for the corresponding first 20 individuals
 head(train_x_reg, n = 20)
 
 # Fit the regression model; lm() will automatically add a temporary intercept column
-reg_fit = lm(train_val_reg ~ ., data = as.data.frame(train_x_reg))
+reg_fit = lm(train_y_reg ~ ., data = as.data.frame(train_x_reg))
 
 # View the output
 summary(reg_fit) 
@@ -20,7 +23,7 @@ summary(reg_fit)
 reg_predicted = predict(reg_fit, as.data.frame(test_x_reg))
 
 # 8. Calculate mean-squared error
-MSE_reg = mean((test_val_reg - reg_predicted)^2)
+MSE_reg = mean((test_y_reg - reg_predicted)^2)
 
 MSE_reg
 
@@ -32,7 +35,7 @@ sqrt(MSE_reg) # RMSE
 Fit the lasso! However, because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
 
 ```{r}
-lasso = cv.glmnet(train_x_reg, train_val_reg, family = "gaussian", alpha = 1)
+lasso = cv.glmnet(as.matrix(train_x_reg), train_y_reg, family = "gaussian", alpha = 1)
 ```
 
 Visualize the distribution of lamba. 
