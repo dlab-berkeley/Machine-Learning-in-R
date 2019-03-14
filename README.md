@@ -66,6 +66,4 @@ If you are prompted by the question, "Do you want to install from sources the pa
 
 ... and, the most recent version of ck37r: `remotes::install_github(c("ck37/ck37r"))`
 
-Then, open the **slides.html** file in the docs folder to get started! 
-
-Contact us if you have questions! 
+Then, open the **slides.html** file in the docs folder to get started - contact us with any questions! 
