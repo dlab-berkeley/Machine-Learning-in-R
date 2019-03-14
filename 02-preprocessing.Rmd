@@ -82,33 +82,24 @@ str(pidd)
 
 ##### Regression setup
 
-Assign the outcome variable (age) to its own vector for **REGRESSION tasks:** (lasso). Remember that lasso can also perform classification! 
+Assign the outcome variable (age) to its own vector for **REGRESSION tasks:** (OLS and lasso). Remember that lasso can also perform classification as well. Before splitting, convert the "diabetes" variable from factor to indicator type:
 
 ```{r data_prep}
+# make a copy of pidd
+pidd_reg = pidd
+
 # View pidd variable names
-names(pidd)
+names(pidd_reg)
 
-# 1) Define Y for regression (what is a person's age?).
-Y_reg = pidd$age
+# One hot encode diabetes from factor to indicator type
+reg_feat = as.data.frame(model.matrix(~ . ,  data = pidd_reg))
 
-# View the ages of the first twenty individuals.
-head(Y_reg, n = 20)
+head(reg_feat)
 
-# 2) Define the X feature/predictor dataframe that excludes the Y outcome age. 
-features_reg = subset(pidd, select = -age)
+# Remove added Intercept column
+reg_feat = reg_feat[, -1]
 
-# Age column has been successfully removed.
-names(features_reg)
-
-# 3) One hot encode diabetes from factor to indicator type
-features_reg_mat = as.matrix(model.matrix(~ . ,  data = features_reg))
-
-head(features_reg_mat)
-
-# 4) Remove added Intercept column
-features_reg_mat = features_reg_mat[, -1]
-
-colnames(features_reg_mat)
+head(reg_feat)
 ```
 
 We then can take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
@@ -116,16 +107,34 @@ We then can take the simple approach to data splitting and divide our data into 
 # Set seed for reproducibility.
 set.seed(1)
 
-# Create a stratified random split.
-training_rows_reg = caret::createDataPartition(Y_reg, p = 0.70, list = FALSE) 
+# Since age is a continuous variable and will be the outcome for lasso regression, we will not perform a stratified random split like we will for the classification tasks. Instead, let's randomly assign 70% of the data to the training set and the remaining 30% to the test set.
 
-train_x_reg = features_reg_mat[training_rows_reg, ] # partition training dataset
-test_x_reg = features_reg_mat[-training_rows_reg, ] # partition test dataset
+# Define the sizes of training (70%) and test (30%) sets.
+(training_size = floor(0.70 * nrow(reg_feat)))
 
-train_val_reg = Y_reg[training_rows_reg] # partition training Y vector labels
-test_val_reg = Y_reg[-training_rows_reg] # partition test Y vector labels
+# Partition the rows to be included in the training set.
+training_rows_reg = sample(seq_len(nrow(reg_feat)), size = training_size)
 
-# lengths of our Y label vectors and the number of rows in our training dataframes are the same for both training and test sets!
+# Partition the appropriate rows into the training and test sets
+train_x_reg = reg_feat[training_rows_reg, ] # partition training dataset
+test_x_reg = reg_feat[-training_rows_reg, ] # partition test dataset
+
+# Our outcome is still found in our features; define it as its own variable for training and test sets and remove it from our features
+names(train_x_reg)
+names(test_x_reg)
+
+train_val_reg = train_x_reg$age # define the training set Y vector values (age)
+test_val_reg = test_x_reg$age # define the test set Y vector values (age)
+
+# Remove "age" from train_val_reg and test_val_reg
+train_x_reg = subset(train_x_reg, select = -age)
+test_x_reg = subset(test_x_reg, select = -age)
+
+# "age" is no longer in our features
+names(train_x_reg)
+names(test_x_reg)
+
+# lengths of our Y values and the number of rows in our training dataframes are the same for both training and test sets!
 dim(train_x_reg)
 length(train_val_reg)
 
@@ -154,9 +163,15 @@ features = subset(pidd, select = -diabetes)
 
 # Diabetes column has been successfully removed.
 names(features)
+
+# Finally, scale the "age" variable since we did not do this for purposes of regression setup
+features$age = scale(features$age, center = T, scale = T)
+
+# View the updated data
+head(features)
 ```
 
-We then can take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
+We then can use [stratified random sampling](https://en.wikipedia.org/wiki/Stratified_sampling) to divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
 ```{r caret_split}
 # Set seed for reproducibility.
 set.seed(1)
