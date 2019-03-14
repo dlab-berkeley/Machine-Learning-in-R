@@ -72,7 +72,7 @@ colSums(is.na(pidd))
 
 Scale the data to a mean of 0 and standard deviation of 1. Note that the `skip_vars` argument will exclude variables from the scaling process. 
 ```{r}
-pidd = ck37r::standardize(pidd, skip_vars = c("age", "diabetes", "miss_glucose", "miss_pressure", "miss_triceps", "miss_insulin", "miss_mass"))
+pidd = ck37r::standardize(pidd, skip_vars = c("age", "diabetes", result$indicators_added))
 
 # Inspect
 str(pidd)
