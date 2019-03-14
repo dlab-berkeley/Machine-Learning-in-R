@@ -47,4 +47,25 @@ The slides were made using [xaringan](https://github.com/yihui/xaringan), which 
 
 ## Getting started
 
-Open the **slides.html** file in the docs folder to get started! 
+Be sure to [install R](https://cloud.r-project.org/) and [RStudio Desktop Open Source License FREE](https://www.rstudio.com/products/rstudio/download/). Also install the following packages before the workshop date. Contact us if you have questions! 
+
+```
+install.packages(c(# Algorithms
+                 "gbm", "glmnet", "randomForest", "ranger", "rpart", "xgboost",
+                 # Visualization
+                 "ggplot2", "rpart.plot", 
+                 # Machine learning frameworks
+                 "caret", "SuperLearner",
+                 # R utility packages
+                 "remotes", "dplyr",
+                 # Misc
+                 "mlbench", "pROC"))
+```
+
+If you are prompted by the question, "Do you want to install from sources the package which needs compilation? (Yes/no/cancel)", type no in your console and press Enter. 
+
+... and, the most recent version of ck37r 
+
+`remotes::install_github(c("ck37/ck37r"))`
+
+Then, open the **slides.html** file in the docs folder to get started! 
