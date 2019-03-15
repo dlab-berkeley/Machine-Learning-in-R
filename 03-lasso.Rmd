@@ -14,20 +14,19 @@ head(train_y_reg, n = 20)
 head(train_x_reg, n = 20)
 
 # Fit the regression model; lm() will automatically add a temporary intercept column
-reg_fit = lm(train_y_reg ~ ., data = as.data.frame(train_x_reg))
+reg_fit = lm(train_y_reg ~ ., data = train_x_reg)
 
 # View the output
 summary(reg_fit) 
 
 # Predict outcome for the training data
-reg_predicted = predict(reg_fit, as.data.frame(test_x_reg))
+reg_predicted = predict(reg_fit, test_x_reg)
 
 # 8. Calculate mean-squared error
-MSE_reg = mean((test_y_reg - reg_predicted)^2)
+(mse_reg = mean((test_y_reg - reg_predicted)^2))
 
-MSE_reg
-
-sqrt(MSE_reg) # RMSE
+# Root mean-squared error
+sqrt(mse_reg)
 ```
 
 # Lasso
@@ -38,16 +37,25 @@ Fit the lasso! However, because glmnet expects a matrix of predictors, use `as.m
 lasso = cv.glmnet(as.matrix(train_x_reg), train_y_reg, family = "gaussian", alpha = 1)
 ```
 
-Visualize the distribution of lamba. 
+Visualize the distribution of log(lamba) vs mean-squared error.   
 ```{r}
 plot(lasso)
+
+# Generate our own version, but plot lambda (not on log scale) vs. RMSE.
+qplot(lasso$lambda, sqrt(lasso$cvm)) + theme_minimal()
+
 ```
 
-> NOTE: when log(lamba) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. If log(lambda) is negative, it means lambda is close to zero and we are approaching the OLS solution. 
+> NOTE: when log(lamba) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. As log(lambda) becomes increasingly negative, lambda is correspondingly closer to zero and we are approaching the OLS solution. 
+
+```{r}
+# And here is a plot of log(lambda) vs lambda.
+qplot(log(lasso$lambda), lasso$lambda) + theme_minimal()
+```
 
 Show plot of different lambda values: 
 ```{r}
-plot(lasso$glmnet.fit, xvar = "lambda", label = T)
+plot(lasso$glmnet.fit, xvar = "lambda", label = TRUE)
 ```
 
 Show the minimum MSE:
@@ -58,21 +66,42 @@ lasso$lambda.min
 Show higher lambda within [one standard error](https://stats.stackexchange.com/questions/80268/empirical-justification-for-the-one-standard-error-rule-when-using-cross-validat) of performance of the minimum
 ```{r}
 lasso$lambda.1se
+
+# Log scale versions:
+log(c("log_min" = lasso$lambda.min, "log_1se" = lasso$lambda.1se))
 ```
 
 Look at the coefficients
 ```{r}
-coef(lasso, s = "lambda.1se")
+(coef_1se = coef(lasso, s = "lambda.1se"))
 ```
 
 Look at the coefficients for lambda.min
 ```{r}
-coef(lasso, s = "lambda.min")
+(coef_min = coef(lasso, s = "lambda.min"))
+
+# Compare side-by-side
+cbind(as.matrix(coef_1se), as.matrix(coef_min))
 ```
 
 Predict on the test set
 ```{r}
 predictions = predict(lasso, s = lasso$lambda.1se, newx = as.matrix(test_x_reg))
+
+# How far off were we, based on absolute error?
+rounded_errors = round(abs(test_y_reg - predictions))
+table(rounded_errors)
+
+grouped_errors = round(abs(test_y_reg - predictions) / 5)
+grouped_errors[grouped_errors > 2] = 3
+
+# 4 categories of accuracy
+how_close = factor(grouped_errors, labels = c("very close", "close", "meh", "far"))
+table(rounded_errors, how_close)
+
+# Scatter plot of actual vs. predicted
+qplot(test_y_reg, predictions, color = how_close) + theme_minimal()
+
 ```
 
 Calculate MSE and RMSE:
