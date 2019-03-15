@@ -78,10 +78,10 @@ predictions = predict(lasso, s = lasso$lambda.1se, newx = as.matrix(test_x_reg))
 Calculate MSE and RMSE:
 ```{r}
 # Calculate mean-squared error.
-mean((predictions - test_val_reg)^2)
+mean((predictions - test_y_reg)^2)
 
 # Calculate root mean-squared error.
-sqrt(mean((predictions - test_val_reg)^2))
+sqrt(mean((predictions - test_y_reg)^2))
 ```
 
 **Big question 1:** What are the statistical assupmtions for OLS regression? What are the statistical assumptions for Lasso? 
