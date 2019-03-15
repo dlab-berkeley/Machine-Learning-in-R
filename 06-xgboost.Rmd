@@ -12,39 +12,48 @@ However, the cases that the model has difficulty predicting are _upweighted_ so 
 
 Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Also, bootstrap is the default, but we want cross-validation.  
 
-First create two objects - `gbm_control` and `gbm_grid`. `gbm_control` will allow us to tune the cross-validated performance metric, while `gbm_grid` lets us evaluate the model with different characteristics:
-```{r gbm_prep}
-# Use 10-fold cross-validation with 3-repeats as our evaluation procedure
+First create two objects - `cv_control` and `xgb_grid`. `xgb_control` will allow us to customize the cross-validation settings, while `xgb_grid` lets us evaluate the model with different settings:
+```{r caret_prep}
+# Use 5-fold cross-validation with 2 repeats as our evaluation procedure.
 # (instead of the default "bootstrap").
-gbm_control = trainControl(method = "repeatedcv",
-                           number = 10L,
-                           repeats = 3L,
-                           # Calculate class probabilities.
-                           classProbs = TRUE,
-                           # Indicate that our response varaible is binary.
-                           summaryFunction = twoClassSummary) 
+cv_control =
+  trainControl(method = "repeatedcv",
+               number = 5L,
+               repeats = 2L,
+               # Calculate class probabilities.
+               classProbs = TRUE,
+               # Indicate that our response variable is binary.
+               summaryFunction = twoClassSummary) 
 
+# Ask caret what hyperparameters can be tuned for the xgbTree algorithm.
+modelLookup("xgbTree")
+getModelInfo("xgbTree")
 
-gbm_grid = expand.grid(
+# More details at https://xgboost.readthedocs.io/en/latest/parameter.html
+(xgb_grid = expand.grid(
   # Number of trees to fit, aka boosting iterations
-  n.trees = seq(100, 1000, by = 300),
+  nrounds = c(50, 250, 800),
   # Depth of the decision tree (how many levels of splits).
-	interaction.depth = c(1L, 3L, 5L), 
+	max_depth = c(1L, 3L, 6L), 
   # Learning rate: lower means the ensemble will adapt more slowly.
-	shrinkage = c(0.001, 0.01, 0.1),
+	eta = c(0.0001, 0.01, 0.2),
+  # Make this larger and xgboost will tend to make smaller trees
+  gamma = 0,
+  colsample_bytree = 1.0,
+  subsample = 1.0,
   # Stop splitting a tree if we only have this many obs in a tree node.
-	n.minobsinnode = 10L)
+	min_child_weight = 10L))
+# Other hyperparameters: gamma, column sampling, row sampling
 
 # How many combinations of settings do we end up with?
-nrow(gbm_grid)
+nrow(xgb_grid)
 ```
 
 Fit the model. Note that we will now use area under the ROC curve (called "AUC") as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).  
 
 > NOTE: This will take a few minutes to complete! See the .html file for the output.
 
-```{r gbm_fit, cache = TRUE}
-set.seed(1)
+```{r xgb_fit, cache = TRUE}
 
 # Convert our numeric indicators (1s and 0s) back into factors ("pos" and "neg")
 trainlab_factor = factor(ifelse(train_label == 1, "pos", "neg"))
@@ -52,54 +61,68 @@ testlab_factor = factor(ifelse(test_label == 1, "pos", "neg"))
 table(trainlab_factor, train_label)
 table(testlab_factor, test_label)
 
+set.seed(1)
+
 # cbind: caret expects the Y response and X predictors to be part of the same dataframe
-gbm1 = caret::train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_x), 
-             # Use gradient boosted machine ("gbm") algorithm.
-             method = "gbm",
+model = caret::train(trainlab_factor ~ ., data = cbind(trainlab_factor, train_x), 
+             # Use xgboost's tree-based algorithm (i.e. gbm)
+             method = "xgbTree",
              # Use "AUC" as our performance metric, which caret incorrectly calls "ROC"
              metric = "ROC",
-             # Specify our cross-validated performance metric settings.
-             trControl = gbm_control,
-             # Define our gbm model tuning grid.
-             tuneGrid = gbm_grid,
+             # Specify our cross-validation settings.
+             trControl = cv_control,
+             # Test multiple configurations of the xgboost algorithm.
+             tuneGrid = xgb_grid,
              # Hide detailed output (setting to TRUE will print that output).
              verbose = FALSE)
 
 # See how long this algorithm took to complete.
-gbm1$times 
+model$times 
 
 # Review model summary table.
-gbm1
+model
+
+# Extract the hyperparameters with the best performance.
+model$bestTune
+
+# And the corresponding performance metrics
+model$results[as.integer(rownames(model$bestTune)), ]
 
 # Plot the performance across all hyperparameter combinations.
-ggplot(gbm1) + theme_bw() + ggtitle("GBM hyperparameter comparison") 
-# ggsave("gbm tuning comparison.png")
+ggplot(model) + theme_minimal() + ggtitle("Xgboost hyperparameter comparison") 
 
-# Plot variable importance.
-summary(gbm1, las = 2)
+# Show variable importance (text).
+caret::varImp(model)
+
+# remotes::install_github("koalaverse/vip")
+
+# This version uses the complex caret object
+vip::vip(model) + theme_minimal()
+
+# This version operates on the xgboost model within the caret object
+vip::vip(model$finalModel) + theme_minimal()
 
 # Generate predicted labels.
-gbm_predicted = predict(gbm1, test_x)
+predicted_labels = predict(model, test_x)
+table(test_label, predicted_labels)
 
 # Generate class probabilities.
-gbm_probs = predict(gbm1, test_x, type = "prob")
+pred_probs = predict(model, test_x, type = "prob")
+head(pred_probs)
 
 # View final model
-(gbm_cm = confusionMatrix(gbm_predicted, testlab_factor))
+(cm = confusionMatrix(predicted_labels, testlab_factor))
 
 # Define ROC characteristics
 (rocCurve = pROC::roc(response = testlab_factor,
-                predictor = gbm_probs[, "neg"],
+                predictor = pred_probs[, "pos"],
                 levels = rev(levels(testlab_factor)),
                 auc = TRUE, ci = TRUE))
 
 # Plot ROC curve with optimal threshold.
-plot(rocCurve, print.thres = "best", main = "GBM", col = "blue") 
-# ggsave("gbm ROC.png")
+plot(rocCurve, print.thres = "best", main = "XGBoost on test set", col = "blue") 
 
 ```
-
-Also check out the ["xgboost" R package](https://cran.r-project.org/web/packages/xgboost/index.html) for a more powerful way to boost your trees.  
 
 ##### Challenge 4
 **Big question 4:** What are some defining characteristics of the algorithms we have covered in these five exercises?
