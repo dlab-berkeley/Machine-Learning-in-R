@@ -113,7 +113,7 @@ set.seed(1)
 (training_size = floor(0.70 * nrow(reg_feat)))
 
 # Partition the rows to be included in the training set.
-training_rows_reg = sample(seq_len(nrow(reg_feat)), size = training_size)
+training_rows_reg = sample(nrow(reg_feat), size = training_size)
 
 # Partition the appropriate rows into the training and test sets
 train_x_reg = reg_feat[training_rows_reg, ] # partition training dataset
@@ -150,22 +150,24 @@ Assign the outcome variable to its own vector for **CLASSIFICATION tasks:** (dec
 # View pidd variable names
 names(pidd)
 
-# 1) Define y for classification (has diabetes? "pos" or "neg")
-y_fac = pidd$diabetes
-head(y_fac, n = 20)
+# Review the outcome variable.
+head(pidd$diabetes, n = 20L)
+table(pidd$diabetes, useNA = "ifany")
 
+# 1) Define y for classification (has diabetes? "pos" or "neg")
 # 2) Then, convert "pos" to 1 and "neg" to 0. Many algorithms expect 1's for the positive class and 0's for the negative class.
-y = as.integer(y_fac == "pos")
-table(y, y_fac, useNA = "ifany")
+y = as.integer(pidd$diabetes == "pos")
+table(y, pidd$diabetes, useNA = "ifany")
 
 # 3) Finally, define the x feature/predictor dataframe that excludes the y outcome.
 features = subset(pidd, select = -diabetes)
 
 # Diabetes column has been successfully removed.
+"diabetes" %in% names(features)
 names(features)
 
 # Finally, scale the "age" variable in place since we did not do this for purposes of regression setup
-features$age = scale(features$age, center = T, scale = T)
+features$age = scale(features$age, center = TRUE, scale = TRUE)
 
 # View the updated data
 head(features)
