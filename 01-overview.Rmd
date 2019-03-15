@@ -27,13 +27,14 @@ if (FALSE) {
 # Hide the many messages and possible warnings from loading all these packages.
 suppressMessages(suppressWarnings({  
   library(caret)        # createDataPartition creates a stratified random split
-  library(ck37r)        # impute_missing_values, SuperLearner helpers
-  library(remotes)     # Allows installing packages from github
+  library(ck37r)        # impute_missing_values, standardize, SuperLearner helpers
+  library(remotes)      # Allows installing packages from github
   library(dplyr)        # Data cleaning
   library(glmnet)       # lasso 
   library(gbm)          # Gradient boosted machines
   library(ggplot2)      # Graphics 
   library(magrittr)     # Pipes %>% for data cleaning, installed by dplyr.
+  library(mlbench)      # Diabetes dataset.
   library(pROC)         # Compute and plot AUC 
   library(randomForest) # random forest algorithm
   library(rpart)        # Decision tree algorithm
