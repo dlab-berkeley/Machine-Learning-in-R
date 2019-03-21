@@ -12,6 +12,8 @@ install.packages(c(# Algorithms
                  "mlbench", "pROC"))
 If you are prompted by the question, "Do you want to install from sources the package which needs compilation? (Yes/no/cancel)", type no in your console and press Enter.
 
-... and, the most recent version of ck37r: remotes::install_github(c("ck37/ck37r"))
+... and, the most recent version of ck37r. Copy/paste this line of code into your console or a script and run it: 
+
+remotes::install_github(c("ck37/ck37r"))
 
 Then, open the slides.html file in the docs folder to get started - contact us with any questions!
