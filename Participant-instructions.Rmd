@@ -1,5 +1,15 @@
-Please install the following packages before the workshop date. Copy/paste the code below into your console or a script and run it. This code can also be found in the 01-overview.Rmd file in this repository.
+---
+title: "Participant-instructions"
+author: "D-Lab"
+date: "3/23/2019"
+output: html_document
+---
 
+# Participant instructions - Machine Learning in R
+
+Please install the following packages before the workshop date. Run the below code. This code can also be found in the 01-overview.Rmd file in this repository.
+
+```{r}
 install.packages(c(# Algorithms
                  "gbm", "glmnet", "randomForest", "ranger", "rpart", "xgboost",
                  # Visualization
@@ -10,10 +20,14 @@ install.packages(c(# Algorithms
                  "remotes", "dplyr",
                  # Misc
                  "mlbench", "pROC"))
+```
+
 If you are prompted by the question, "Do you want to install from sources the package which needs compilation? (Yes/no/cancel)", type no in your console and press Enter.
 
-... and, the most recent version of ck37r. Copy/paste this line of code into your console or a script and run it: 
+... and, the most recent version of ck37r. Run this line of code please! 
 
+```{r}
 remotes::install_github(c("ck37/ck37r"))
+```
 
 Then, open the slides.html file in the docs folder to get started - contact us with any questions!
