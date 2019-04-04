@@ -31,7 +31,16 @@ sqrt(mse_reg)
 
 # Lasso
 
-Fit the lasso! However, because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
+Did you notice the warning message after the code  
+`reg_predicted = predict(reg_fit, test_x_reg)` ? 
+
+> Warning message:
+In predict.lm(reg_fit, test_x_reg) :
+  prediction from a rank-deficient fit may be misleading
+
+[Here we have a rank-deficient matrix](https://stats.stackexchange.com/questions/35071/what-is-rank-deficiency-and-how-to-deal-with-it) that prevents OLS from potentially working correctly.  
+
+However, we can use lasso to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
 
 ```{r}
 lasso = cv.glmnet(as.matrix(train_x_reg), train_y_reg, family = "gaussian", alpha = 1)
@@ -101,7 +110,6 @@ table(rounded_errors, how_close)
 
 # Scatter plot of actual vs. predicted
 qplot(test_y_reg, predictions, color = how_close) + theme_minimal()
-
 ```
 
 Calculate MSE and RMSE:
@@ -113,7 +121,10 @@ mean((predictions - test_y_reg)^2)
 sqrt(mean((predictions - test_y_reg)^2))
 ```
 
-**Big question 1:** What are the statistical assupmtions for OLS regression? What are the statistical assumptions for Lasso? 
+**Big questions:**  
+1. What are the statistical assupmtions for OLS regression?  
+2. What are the statistical assumptions for Lasso?  
+3. What is a rank-deficient matrix?  
 
 ##### Challenge 1
 Construct a lasso to predict the "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 

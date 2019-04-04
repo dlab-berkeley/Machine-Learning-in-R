@@ -6,7 +6,7 @@ Let's see how a decision tree classifies diabetes status from our dataset.
 
 Note that we do not have to use `model.matrix` for our decision tree algorithm here because it can work with factor variables directly:
 ```{r}
-tree = rpart::rpart(y ~ ., data = features,
+tree = rpart::rpart(y_class ~ ., data = heart_class,
              # Use method = "anova" for a continuous outcome.
              method = "class",
              # Can use "gini" for gini coefficient.

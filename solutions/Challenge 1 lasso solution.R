@@ -51,7 +51,6 @@ lasso_iris$lambda.1se
 coef(lasso_iris, s = "lambda.1se")
 coef(lasso_iris, s = "lambda.min")
 
-
 # Predict on test set
 predictions_iris = predict(lasso_iris, s = lasso_iris$lambda.1se, newx = as.matrix(test_x_iris))
 
@@ -60,5 +59,3 @@ mean((predictions_iris - test_val_iris)^2)
 
 # Calculate root mean-squared error.
 sqrt(mean((predictions_iris - test_val_iris)^2))
-
-
