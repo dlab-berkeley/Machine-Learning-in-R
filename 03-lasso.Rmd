@@ -1,49 +1,66 @@
 # OLS and lasso
 
-# OLS refresher
+## Load packages
+
+Load any packages we need for this analysis.
+
+```{r load_packages}
+library(glmnet)
+library(ggplot2)
+```
+
+## Ordinary least squares
 
 Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
 
 ```{r}
-# Look at y and x variables
+# Load data we created in 02-preprocessing.Rmd.
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+
+# Pull out data for easier analysis.
+train_x = task_reg$data[task_reg$train_rows, task_reg$covariates]
+train_y = task_reg$data[task_reg$train_rows, task_reg$outcome]
+
+test_x = task_reg$data[-task_reg$train_rows, task_reg$covariates]
+test_y = task_reg$data[-task_reg$train_rows, task_reg$outcome]
 
 # Look at ages of first 20 individuals
-head(train_y_reg, n = 20)
+head(train_y, n = 20)
 
-# Look at features for the corresponding first 20 individuals
-head(train_x_reg, n = 20)
+# Look at features for the corresponding first 6 individuals
+head(train_x)
 
 # Fit the regression model; lm() will automatically add a temporary intercept column
-reg_fit = lm(train_y_reg ~ ., data = train_x_reg)
+fit = lm(train_y ~ ., data = train_x)
 
 # View the output
-summary(reg_fit) 
+summary(fit) 
 
-# Predict outcome for the training data
-reg_predicted = predict(reg_fit, test_x_reg)
+# Predict outcome for the test data
+predicted = predict(fit, test_x)
 
 # 8. Calculate mean-squared error
-(mse_reg = mean((test_y_reg - reg_predicted)^2))
+(mse_reg = mean((test_y - predicted)^2))
 
 # Root mean-squared error
 sqrt(mse_reg)
 ```
 
-# Lasso
+## Lasso
 
-Did you notice the warning message after the code  
-`reg_predicted = predict(reg_fit, test_x_reg)` ? 
+Did you notice the warning message after the `predict()`?
 
 > Warning message:
-In predict.lm(reg_fit, test_x_reg) :
+  ...
   prediction from a rank-deficient fit may be misleading
 
-[Here we have a rank-deficient matrix](https://stats.stackexchange.com/questions/35071/what-is-rank-deficiency-and-how-to-deal-with-it) that prevents OLS from potentially working correctly.  
+[Here we have a rank-deficient matrix](https://stats.stackexchange.com/questions/35071/what-is-rank-deficiency-and-how-to-deal-with-it).
 
 However, we can use lasso to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
 
 ```{r}
-lasso = cv.glmnet(as.matrix(train_x_reg), train_y_reg, family = "gaussian", alpha = 1)
+lasso = cv.glmnet(as.matrix(train_x), train_y, family = "gaussian", alpha = 1)
 ```
 
 Visualize the distribution of log(lamba) vs mean-squared error.   
@@ -67,7 +84,7 @@ Show plot of different lambda values:
 plot(lasso$glmnet.fit, xvar = "lambda", label = TRUE)
 ```
 
-Show the minimum MSE:
+Show the lambda that results in the minimum estimated mean-squared error (MSE):
 ```{r}
 lasso$lambda.min
 ```
@@ -95,30 +112,33 @@ cbind(as.matrix(coef_1se), as.matrix(coef_min))
 
 Predict on the test set
 ```{r}
-predictions = predict(lasso, s = lasso$lambda.1se, newx = as.matrix(test_x_reg))
+predictions = predict(lasso, newx = as.matrix(test_x),
+                      s = lasso$lambda.1se)
 
 # How far off were we, based on absolute error?
-rounded_errors = round(abs(test_y_reg - predictions))
+rounded_errors = round(abs(test_y - predictions))
 table(rounded_errors)
 
-grouped_errors = round(abs(test_y_reg - predictions) / 5)
+# Group the absolute error into 4 bins.
+grouped_errors = round(abs(test_y - predictions) / 5)
 grouped_errors[grouped_errors > 2] = 3
+table(grouped_errors)
 
 # 4 categories of accuracy
 how_close = factor(grouped_errors, labels = c("very close", "close", "meh", "far"))
 table(rounded_errors, how_close)
 
 # Scatter plot of actual vs. predicted
-qplot(test_y_reg, predictions, color = how_close) + theme_minimal()
+qplot(test_y, predictions, color = how_close) + theme_minimal()
 ```
 
 Calculate MSE and RMSE:
 ```{r}
 # Calculate mean-squared error.
-mean((predictions - test_y_reg)^2)
+mean((predictions - test_y)^2)
 
 # Calculate root mean-squared error.
-sqrt(mean((predictions - test_y_reg)^2))
+sqrt(mean((predictions - test_y)^2))
 ```
 
 **Big questions:**  
@@ -126,5 +146,5 @@ sqrt(mean((predictions - test_y_reg)^2))
 2. What are the statistical assumptions for Lasso?  
 3. What is a rank-deficient matrix?  
 
-##### Challenge 1
+### Challenge 1
 Construct a lasso to predict the "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
