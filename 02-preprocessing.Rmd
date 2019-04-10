@@ -1,13 +1,23 @@
 # Preprocessing
 
+## Load packages
+
+Explicitly load the packages that we need for this analysis.
+
+```{r packages}
+library(rio)
+library(ck37r)
+library(caret)
+```
+
 ## Load the data
 
 Load the heart disease and iris datasets. 
 
 ```{r load_data}
-# Load the heart disease dataset.
-heart = read.csv("./inbound/heart.csv")
-str(heart)
+# Load the heart disease dataset using import() from the rio package.
+data = import("data-raw/heart.csv")
+str(data)
 ```
 
 ## Read background information and variable descriptions  
@@ -35,15 +45,15 @@ Missing values need to be handled somehow. Listwise deletion (deleting any row w
 K-nearest neighbor imputation can also be useful but median imputation is demonstrated below. First, count the number of missing values across variables in our dataset.  
 
 ```{r review_missingness}
-colSums(is.na(heart))
+colSums(is.na(data))
 ```
 
 We have no missing values, so let's introduce a few to the "oldpeak" feature for this example to see how it works: 
 
 ```{r}
 # 
-heart$oldpeak[c(50, 100, 150, 200, 250)] = NA
-colSums(is.na(heart))
+data$oldpeak[c(50, 100, 150, 200, 250)] = NA
+colSums(is.na(data))
 ```
 
 There are now 5 missing values in the "oldpeak" feature. Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. These are additional columns we will add to our data frame that represent the _locations_ within each feature that have missing values - 0 means data are present, 1 means there was a missing (and soon to be imputed) value.  
@@ -51,160 +61,118 @@ There are now 5 missing values in the "oldpeak" feature. Now, median impute the 
 > Note: since our data are on different scales we will also want to center and scale these data using the `scale` function if you select "standard" (median) imputation as the method. If you select "knn" as the method, values will be automatically centered and scaled. 
 
 ```{r impute_missing_values}
-result = ck37r::impute_missing_values(heart, 
-                               verbose = TRUE,
-                               type = "standard")
+result = ck37r::impute_missing_values(data, verbose = TRUE, type = "standard")
 
 # Use the imputed dataframe.
-heart = result$data
+data = result$data
 
-# View new columns. Note that the indicator feature "miss_oldpeak" has been added as the last column of our data frame. 
-str(heart)
+# View new columns.
+# Note that the indicator feature "miss_oldpeak" has been added as the last column of our data frame. 
+str(data)
 
 # No more missing data!
-colSums(is.na(heart))
+colSums(is.na(data))
 ```
 
 Scale the data to a mean of 0 and standard deviation of 1. Note that the `skip_vars` argument will exclude variables from the scaling process. 
 
-Since the "ca", "cp", "slope", and "thal" features are currently interger type, first convert them to factors to then convert them to indicators. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
+Since the "ca", "cp", "slope", and "thal" features are currently interger type, convert them to factors. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
 
 ```{r}
-# Make copy of the heart dataset so that the original is preserved
-heart2 = heart
-
-heart2$ca = as.factor(heart2$ca)
-heart2$cp = as.factor(heart2$cp)
-heart2$slope = as.factor(heart2$slope)
-heart2$thal = as.factor(heart2$thal)
+data = ck37r::categoricals_to_factors(data,
+                                      categoricals = c("ca", "cp", "slope", "thal"),
+                                      verbose = TRUE)
 
 # Inspect the factor version
-str(heart2)
+str(data)
 ```
 
 ## Defining *y* outcome vectors and *x* feature dataframes
 
-First, make a copy of `heart2` named `proc_data`
-
-```{r}
-proc_data = heart2
-```
-
-Now we can standardize the data and expand the factors into indicators. 
-
-Standardize the data: 
-
-```{r}
-proc_data = ck37r::standardize(heart2, 
-                               skip_vars = c("age", "sex", "ca", "cp", 
-                                             "slope", "thal", "target",
-                                             result$indicators_added))
-
-# Note that our factor (cp, slope, ca, thal) and age, sex, target, and miss_oldpeak features remain unscaled.
-str(proc_data)
-```                         
-           
 ## Convert factors to indicators
 
-Now expand "ca", "cp", "slope", and "thal" features to out into sparse indicators and overwrite `proc_data` with the updated version: 
+Now expand "ca", "cp", "slope", and "thal" features to out into indicators. 
 
-```{r}
-proc_data = as.data.frame(model.matrix(~ . ,  data = proc_data))
+```{r factors_to_indicators}
+result = ck37r::factors_to_indicators(data, verbose = TRUE)
 
-# Remove intercept
-proc_data = proc_data[ , -1]
+data = result$data
 
-# Inspect
-str(proc_data)
+str(data)
 ```
 
-##### Regression setup
+## Regression setup
 
-Now that the data have been imputed, standardized, and properly converted, we can assign the regression outcome variable (`age`) to its own vector for the OLS and lasso **REGRESSION tasks**. Remember that lasso can also perform classification as well. 
+Now that the data have been imputed and properly converted, we can assign the regression outcome variable (`age`) to its own vector for the OLS and lasso **REGRESSION tasks**. Remember that lasso can also perform classification as well. 
 
-## Set seed for reperoducibility
+### Set seed for reproducibility
 
 Take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set.
 
-```{r caret_split}
-# Set seed for reproducibility.
-set.seed(1)
-```
-
-# Random versus stratified random split
+### Random versus stratified random split
 
 Since age is a continuous variable and will be the outcome for the OLS and lasso regressions, we will not perform a stratified random split like we will for the classification tasks (see below). Instead, [let's randomly assign](https://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function) 70% of the `age` values to the training set and the remaining 30% to the test set.
 
 ```{r}
+# Create a list to organize our machine learning task.
+task_reg = list(
+  data = data,
+  outcome = "age"
+)
+
+# All variables can be used as covariates except the outcome.
+task_reg$covariates = setdiff(names(data), task_reg$outcome)
+
 # Define the sizes of training (70%) and test (30%) sets.
-(training_size = floor(0.70 * nrow(proc_data)))
+(training_size = floor(0.70 * nrow(task_reg$data)))
+
+# Set seed for reproducibility.
+set.seed(1)
 
 # Partition the rows to be included in the training set.
-training_rows_reg = sample(nrow(proc_data), size = training_size)
+training_rows = sample(nrow(task_reg$data), size = training_size)
 
-# Partition the appropriate rows into the training and test sets
-train_reg = proc_data[training_rows_reg, ] # partition training dataset
-test_reg = proc_data[-training_rows_reg, ] # partition test dataset
-
-# Remove y outcome from train_reg and test_reg and define it as its own variable for both: 
-train_y_reg = train_reg$age
-test_y_reg = test_reg$age
-
-train_x_reg = subset(train_reg, select = -age)
-test_x_reg = subset(test_reg, select = -age)
-  
-# Lngths of our y values and the number of rows in our feature dataframes are the same for both training and test sets!
-dim(train_x_reg)
-length(train_y_reg)
-
-dim(test_x_reg)
-length(test_y_reg)
+task_reg$train_rows = training_rows
 ```
 
-##### Classification setup
+### Classification setup
 
 Assign the outcome variable to its own vector for the decision tree, random forest, gradient boosted tree, and SuperLearner **CLASSIFICATION tasks**. However, keep in mind that these algorithms can also perform regression!  
 
-Because we were savvy earlier, we can just pick up from where `proc_data` left off! 
-
-```{r data_prep}
-# Manually scale the "age" feature in place since we did not do this for regression setup since it was our outcome variable. 
-proc_data$age = scale(proc_data$age, center = TRUE, scale = TRUE)
-
-# View the updated data. age has been centered and scaled. 
-str(proc_data)
-```
-
-This time however, "target" (1 = person has heart disease, 0 = person does not have heart disease) will by our y outcome variable - the others will by our x features. `y_class` will be our classification outcome ("target"), while `x_class` will contain the remaining classification features.   
+This time however, "target" (1 = person has heart disease, 0 = person does not have heart disease) will by our y outcome variable - the others will be our x features. 
 
 ```{r}
-# Identify y and x variables. 
-y_class = proc_data$target
-x_class = subset(proc_data, select = -target)
+task_class = list(
+  data = data,
+  outcome = "target"
+)
+task_class$covariates = setdiff(names(task_class$data), task_class$outcome)
 ```
            
 Our factors have still been converted to indicators from the regression setup! :) 
-# Stratified random split
+
+### Stratified random split
 
 We then can use [stratified random sampling](https://stats.stackexchange.com/questions/250273/benefits-of-stratified-vs-random-sampling-for-generating-training-data-in-classi) to divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
 
 ```{r}
-# Set seed for reproducibility
-set.seed(1) 
+# Set seed for reproducibility.
+set.seed(2) 
 
 # Create a stratified random split.
-training_rows = caret::createDataPartition(y_class, p = 0.70, list = FALSE) 
+training_rows =
+  caret::createDataPartition(task_class$data[[task_class$outcome]],
+                             p = 0.70, list = FALSE) 
 
-train_x_class = x_class[training_rows, ] # partition training dataset
-test_x_class = x_class[-training_rows, ] # partition test dataset
+# Partition training dataset
+task_class$train_rows = training_rows
+```
 
-train_y_class = y_class[training_rows] # partition training y vector labels
-test_y_class = y_class[-training_rows] # partition test y vector labels
+### Save our preprocessed data
 
-# Check dimensions
-dim(train_x_class)
-length(train_y_class)
+We save our preprocessed data into an RData file so that we can easily load it in other files.
 
-dim(test_x_class)
-length(test_y_class)
+```{r save_data}
+save(task_reg, task_class,
+     file = "data/preprocessed.RData")
 ```
