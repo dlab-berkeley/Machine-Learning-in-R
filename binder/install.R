@@ -1,13 +1,18 @@
-#install.packages("devtools")
-# devtools::install_github(c("ecpolley/SuperLearner"))
 cran_packages =
-  c("car", "caret", "chemometrics", "class",
+  c("caret",
+    "dplyr",
+    "glmnet",
+    "ggplot2",
+    "mlbench",
+    "rpart",
+    "rpart.plot",
     "remotes",
-    "doParallel", "pROC",
-    "gbm", "gmodels", "ggplot2",
-    "rpart", "rpart.plot", "partykit",
-    "RhpcBLASctl", "SuperLearner",
-    "lattice", "plotmo", "randomForest", "ranger", "ROCR",
-    "survival", "xgboost")
+    "RhpcBLASctl",
+    "SuperLearner",
+    "ranger",
+    "pROC",
+    "vip",
+    "xgboost",
+    NULL)
 install.packages(cran_packages)
 remotes::install_github("ck37/ck37r")
