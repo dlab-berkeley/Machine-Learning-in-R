@@ -1,26 +1,51 @@
 # Decision Trees
 
+
+## Intro
+
 Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decision trees attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
+
+## Load packages
+
+```{r load_packages}
+library(rpart)
+library(rpart.plot)
+```
 
 Let's see how a decision tree classifies diabetes status from our dataset.  
 
-Note that we do not have to use `model.matrix` for our decision tree algorithm here because it can work with factor variables directly:
+```{r setup_data}
+# Load data we created in 02-preprocessing.Rmd.
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+
+# Pull out data for easier analysis.
+train_x = task_class$data[task_class$train_rows, task_class$covariates]
+train_y = task_class$data[task_class$train_rows, task_class$outcome]
+
+test_x = task_class$data[-task_class$train_rows, task_class$covariates]
+test_y = task_class$data[-task_class$train_rows, task_class$outcome]
+```
+
 ```{r}
-tree = rpart::rpart(y_class ~ ., data = heart_class,
+tree = rpart::rpart(train_y ~ ., data = train_x,
              # Use method = "anova" for a continuous outcome.
              method = "class",
              # Can use "gini" for gini coefficient.
              parms = list(split = "information")) 
+
 # Here is the text-based display of the decision tree. Yikes!  :^( 
 print(tree)
 ```
 
 Although interpreting the text can be intimidating, a decision tree's main strength is its tree-like plot, which is much easier to interpret.
+
 ```{r plot_tree}
 rpart.plot::rpart.plot(tree) 
 ```
 
 We can also look inside of `tree` to see what we can unpack. "variable.importance" is one we should check out! 
+
 ```{r}
 names(tree)
 tree$variable.importance
