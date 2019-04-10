@@ -4,35 +4,55 @@
 
 You have learned some of the characteristics for fitting several individual algorithms and have explored a little about how you can define their different (hyper)parameters. However, the ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
 
-Let's see how the four classification algorithms you learned in this workshop (KNN, decision tree, random forest, and gradient boosted machines) compare to each other and also to binary logistic regression (`glm`) and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
+### Load packages
 
-A "wrapper" is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:
-```{r}
-SuperLearner::listWrappers()
+```{r packages}
+library(SuperLearner)
+library(ck37r)
 ```
 
-Instead of splitting the data like before, since we are using cross-validation we actually want to use the entire `pidd` dataset - cross-validation will perform as many training and test splits as necessary (this is called the number of "folds") for us! 
+### Setup data
+
+```{r setup_data}
+# Load data we created in 02-preprocessing.Rmd.
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+
+# Pull out data for easier analysis.
+train_x = task_class$data[task_class$train_rows, task_class$covariates]
+train_y = task_class$data[task_class$train_rows, task_class$outcome]
+
+test_x = task_class$data[-task_class$train_rows, task_class$covariates]
+test_y = task_class$data[-task_class$train_rows, task_class$outcome]
+```
+
+## Analysis
+
+Let's see how the four classification algorithms you learned in this workshop (lasso, decision tree, random forest, and gradient boosted machines) compare to each other and also to binary logistic regression (`glm`) and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
+
+A "wrapper" is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:
+
 ```{r}
-str(pidd)
-
-# Convert our Y variable to integer type.
-y_int = as.integer(pidd$diabetes == "pos")
-
-# Compile the algorithm wrappers to be used.
-sl_lib = c("SL.xgboost", "SL.glm", "SL.knn", "SL.mean", "SL.rpart", "SL.ranger")
+SuperLearner::listWrappers()
 ```
 
 Fit the ensemble:
 
 ```{r cvsl_fit, cache = TRUE}
+# Compile the algorithm wrappers to be used.
+sl_lib = c("SL.mean", "SL.glm", "SL.rpart", "SL.ranger", "SL.xgboost")
+
 # This is a seed that is compatible with multicore parallel processing.
 # See ?set.seed for more information.
 set.seed(1, "L'Ecuyer-CMRG") 
 
 # This will take a few minutes to execute - take a look at the .html file to see the output!
-cv_sl = SuperLearner::CV.SuperLearner(Y = y_int, X = subset(pidd, select = -diabetes), verbose = TRUE,
-                        SL.library = sl_lib, family = binomial(),
-                        cvControl = list(V = 10L, stratifyCV = TRUE))
+cv_sl =
+  SuperLearner::CV.SuperLearner(Y = train_y, X = train_x,
+                                verbose = FALSE,
+                                SL.library = sl_lib, family = binomial(),
+                                # For a publication we would do V = 10 or 20
+                                cvControl = list(V = 5L, stratifyCV = TRUE))
 summary(cv_sl)
 ```
 
@@ -43,7 +63,6 @@ Risk is a performance estimate - it's the average loss, and loss is how far off 
 
 # Plot the cross-validated risk estimate.
 plot(cv_sl) + theme_minimal()
-# ggsave("SuperLearner.pdf")
 
 # Compute AUC for all estimators.
 auc_table(cv_sl)
