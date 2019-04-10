@@ -146,7 +146,7 @@ length(test_y_reg)
 
 Assign the outcome variable to its own vector for **CLASSIFICATION tasks:** (decision tree, random forest, gradient boosting, and SuperLearner algorithms). However, keep in mind that these algorithms can also perform regression!
 
-```{r data_prep}
+```{r classification_setup}
 # View pidd variable names
 names(pidd)
 
@@ -174,7 +174,7 @@ head(features)
 ```
 
 We then can use [stratified random sampling](https://stats.stackexchange.com/questions/250273/benefits-of-stratified-vs-random-sampling-for-generating-training-data-in-classi) to divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
-```{r caret_split}
+```{r caret_split2}
 # Set seed for reproducibility.
 set.seed(1)
 
