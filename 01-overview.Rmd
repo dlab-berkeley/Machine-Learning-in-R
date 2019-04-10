@@ -18,7 +18,7 @@ if (FALSE) {
                      # R utility packages
                      "remotes", "dplyr",
                      # Misc
-                     "mlbench", "pROC"))
+                     "pROC"))
   
   # Install packages not on CRAN or with old version on CRAN.
   remotes::install_github(c("ck37/ck37r"))
@@ -26,7 +26,7 @@ if (FALSE) {
 
 # Hide the many messages and possible warnings from loading all these packages.
 suppressMessages(suppressWarnings({  
-  library(caret)        # createDataPartition creates a stratified random split
+  library(caret)        # createDataPartition creates a stratified random split 
   library(ck37r)        # impute_missing_values, standardize, SuperLearner helpers
   library(remotes)      # Allows installing packages from github
   library(dplyr)        # Data cleaning

@@ -57,7 +57,7 @@ class: title-slide
 # .font130[Introduction to Machine Learning in R]
 
 ### Evan Muzzall and Chris Kennedy  
-### March 13, 2019
+### April 16, 2019
 
 ---
 
@@ -68,7 +68,13 @@ class: center, middle, inverse
 ---
 
 # D-Lab 
-[Visit the UC Berkeley D-Lab](http://dlab.berkeley.edu/) to learn more about our services and resources, [including the Machine Learning Working Group](http://dlab.berkeley.edu/working-groups/machine-learning-working-group-0).  
+[Visit the UC Berkeley D-Lab](http://dlab.berkeley.edu/) to learn more about our services, resources, and other R offerings:  
+
+* [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals): Introduction to data types/structures, and importing/exporting, visualizing, and testing data.  
+* [Data Wrangling with R](https://github.com/dlab-berkeley/R-wrang): Focus on dplyr and tidyr packages.  
+* [R graphics](https://github.com/dlab-berkeley/R-graphics): Base and ggplot2 visualizations.  
+* [Introduction to Deep Learning](https://github.com/dlab-berkeley/Deep-Learning-in-R): Keras basics for artificial neural networks.  
+* [Machine Learning Working Group](https://github.com/dlab-berkeley/MachineLearningWG): R and Python code for a variety of machine learning algorithms.  
 
 ---
 
@@ -104,11 +110,15 @@ Or (advanced):
 
 This workshop will utilize a variety of packages to install and organize the code, fit the machine learning algorithms, visualize their outputs, and evaluate their performances. 
 
-* Algorithms: "gbm", "randomForest", "ranger", "rpart", "xgboost"  
+* Algorithms: "glmnet", "ranger", "rpart", "xgboost"  
+
 * Visualization: "ggplot2", "rpart.plot"  
+
 * Machine learning frameworks: "caret", "SuperLearner"  
-* R utility packages: "remotes", "dplyr"  
-* Miscellaneous: "mlbench", "pROC"
+
+* R utility packages: "remotes", "magrittr", "dplyr"  
+
+* Miscellaneous: "pROC"  
 
 * Chris Kennedy's R Toolkit: "ck37r"
 
@@ -161,7 +171,9 @@ Seek "actionable insight":
 
 # Supervised machine learning
 
-Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method applicable to all cases. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning). We will begin with Ordinary Least Squares (OLS) and Lasso regression, followed by tree-based and ensemble classification methods. 
+Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method applicable to all cases. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning).  
+
+We will focus on **supervivsed learning** and will begin with Ordinary Least Squares (OLS) and Lasso regression, followed by tree-based and ensemble classification methods. 
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
 
@@ -170,13 +182,13 @@ $y$ ~ $x_{1}$ + $x_{2}$ + $x_{3}$… $x_{n}$
 $y$ is the dependent/response/target/outcome variable  
 $x$ are the independent/input/predictor/feature/covariate variables  
 
-Supervised machine learning methods learn a target function $f$ that best maps $x$ to $y$ based on a set of [training data](https://en.wikipedia.org/wiki/Training,_test,_and_validation_sets). 
+Supervised machine learning methods learn a target function $f$ that best maps $x$ to $y$ based on a set of [training data](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets#Training_dataset). 
 
 ---
 
 # Supervised machine learning
 
-Our function would look like this: $y = f(x) + \epsilon$ where $f$ is some function that relates our $x$ predictor variables to $y$ in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of $x$ and averages to zero. Therefore, we can predict $y$ using $\hat{y} = \hat{f}(x)$ for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets)) and evaluate how well the algorithm learned the target function when introduced to new data.  
+Our function would look like this: $y = f(x) + \epsilon$ where $f$ is some function that relates our $x$ predictor variables to $y$ in an unknown way thus we must estimate it. Epsilon $\epsilon$ is the random error, is independent of $x$ and averages to zero. Therefore, we can predict $y$ using $\hat{y} = \hat{f}(x)$ for new data (the [test dataset](https://en.wikipedia.org/wiki/Training,_validation,_and_test_sets#Test_dataset)) and evaluate how well the algorithm learned the target function when introduced to new data.  
 
 **How to define machine learning, specifically? (revisited)**  
 More specifically, we can think of machine learning as a bunch of methods to estimate $f$!  
@@ -220,15 +232,17 @@ class: left
 
 # Workshop goals
 
-### 1) Learn the basics of using five machine learning algorithms in R:  
+### 1) Learn the basics of using six machine learning algorithms in R:  
 
-- Lasso (prefaced by an ordinary least squares regression refresher)
+- OLS regression  
+- Lasso  
 - Decision tree  
 - Random forest  
 - Boosting  
 - SuperLearner  
   
 ### 2) Vizualize important information:  
+- Lasso coefficient paths  
 - Decision trees  
 - Random forest variable importance  
 - AUC from different boosting models  
@@ -239,28 +253,26 @@ class: left
 # Workshop goals
 
 ### 3) Examine the performance of these models  
-- Lasso penalization coefficient, (root) mean-squared error
-- Mean decrease accuracy
-- Accuracy
-- AUC
-- Cross-validated risk
+* (Root) mean-squared error, lasso penalization coefficient  
+* Mean decrease accuracy
+* Accuracy
+* AUC
+* Cross-validated risk
 
 ### 4) Simultaneously compare multiple algorithms in an ensemble  
-- Compare various tunings of multiple algorithms at once
-- Weighted ensemble average
-- Discrete winner
+* Compare various tunings of multiple algorithms at once
+* Weighted ensemble average
+* Discrete winner
 
 ---
 
-# Specific workshop goals
+# Specific workshop goals - heart disease dataset  
 
-Use the  `PimaIndiansDiabetes2` dataset from the [`mlbench` package](https://cran.r-project.org/web/packages/mlbench/mlbench.pdf) to investigate the following questions:  
+[Use the  heart disease dataset](https://archive.ics.uci.edu/ml/datasets/heart+Disease) to investigate the following questions:  
 
-1) **Lasso regression example:** How well can a person's age be predicted using the other diabetes-related variables?  
+1) **OLS and lasso regression examples:** How well can a person's age be predicted using the other heart disease-related variables?  
 
-2) **Binary classification examples:** How reliably can different algorithms predict a person's diabetes status using the other variables?  
-
-### Open "2-preprocessing.Rmd" to get started with the data.  
+2) **Binary classification examples:** How reliably can different algorithms predict a person's heart disease status using the other variables?  
 
 ---
 
@@ -276,25 +288,27 @@ The short version is that we need to:
 5. Convert factors to indicators (if necessary)  
 6. Define training and test datasets  
 
+### Open "2-preprocessing.Rmd" to get started with the data.  
+
 ---
 
 # Cross-validation
 
 [Cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics%29) is a way to measure model performance of an entire dataset by repeating the splitting process _k_ number of times then combining/averaging performance across all iterations. 
 
-.center[![](K-fold_cross_validation_EN.jpg)]
+.center[![](slides_img/K-fold_cross_validation_EN.jpg)]
 
 ---
 
 # Algorithms
 
-What is an [algorithm](https://en.wikipedia.org/wiki/Outline_of_machine_learning#Machine_learning_algorithms)?
+What is a machine learning [algorithm](https://en.wikipedia.org/wiki/Outline_of_machine_learning#Machine_learning_algorithms)?
 
-.center[![](giphy-dog.gif)]
+.center[![](slides_img/giphy-dog.gif)]
 
 .center[[Read Texas Am GIF by Texas A&M University](https://giphy.com/gifs/tamu-dog-page-3LrK7Q7UhF5MnhZ5ja)]
 
-Sounds difficult! Instead, scroll down a bit further to check out the [methods](https://en.wikipedia.org/wiki/Outline_of_machine_learning#Machine_learning_methods) section and get a handle on topics covered in this workshop.   
+Sounds difficult! Instead, scroll down a bit further to read about machine learning [methods](https://en.wikipedia.org/wiki/Outline_of_machine_learning#Machine_learning_methods) section and get a handle on topics covered in this workshop.   
 
 ---
 
@@ -305,7 +319,7 @@ Regression analysis is a technique to infer the relationship between a $y$ outco
 This algorithm ["regresses"](https://stats.stackexchange.com/questions/207425/why-do-we-say-the-outcome-variable-is-regressed-on-the-predictors/207621) $y$ onto $x$. In simpler terminology we want to see how our $x$ variables can be used to predict $y$ for this example. 
 
 Regression allows us to ask useful questions of our data, such as: 
-1. Is there a relationship between $y$ and $x$ variables? 
+1. Is there a relationship between $y$ and $x$? 
 2. How strong are these relationships? 
 3. How can $y$ be predicted for certain values of $x$? 
 4. How well can the model be used to predict $y$ when new data are used? 
@@ -330,7 +344,7 @@ Remember that in multivariate regression, there is more than one $x$ variable.
 
 # Ordinary least squares example
 
-[Ordinary least squares (OLS)](https://en.wikipedia.org/wiki/Ordinary_least_squares) regression is the simplest use case when the target $y$ variable is continuous. OLS computes a best fit line that minimizes the vertical squared and summed distances from each point to calculate the model's goodness of fit. Our refresher example will predict age from the [Pima Indians Diabetes Database](https://www.kaggle.com/uciml/pima-indians-diabetes-database) (abbreviated as "pidd") using the other variables as predictors.  
+[Ordinary least squares (OLS)](https://en.wikipedia.org/wiki/Ordinary_least_squares) regression is the simplest use case when the target $y$ variable is continuous. OLS computes a best fit line that minimizes the vertical squared and summed distances from each point to calculate the model's goodness of fit. This workshop's example will predict age from the [heart disesase dataset](https://archive.ics.uci.edu/ml/datasets/heart+Disease) using the other variables as predictors.  
 
 [Mean squared error (MSE) and root mean squared error (RMSE)](https://en.wikipedia.org/wiki/Mean_squared_error) are quick ways to evaluate performance. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
 
@@ -362,6 +376,16 @@ Be sure to [read the glmnet vignette](https://web.stanford.edu/~hastie/Papers/Gl
 
 ---
 
+# Lasso
+
+"Illustration of the Lasso and its path in 2D: for t small enough, the solution is sparse!" - Pierre Ablin
+
+.center[![](slides_img/lasso-resize.gif)]
+
+source: https://twitter.com/PierreAblin/status/1107625298936451073
+
+---
+
 # Decision trees
 
 Decision trees are a standard alternative to linear regression and make no assumptions about the data; they split the data into smaller and smaller subgrioups of $x$ covariates in terms of $y$ and split on each predictor. How does it work? 
@@ -376,9 +400,7 @@ To determine the top split ("root node"), the model looks at all cutpoints to se
 
 # Decision trees
 
-.center[![](dt.jpg)]
+.center[![](slides_img/dt.jpg)]
 
 ### Open "4-decision-trees.Rmd" to work through the decision tree examples. 
-
---- 
 

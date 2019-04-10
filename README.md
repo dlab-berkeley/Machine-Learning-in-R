@@ -1,6 +1,6 @@
 # Machine Learning in R
 
-This is the repository for D-Lab’s Introduction to Machine Learning in R workshop.
+This is the repository for D-Lab’s Introduction to Machine Learning in R workshop. [View the associated slides here](https://dlab-berkeley.github.io/Machine-Learning-in-R/slides.html#1).
 
 RStudio Binder:
 [![Binder](http://mybinder.org/badge.svg)](http://beta.mybinder.org/v2/gh/dlab-berkeley/Machine-Learning-in-R/master?urlpath=rstudio)
@@ -66,4 +66,4 @@ If you are prompted by the question, "Do you want to install from sources the pa
 
 ... and, the most recent version of ck37r: `remotes::install_github(c("ck37/ck37r"))`
 
-Then, open the **slides.html** file in the docs folder to get started - contact us with any questions! 
+Then, open the [slides.html](https://dlab-berkeley.github.io/Machine-Learning-in-R/slides.html#1) file in the docs folder to get started - contact us with any questions! 
