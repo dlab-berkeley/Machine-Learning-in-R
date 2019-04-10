@@ -14,7 +14,7 @@ RStudio Binder:
       - Missing data
       - Train/test splits
   - Algorithm walkthroughs
-      - ordinary least squares regression, lasso
+      - Lasso
       - Decision trees
       - Random forests
       - Gradient boosted machines
