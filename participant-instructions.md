@@ -1,11 +1,4 @@
----
-title: "Participant instructions"
-author: "D-Lab"
-date: "3/23/2019"
-output: html_document
----
-
-# Participant instructions - Machine Learning in R
+# Participant instructions
 
 Please install the packages in `01-overview.Rmd` before the workshop date.
 
