@@ -4,7 +4,7 @@
 
 The following packages are required to run the code in this workshop:
 
-```{r setup, eval = TRUE}
+```{r setup}
 if (FALSE) {
   # Run these lines manually (once) to install the necessary packages.
   
@@ -17,6 +17,8 @@ if (FALSE) {
                      "caret", "SuperLearner",
                      # R utility packages
                      "remotes", "dplyr",
+                     # Import/export of any filetype.
+                     "rio",
                      # Misc
                      "pROC"))
   
@@ -36,6 +38,7 @@ suppressMessages(suppressWarnings({
   library(mlbench)      # Diabetes dataset.
   library(pROC)         # Compute and plot AUC 
   library(ranger)       # random forest algorithm
+  library(rio)          # Import/export for any filetype.
   library(rpart)        # Decision tree algorithm
   library(rpart.plot)   # Decision tree plotting
   library(SuperLearner) # Ensemble methods
