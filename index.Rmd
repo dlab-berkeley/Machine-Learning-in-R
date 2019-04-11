@@ -1,6 +1,5 @@
 --- 
 title: "Machine Learning in R"
-author: "Evan Muzzall and Chris Kennedy"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
@@ -9,7 +8,7 @@ bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
 github-repo: dlab-berkeley/Machine-Learning-in-R
-description: "D-Lab's Introduction to Machine Learning in R workshop"
+description: "D-Lab's Machine Learning in R Workshop"
 ---
 
 # Preface
