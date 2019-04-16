@@ -173,7 +173,7 @@ Seek "actionable insight":
 
 Selecting a machine learning algorithm depends on the characteristics of the problem being investigated - there is no "best" method applicable to all cases. Machine learning is generally divided into three broad classes of learning: [supervised](https://en.wikipedia.org/wiki/Supervised_learning), [unsupervised](https://en.wikipedia.org/wiki/Unsupervised_learning), and [reinforcement](https://en.wikipedia.org/wiki/Reinforcement_learning).  
 
-We will focus on **supervivsed learning** and will begin with Ordinary Least Squares (OLS) and Lasso regression, followed by tree-based and ensemble classification methods. 
+We will focus on **supervised learning** and will begin with Ordinary Least Squares (OLS) and Lasso regression, followed by tree-based and ensemble classification methods. 
 
 The syntax for supervised machine learning algorithms can be thought of like this:  
 
