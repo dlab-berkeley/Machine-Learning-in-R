@@ -58,7 +58,7 @@ colSums(is.na(data))
 
 There are now 5 missing values in the "oldpeak" feature. Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. These are additional columns we will add to our data frame that represent the _locations_ within each feature that have missing values - 0 means data are present, 1 means there was a missing (and soon to be imputed) value.  
 
-> Note: since our data are on different scales we will also want to center and scale these data using the `scale` function if you select "standard" (median) imputation as the method. If you select "knn" as the method, values will be automatically centered and scaled. 
+> Note: since our data are on different scales we will also want to center and scale these data using the `scale` or `ck37r::standardize` function if you select "standard" (median) imputation as the method. If you select "knn" as the method, values will be automatically centered and scaled. For now, we will work with the raw data - see the help files for the `scale` or `ck37r::standardize` function to learn more. 
 
 ```{r impute_missing_values}
 result = ck37r::impute_missing_values(data, verbose = TRUE, type = "standard")

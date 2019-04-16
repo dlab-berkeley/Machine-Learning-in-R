@@ -112,13 +112,13 @@ This workshop will utilize a variety of packages to install and organize the cod
 
 * Algorithms: "glmnet", "ranger", "rpart", "xgboost"  
 
-* Visualization: "ggplot2", "rpart.plot"  
+* Visualization: "ggplot2", "rpart.plot", "vip"  
 
 * Machine learning frameworks: "caret", "SuperLearner"  
 
 * R utility packages: "remotes", "magrittr", "dplyr"  
 
-* Miscellaneous: "pROC"  
+* Miscellaneous: "pROC", "rio"  
 
 * Chris Kennedy's R Toolkit: "ck37r"
 
