@@ -63,9 +63,9 @@ printcp(tree)
 # Plot those estimated error rates.
 plotcp(tree)
 
-# Trees of similar sizes might appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. However, a tree with 14 splits has a lower relative error. 
-tree_pruned2 = prune(tree, cp = 0.0178) # 2 splits
-tree_pruned14 = prune(tree, cp = 0.0100) # 14 splits
+# Trees of similar sizes might appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. However, a tree with 4 and 7 splits have lower relative errors. 
+tree_pruned2 = prune(tree, cp = 0.13) # 2 splits
+tree_pruned7 = prune(tree, cp = 0.0100) # 7 splits
 
 # Print detailed results, variable importance, and summary of splits.
 ```
