@@ -33,7 +33,7 @@ test_y = factor(task_class$data[-task_class$train_rows, task_class$outcome])
 
 ### Fit model
 
-Fit a random forest model that predicts the number of people with diabetes using the other variables as our X predictors. If our Y variable is a factor, ranger will by default perform classification; if it is numeric/integer regression will be performed and if it is omitted it will run an unsupervised analysis.
+Fit a random forest model that predicts the number of people with heart disease using the other variables as our X predictors. If our Y variable is a factor, ranger will by default perform classification; if it is numeric/integer regression will be performed and if it is omitted it will run an unsupervised analysis.
 
 ```{r rf_fit}
 set.seed(1)
@@ -42,7 +42,7 @@ set.seed(1)
                    # Number of trees
                    num.trees = 500, 
                    # Number of variables randomly sampled as candidates at each split.
-                   mtry = 2, 
+                   mtry = 5, 
                    probability = TRUE,
                    # We want the importance of predictors to be assessed.
                    importance = "permutation"))
@@ -53,10 +53,11 @@ The "OOB estimate of error rate" shows us how accurate our model is. $accuracy =
 We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.
 
 ```{r rf_varimp_plot}
-vip::vip(rf1)
+vip::vip(rf1) + theme_bw()
 
 # Raw data
 vip::vi(rf1)
+View(vip::vi(rf1))
 ```
 
 You can read up on the [gini coefficient](https://en.wikipedia.org/wiki/Gini_coefficient) if interested. It's basically a measure of diversity or dispersion - a higher gini means the model is classifying better. The gini version does not randomly shuffle the variable values.  
@@ -90,4 +91,4 @@ How did it do? Are the accuracies for the training and test sets similar?
 
 1. Try a few other values of mtry - can you find one that has improved performance?
 2. Maximum depth is another tuning parameter for randomForest - does changing it improve your performance?
-3. Use the iris dataset to perform classification on the "Species" variable. What are you noticing about model fits between the pidd and iris datasets? 
+3. Use the iris dataset to perform classification on the "Species" variable. What are you noticing about model fits between the heart disease and iris datasets? 
