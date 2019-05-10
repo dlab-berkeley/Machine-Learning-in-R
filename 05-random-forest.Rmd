@@ -91,4 +91,6 @@ How did it do? Are the accuracies for the training and test sets similar?
 
 1. Try a few other values of mtry - can you find one that has improved performance?
 2. Maximum depth is another tuning parameter for randomForest - does changing it improve your performance?
+
+##### Challenge 4
 3. Use the iris dataset to perform classification on the "Species" variable. What are you noticing about model fits between the heart disease and iris datasets? 
