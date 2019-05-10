@@ -31,7 +31,7 @@ rf_iris = ranger::ranger(iris$Species ~ .,
                        data = iris[,-5],
                        num.trees = 1000,
                        mtry = 3,
-                       probability = T,
+                       probability = F,
                        importance = "permutation")
 # View results
 rf_iris
