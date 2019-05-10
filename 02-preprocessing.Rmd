@@ -74,8 +74,6 @@ str(data)
 colSums(is.na(data))
 ```
 
-Scale the data to a mean of 0 and standard deviation of 1. Note that the `skip_vars` argument will exclude variables from the scaling process. 
-
 Since the "ca", "cp", "slope", and "thal" features are currently interger type, convert them to factors. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
 
 ```{r}
