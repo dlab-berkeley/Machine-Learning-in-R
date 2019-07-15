@@ -1,4 +1,4 @@
-### Big question 4 answer:
+### Big question 5 answer:
 
 # lm: assumes a linear relationship exists between Y and X variables
 

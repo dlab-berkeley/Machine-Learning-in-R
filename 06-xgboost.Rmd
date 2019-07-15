@@ -147,5 +147,5 @@ plot(rocCurve, print.thres = "best", main = "XGBoost on test set", col = "blue")
 
 ```
 
-##### Challenge 4
-**Big question 4:** What are some defining characteristics of the algorithms we have covered in these five exercises?
+##### Challenge 5
+**Big question 5:** What are some defining characteristics of the algorithms we have covered in these five exercises?

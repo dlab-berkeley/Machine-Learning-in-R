@@ -22,7 +22,7 @@ class: title-slide
 # .font130[Introduction to Machine Learning in R]
 
 ### Evan Muzzall and Chris Kennedy  
-### April 16, 2019
+### May 10, 2019
 
 ---
 
@@ -32,7 +32,7 @@ class: center, middle, inverse
 
 ---
 
-# D-Lab 
+# D-Lab - IOKN2K! (It's OK Not To Know!)
 [Visit the UC Berkeley D-Lab](http://dlab.berkeley.edu/) to learn more about our services, resources, and other R offerings:  
 
 * [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals): Introduction to data types/structures, and importing/exporting, visualizing, and testing data.  
@@ -87,7 +87,7 @@ This workshop will utilize a variety of packages to install and organize the cod
 
 * Chris Kennedy's R Toolkit: "ck37r"
 
-### Manually run the lone code chunk inside 1-overview.Rmd to install the packages
+### Highlight and run lines 12-26 inside 1-overview.Rmd to install these packages. Then, highlight and run lines 30-46 to import them. 
 
 ---
 
@@ -107,7 +107,7 @@ How to define machine learning?
 A proto-example:  
 - [Pascal's calculator](http://history-computer.com/MechanicalCalculators/Pioneers/Pascal.html)  
 
-Rapid advances:   
+20th Century advances:   
 - [McCulloch Pitts neuron model](http://wwwold.ece.utep.edu/research/webfuzzy/docs/kk-thesis/kk-thesis-html/node12.html)  
 - [Turing test](http://www.jstor.org/stable/pdf/2251299.pdf)  
 - [Rosenblatt's perceptron](http://www.ling.upenn.edu/courses/cogs501/Rosenblatt1958.pdf)  
@@ -170,7 +170,7 @@ More specifically, we can think of machine learning as a bunch of methods to est
 
 # Data preprocessing
 
-A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training sample usually consists of a majority of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test sample to evaluate model performance on data the model has not yet seen. **Missing data should be handled** before the splitting process commences.  
+A longstanding first step is to split a dataset into **"training"** and **"test"** subsets. A training sample usually consists of a majority of the original dataset so that an algorithm can learn the model. The remaining portion of the dataset is designated to the test sample to evaluate model performance on data the model has not yet seen. **Clean, subset, and handle missing data if necessary** before the splitting process commences.  
 
 ---
 
@@ -182,14 +182,7 @@ A model that performs poorly on the training dataset is **underfit** because it 
 
 A model that performs well on the training dataset but poorly on the test dataset is said to be **overfit** because the model performed worse than expected when given new data. To some extent the patterns found in the training data may have been random noise and therefore, by random chance, are different in the test data.  
 
----
-
-# Common performance metrics
-
-- Accuracy  
-- Mean squared error  
-- Sensitivity and specificity  
-- Area under the ROC curve (AUC)  
+**Common performance metrics**: Accuracy, Mean squared error, Sensitivity and specificity, Area under the ROC curve (AUC)  
 
 ---
 

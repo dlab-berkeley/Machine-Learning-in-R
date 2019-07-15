@@ -76,9 +76,9 @@ print(cvsl_weights(cv_sl), row.names = FALSE)
 
 "Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
 
-**Big question 5:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
+**Big question 6:** Why do you want to consider ensemble methods for your machine learning projects instead of a single algorithm?  
 
-##### Challenge 5
+##### Challenge 6
 1. What are the elements of the `cv_sl` object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like how you would access columns in a dataframe).
 
 A longer tutorial on SuperLearner is available here: (https://github.com/ck37/superlearner-guide)
