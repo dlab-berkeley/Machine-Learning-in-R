@@ -54,15 +54,14 @@ We have no missing values, so let's introduce a few to the "oldpeak" feature for
 # 
 data$oldpeak[c(50, 100, 150, 200, 250)] = NA
 colSums(is.na(data))
+colMeans(is.na(data))
 ```
 
 There are now 5 missing values in the "oldpeak" feature. Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. These are additional columns we will add to our data frame that represent the _locations_ within each feature that have missing values - 0 means data are present, 1 means there was a missing (and soon to be imputed) value.  
 
-> Note: since our data are on different scales we will also want to center and scale these data using the `scale` or `ck37r::standardize` function if you select "standard" (median) imputation as the method. If you select "knn" as the method, values will be automatically centered and scaled. For now, we will work with the raw data - see the help files for the `scale` or `ck37r::standardize` function to learn more. 
-
 ```{r impute_missing_values}
 result = ck37r::impute_missing_values(data, verbose = TRUE, type = "standard")
-
+names(result)
 # Use the imputed dataframe.
 data = result$data
 
@@ -73,8 +72,6 @@ str(data)
 # No more missing data!
 colSums(is.na(data))
 ```
-
-Scale the data to a mean of 0 and standard deviation of 1. Note that the `skip_vars` argument will exclude variables from the scaling process. 
 
 Since the "ca", "cp", "slope", and "thal" features are currently interger type, convert them to factors. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
 
@@ -121,7 +118,9 @@ task_reg = list(
 )
 
 # All variables can be used as covariates except the outcome.
-task_reg$covariates = setdiff(names(data), task_reg$outcome)
+(task_reg$covariates = setdiff(names(data), task_reg$outcome))
+
+names(task_reg)
 
 # Define the sizes of training (70%) and test (30%) sets.
 (training_size = floor(0.70 * nrow(task_reg$data)))
@@ -133,6 +132,7 @@ set.seed(1)
 training_rows = sample(nrow(task_reg$data), size = training_size)
 
 task_reg$train_rows = training_rows
+head(task_reg$train_rows)
 ```
 
 ### Classification setup
@@ -146,7 +146,7 @@ task_class = list(
   data = data,
   outcome = "target"
 )
-task_class$covariates = setdiff(names(task_class$data), task_class$outcome)
+(task_class$covariates = setdiff(names(task_class$data), task_class$outcome))
 ```
            
 Our factors have still been converted to indicators from the regression setup! :) 
@@ -166,6 +166,13 @@ training_rows =
 
 # Partition training dataset
 task_class$train_rows = training_rows
+
+mean(task_class$data[training_rows, "target"])
+table(task_class$data[training_rows, "target"])
+
+mean(task_class$data[-training_rows, "target"])
+table(task_class$data[-training_rows, "target"])
+
 ```
 
 ### Save our preprocessed data
