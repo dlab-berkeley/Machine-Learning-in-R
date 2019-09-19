@@ -87,6 +87,6 @@ You can also get more fine-grained control by checking out the "control" argumen
 **Big question 2:** What do you notice about the tree with 2 splits and the tree with 4 splits? Are there any parts that are identical?  
 
 ##### Challenge 2
-What are the "minsplit", "cp", and "minbucket" hyperparameters within the "control" parameter? Use the iris dataset to construct a decision tree that utilizes the `rpart.control` hyperparameter.  
+What are the "minsplit", "cp", and "minbucket" hyperparameters within the "control" function? Use the iris dataset to construct a decision tree that utilizes the `rpart.control` hyperparameter.  
 
 > HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  

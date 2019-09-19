@@ -85,8 +85,6 @@ ggplot(predicted_prob, aes(x = yes)) + geom_histogram() + theme_minimal()
 
 How did it do? Are the accuracies for the training and test sets similar?  
 
-**Big question 3:** Why is the random forest algorithm preferred to a single decision tree or bagged trees?
-
 ##### Challenge 3
 
 1. Try a few other values of mtry - can you find one that has improved performance?

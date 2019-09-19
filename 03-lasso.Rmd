@@ -141,10 +141,5 @@ mean((predictions - test_y)^2)
 sqrt(mean((predictions - test_y)^2))
 ```
 
-**Big questions:**  
-1. What are the statistical assupmtions for OLS regression?  
-2. What are the statistical assumptions for Lasso?  
-3. What is a rank-deficient matrix?  
-
 ### Challenge 1
 Construct a lasso to predict the "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
