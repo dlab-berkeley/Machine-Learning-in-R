@@ -40,9 +40,9 @@ One additional preprocessing aspect to consider: datasets that contain factor (c
 
 ## Handling missing data
 
-Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). 
+Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). K-nearest neighbor imputation can also be useful but median imputation is demonstrated below. However, you will want to learn about [Generalized Low Rank Models](https://stanford.edu/~boyd/papers/pdf/glrm.pdf) for missing data imputation in your research.
 
-K-nearest neighbor imputation can also be useful but median imputation is demonstrated below. First, count the number of missing values across variables in our dataset.  
+First, count the number of missing values across variables in our dataset.  
 
 ```{r review_missingness}
 colSums(is.na(data))
@@ -51,22 +51,23 @@ colSums(is.na(data))
 We have no missing values, so let's introduce a few to the "oldpeak" feature for this example to see how it works: 
 
 ```{r}
-# 
 data$oldpeak[c(50, 100, 150, 200, 250)] = NA
+
+# Five missing values in oldpeak in row numbers 50, 100, 150, 200, 250
 colSums(is.na(data))
 colMeans(is.na(data))
 ```
 
-There are now 5 missing values in the "oldpeak" feature. Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. These are additional columns we will add to our data frame that represent the _locations_ within each feature that have missing values - 0 means data are present, 1 means there was a missing (and soon to be imputed) value.  
+There are now 5 missing values in the "oldpeak" feature. Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. These are additional columns we will add to our data frame that represent the _locations_ within each feature that have missing values - 0 means data are present, 1 means there was a missing (and subsequently imputed) value.  
 
 ```{r impute_missing_values}
 result = ck37r::impute_missing_values(data, verbose = TRUE, type = "standard")
 names(result)
+
 # Use the imputed dataframe.
 data = result$data
 
-# View new columns.
-# Note that the indicator feature "miss_oldpeak" has been added as the last column of our data frame. 
+# View new columns. Note that the indicator feature "miss_oldpeak" has been added as the last column of our data frame. 
 str(data)
 
 # No more missing data!
@@ -77,10 +78,10 @@ Since the "ca", "cp", "slope", and "thal" features are currently interger type, 
 
 ```{r}
 data = ck37r::categoricals_to_factors(data,
-                                      categoricals = c("ca", "cp", "slope", "thal"),
-                                      verbose = TRUE)
+              categoricals = c("ca", "cp", "slope", "thal"),
+              verbose = TRUE)
 
-# Inspect the factor version
+# Inspect the updated data frame
 str(data)
 ```
 
@@ -100,7 +101,7 @@ str(data)
 
 ## Regression setup
 
-Now that the data have been imputed and properly converted, we can assign the regression outcome variable (`age`) to its own vector for the OLS and lasso **REGRESSION tasks**. Remember that lasso can also perform classification as well. 
+Now that the data have been imputed and properly converted, we can assign the regression outcome variable (`age`) to its own vector for the lasso **REGRESSION tasks**. Remember that lasso can also perform classification as well. 
 
 ### Set seed for reproducibility
 
@@ -172,7 +173,6 @@ table(task_class$data[training_rows, "target"])
 
 mean(task_class$data[-training_rows, "target"])
 table(task_class$data[-training_rows, "target"])
-
 ```
 
 ### Save our preprocessed data
