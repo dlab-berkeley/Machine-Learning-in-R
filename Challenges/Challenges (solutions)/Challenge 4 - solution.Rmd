@@ -1,0 +1,100 @@
+# Challenge 4 - solution
+# 06-xgboost.Rmd 
+
+Below is the code from 06-xgboost.Rmd in abridged form. Can you alter `cv_control` and `xgb_grid` to improve the training set AUC of 0.8223906?
+
+### 1. Setup
+
+```{r load_packages}
+library(caret)
+library(xgboost)
+```
+
+### 2. Define `cv_control` and `xgb_grid`
+
+```{r}
+cv_control =
+  trainControl(method = "repeatedcv",
+               # Number of folds
+               number = 10L,
+               # Number of complete sets of folds to compute
+               repeats = 3L,
+               # Calculate class probabilities?
+               classProbs = TRUE,
+               # Indicate that our response variable is binary
+               summaryFunction = twoClassSummary) 
+
+modelLookup("xgbTree")
+
+(xgb_grid = expand.grid(
+  nrounds = c(50, 250, 800),
+  max_depth = c(1, 2, 3, 6), 
+  eta = c(0.0001, 0.01, 0.2),
+  gamma = 0,
+  colsample_bytree = 1.0,
+  subsample = 1.0,
+  min_child_weight = 10L))
+nrow(xgb_grid)
+```
+
+### 4. Recode y variables
+
+```{r}
+xgb_train_y = as.factor(ifelse(train_y == 1, "yes", "no"))
+xgb_test_y = as.factor(ifelse(test_y == 1, "yes", "no"))
+table(train_y, xgb_y)
+table(test_y, xgb_test_y)
+```
+
+### 5. Fit model
+
+```{r}
+model = caret::train(xgb_train_y ~ ., data = cbind(xgb_train_y, train_x), 
+             method = "xgbTree",
+             metric = "ROC",
+             trControl = cv_control,
+             tuneGrid = xgb_grid,
+             verbose = FALSE)
+model$times 
+model
+```
+
+### 6. Examine results
+
+```{r}
+# Best tuning
+model$bestTune
+model$results[as.integer(rownames(model$bestTune)), ]
+
+# Hyperparameter comparison
+options(scipen = 999)
+ggplot(model) + theme_minimal() + ggtitle("Xgboost hyperparameter comparison") 
+
+# Variable importance
+caret::varImp(model)
+vip::vip(model) + theme_minimal()
+vip::vip(model$finalModel) + theme_minimal()
+
+# Generate predicted labels.
+predicted_labels = predict(model, test_x)
+table(xgb_test_y, predicted_labels)
+
+# Generate class probabilities.
+pred_probs = predict(model, test_x, type = "prob")
+head(pred_probs)
+
+# View final model
+(cm = confusionMatrix(predicted_labels, xgb_test_y))
+
+# Define ROC characteristics
+(rocCurve = pROC::roc(response = xgb_test_y,
+                      predictor = pred_probs[, "yes"],
+                      levels = rev(levels(xgb_test_y)),
+                      auc = TRUE, ci = TRUE))
+
+# Plot ROC curve with optimal threshold.
+plot(rocCurve, 
+     print.thres.cex = 2,
+     print.thres = "best", 
+     main = "XGBoost on test set", col = "blue", las = 1) 
+```
