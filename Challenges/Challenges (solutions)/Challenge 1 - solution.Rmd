@@ -1,0 +1,81 @@
+# Challenge 1 - solution
+# 03-lasso.Rmd 
+
+Fill in the blanks to complete the below lasso code that predicts "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
+
+### 1. Setup
+- Load the iris dataset 
+- Load the glmnet library
+- Set your seed to 1 for reproducibility
+
+```{r}
+data(iris)
+library(glmnet)
+set.seed(1)
+```
+
+### 2. Define y variable
+```{r}
+iris_y = iris$Petal.Width
+```
+
+### 3. Define x variables
+Remove Petal.Width from the dataset
+```{r}
+iris_x = subset(iris, select = -Petal.Width)
+dim(iris_x)
+```
+
+### 4. Convert Species from factor to indicator
+```{r}
+features_iris = data.frame(model.matrix( ~ . -1 , iris_x))
+head(features_iris)
+```
+
+### 5. Perform a stratified random split.
+```{r}
+training_rows_iris = caret::createDataPartition(iris_y, p = 0.70, list = FALSE) 
+```
+
+### 6. Partition training and test sets
+```{r}
+train_x_iris = features_iris[training_rows_iris, ] # partition training dataset
+test_x_iris = features_iris[-training_rows_iris, ] # partition test dataset
+
+train_y_iris = iris_y[training_rows_iris] # partition training Y vector labels
+test_y_iris = iris_y[-training_rows_iris] # partition test Y vector labels
+
+### Check lengths of x and y data
+dim(train_x_iris)
+length(train_y_iris)
+
+dim(test_x_iris)
+length(test_y_iris)
+```
+
+### 7. Fit lasso model and visualize lambda distribution and different lambda values
+```{r}
+lasso_iris = cv.glmnet(as.matrix(train_x_iris), train_y_iris, family = "gaussian", alpha = 1)
+plot(lasso_iris)
+plot(lasso_iris$glmnet.fit, xvar = "lambda", label = T)
+
+# View minimum MSE and higher lambda within one standard error
+lasso_iris$lambda.min
+lasso_iris$lambda.1se
+
+# View coefficients
+coef(lasso_iris, s = "lambda.min")
+coef(lasso_iris, s = "lambda.1se")
+
+# Predict on test set
+predictions_iris = predict(lasso_iris, s = lasso_iris$lambda.1se, newx = as.matrix(test_x_iris))
+```
+
+# 8. Calculate MSE and RMSE
+```{r}
+# Calculate mean-squared error = 0.0262426
+mean((predictions_iris - test_y_iris)^2)
+
+# Calculate root mean-squared error = 0.1619957
+sqrt(mean((predictions_iris - test_y_iris)^2))
+```
