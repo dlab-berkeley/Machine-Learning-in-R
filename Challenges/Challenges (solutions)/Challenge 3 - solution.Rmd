@@ -1,0 +1,54 @@
+# Challenge 3 - solution
+# 05-random-forest.Rmd
+
+Below is the ranger random forest code from notebook 05-random-forest.Rmd in abridged format. Try a few other values of mtry, num.trees, and max.depth to see if you can improve performance. 
+
+### 1. Setup
+
+```{r load_packages}
+library(ranger)
+library(vip)
+library(ggplot2)
+```
+
+### 2. Fit the model
+
+```{r rf_fit}
+set.seed(1)
+(rf1 = ranger::ranger(train_y ~ ., 
+                   data = train_x, 
+                   # Number of trees
+                   num.trees = 1000, 
+                   # Number of variables randomly sampled as candidates at each split.
+                   mtry = 3, 
+                   # Change max depth 
+                   max.depth = 5, 
+                   # Grow a probability forest?
+                   probability = TRUE,
+                   # We want the importance of predictors to be assessed.
+                   importance = "permutation"))
+```
+
+### 3. View variable importance
+
+```{r rf_varimp_plot}
+vip::vip(rf1) + theme_bw()
+
+# Raw data
+vip::vi(rf1)
+```
+
+### 4. Predict on test set
+
+```{r}
+# This will predict the outcome class.
+predicted_label = as.integer(predict(rf1, data = test_x)$predictions[, 1] > 0.5)
+str(predicted_label)
+table(predicted_label, test_y)
+```
+
+### 5. Examine accuracy of the test set:
+```{r prob_hist}
+# 0.8333333!!
+mean(predicted_label == test_y) 
+```
