@@ -7,7 +7,7 @@ Use the help file for `rpart.control` to figure out what the "minsplit", "cp", a
 
 > NOTE: this might change the number of splits in your tree from 04-decision-trees.Rmd
 
-###. 1. Setup
+### 1. Setup
 
 ```{r load_packages}
 library(ggplot2)
