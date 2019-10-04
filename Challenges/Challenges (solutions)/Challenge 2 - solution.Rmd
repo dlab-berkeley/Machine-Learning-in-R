@@ -1,0 +1,87 @@
+# Challenge 2 - solution
+# 04-decision-trees.Rmd
+
+Below is the decision tree code in summarized form from notebook 04-decision-tree.Rmd that classifies if a person suffers from heart disease or not. 
+
+Use the help file for `rpart.control` to figure out what the "minsplit", "cp", and "minbucket" hyperparameters do. Can you improve the cross-validated error by adjusting the configuration of `rpart.control`? 
+
+> NOTE: this might change the number of splits in your tree from 04-decision-trees.Rmd
+
+###. 1. Setup
+
+```{r load_packages}
+library(ggplot2)
+library(rpart)
+library(rpart.plot)
+```
+
+### 2. Load data from 02-preprocessing.Rmd
+
+```{r setup_data}
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+
+# Pull out classification preprocessed data for easier analysis.
+train_x = task_class$data[task_class$train_rows, task_class$covariates]
+train_y = task_class$data[task_class$train_rows, task_class$outcome]
+
+test_x = task_class$data[-task_class$train_rows, task_class$covariates]
+test_y = task_class$data[-task_class$train_rows, task_class$outcome]
+```
+
+### 3. Fit the tree
+
+Wait! First, define the control structure 
+
+```{r}
+ctrl = rpart.control(minsplit = 5, minbucket = 3, cp = 0.015) 
+```
+
+Then, fit the model
+
+```{r}
+set.seed(3)
+tree = rpart::rpart(train_y ~ ., data = train_x,
+             # Use method = "anova" for a continuous outcome.
+             method = "class",
+             # Can use "gini" for gini coefficient.
+             parms = list(split = "information"), 
+             # Define the control structure
+             control = ctrl)
+               
+# View confusing tree output
+print(tree)
+```
+
+### 4. Plot the tree and view variable importance
+
+```{r plot_tree}
+rpart.plot::rpart.plot(tree) 
+names(tree)
+tree$variable.importance
+```
+
+### 5. Show and plot estimated error rate at different complexity parameter settings.
+
+```{r plotcp_tree}
+# Show estimated error rate at different complexity parameter settings.
+printcp(tree)
+
+# Plot those estimated error rates.
+plotcp(tree)
+
+# Adjust complexity parameters
+tree_pruned1 = prune(tree, cp = 0.01) # 1 split
+tree_pruned2 = prune(tree, cp = 0.035000) # 2 splits
+```
+
+### 6. Print detailed results, variable importance, and summary of splits.
+
+```{r}
+summary(tree_pruned1) 
+rpart.plot(tree_pruned2)
+
+summary(tree_pruned2) 
+rpart.plot(tree_pruned2)
+```
+
