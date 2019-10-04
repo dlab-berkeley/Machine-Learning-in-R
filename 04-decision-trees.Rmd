@@ -1,25 +1,26 @@
 # Decision Trees
 
+## Clear your workspace
 
-## Intro
-
-Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. Decision trees attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
+```{r}
+rm(list = ls())
+```
 
 ## Load packages
 
 ```{r load_packages}
+library(ggplot2)
 library(rpart)
 library(rpart.plot)
 ```
 
-Let's see how a decision tree classifies diabetes status from our dataset.  
+# Load data we created in 02-preprocessing.Rmd
 
 ```{r setup_data}
-# Load data we created in 02-preprocessing.Rmd.
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
 
-# Pull out data for easier analysis.
+# Pull out classification preprocessed data for easier analysis.
 train_x = task_class$data[task_class$train_rows, task_class$covariates]
 train_y = task_class$data[task_class$train_rows, task_class$outcome]
 
@@ -27,7 +28,14 @@ test_x = task_class$data[-task_class$train_rows, task_class$covariates]
 test_y = task_class$data[-task_class$train_rows, task_class$outcome]
 ```
 
+## Intro
+
+Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. They attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
+
+Let's see how a decision tree classifies if a person suffers from heart disease (`target` = 1) or not (`target` = 0).
+
 ```{r}
+set.seed(3)
 tree = rpart::rpart(train_y ~ ., data = train_x,
              # Use method = "anova" for a continuous outcome.
              method = "class",
@@ -51,6 +59,23 @@ names(tree)
 tree$variable.importance
 ```
 
+Plot variable importance
+```{r}
+# Turn the tree$variable.importance vector into a dataframe
+tree_varimp = data.frame(tree$variable.importance) # coerce to dataframe
+tree_varimp$x = rownames(tree_varimp) # add rownames as their own column
+tree_varimp = tree_varimp[, c(2,1)] # reorder columns
+rownames(tree_varimp) = NULL # reset row names
+names(tree_varimp) = c("Variable", "Importance") # rename columns
+tree_varimp
+
+# Plot
+ggplot(tree_varimp, aes(x = reorder(Variable, Importance), 
+                        y = Importance)) + 
+  geom_bar(stat = "identity") + 
+  theme_bw() + coord_flip() + xlab("")
+```
+
 In decision trees the main hyperparameter (configuration setting) is the **complexity parameter** (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.  
 
 `rpart` uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.  
@@ -63,30 +88,23 @@ printcp(tree)
 # Plot those estimated error rates.
 plotcp(tree)
 
-# Trees of similar sizes might appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. However, a tree with 4 and 7 splits have lower relative errors. 
-tree_pruned2 = prune(tree, cp = 0.031250 ) # 2 splits
-tree_pruned4 = prune(tree, cp = 0.024306) # 4 splits
+# Trees of similar sizes might appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. However, a tree with 6 and 7 splits have lower relative errors. 
+tree_pruned2 = prune(tree, cp = 0.028986) # 2 splits
+tree_pruned6 = prune(tree, cp = 0.010870) # 6 splits
+```
 
-# Print detailed results, variable importance, and summary of splits.
-```
-```{r eval = F}
+Print detailed results, variable importance, and summary of splits.
+
+```{r}
 summary(tree_pruned2) 
-```
-```{r plot_tree_pruned2}
 rpart.plot(tree_pruned2)
 ```
-```{r eval = F}
-summary(tree_pruned4) 
-```
-```{r plot_tree_pruned14}
-rpart.plot(tree_pruned4)
+```{r}
+summary(tree_pruned6) 
+rpart.plot(tree_pruned6)
 ```
 
 You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type `?rpart` to learn more.  
 
-**Big question 2:** What do you notice about the tree with 2 splits and the tree with 4 splits? Are there any parts that are identical?  
-
-##### Challenge 2
-What are the "minsplit", "cp", and "minbucket" hyperparameters within the "control" function? Use the iris dataset to construct a decision tree that utilizes the `rpart.control` hyperparameter.  
-
-> HINT: the syntax might look like this: `ctrl = rpart.control(minsplit = 20, minbucket = 5, cp = 0.001)`  
+### Challenge 2
+Open Challenge 2 in the "Challenges" folder. 
