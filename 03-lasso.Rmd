@@ -9,16 +9,13 @@ library(glmnet)
 library(ggplot2)
 ```
 
-## Ordinary least squares
-
-Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
+# Load data we created in 02-preprocessing.Rmd
 
 ```{r}
-# Load data we created in 02-preprocessing.Rmd.
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
 
-# Pull out data for easier analysis.
+# Pull out regression preprocessed data for easier analysis
 train_x = task_reg$data[task_reg$train_rows, task_reg$covariates]
 train_y = task_reg$data[task_reg$train_rows, task_reg$outcome]
 
@@ -30,7 +27,13 @@ head(train_y, n = 20)
 
 # Look at features for the corresponding first 6 individuals
 head(train_x)
+```
 
+## Ordinary least squares
+
+Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
+
+```{r}
 # Fit the regression model; lm() will automatically add a temporary intercept column
 fit = lm(train_y ~ ., data = train_x)
 
@@ -49,15 +52,9 @@ sqrt(mse_reg)
 
 ## Lasso
 
-Did you notice the warning message after the `predict()`?
+> Linear regression is a useful introduction to machine learning, but in your research you might be faced with warning messages after `predict()` about the [rank of your matrix](https://stats.stackexchange.com/questions/35071/what-is-rank-deficiency-and-how-to-deal-with-it).
 
-> Warning message:
-  ...
-  prediction from a rank-deficient fit may be misleading
-
-[Here we have a rank-deficient matrix](https://stats.stackexchange.com/questions/35071/what-is-rank-deficiency-and-how-to-deal-with-it).
-
-However, we can use lasso to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
+The lasso is useful to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
 
 ```{r}
 lasso = cv.glmnet(as.matrix(train_x), train_y, family = "gaussian", alpha = 1)
@@ -142,4 +139,4 @@ sqrt(mean((predictions - test_y)^2))
 ```
 
 ### Challenge 1
-Construct a lasso to predict the "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
+Open Challenge 1 in the "Challenges" folder. 
