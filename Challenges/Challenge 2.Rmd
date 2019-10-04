@@ -1,4 +1,4 @@
-# Challenge 2 - solution
+# Challenge 2
 # 04-decision-trees.Rmd
 
 Below is the decision tree code in summarized form from notebook 04-decision-tree.Rmd that classifies if a person suffers from heart disease or not. 
