@@ -1,17 +1,5 @@
 # XGBoost
 
-## Overview
-
-from [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf):  
-
-"Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space.  
-
-The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
-
-However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). 
-
-Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Also, bootstrap is the default, but we want cross-validation.  
-
 ### Load packages
 
 ```{r load_packages}
@@ -21,38 +9,43 @@ library(xgboost)
 
 ### Setup data
 
-```{r setup_data}
-# Load data we created in 02-preprocessing.Rmd.
-# Objects: task_reg, task_class
-load("data/preprocessed.RData")
+Your variables from 04-decision-trees.Rmd will still work here.
 
-# Pull out data for easier analysis.
-train_x = task_class$data[task_class$train_rows, task_class$covariates]
-train_y = factor(task_class$data[task_class$train_rows, task_class$outcome],
-                 # Caret wants labels that can be valid variable names :/
-                 labels = c("no", "yes"))
+## Overview
 
-test_x = task_class$data[-task_class$train_rows, task_class$covariates]
-test_y = factor(task_class$data[-task_class$train_rows, task_class$outcome],
-                # Caret wants labels that can be valid variable names :/
-                labels = c("no", "yes"))
-```
+From [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf):  
 
-## Analysis
+"Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space."  
 
-First create two objects - `cv_control` and `xgb_grid`. `xgb_control` will allow us to customize the cross-validation settings, while `xgb_grid` lets us evaluate the model with different settings:
+The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
+
+However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). 
+
+Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Bootstrap is the default, but we want cross-validation.  
+
+## Basic analysis
+
+Create two objects - `cv_control` and `xgb_grid`. `cv_control` will allow us to customize the cross-validation settings, while `xgb_grid` lets us evaluate the model with different settings:
+
+#### Define `cv_control`
+
 ```{r caret_prep}
-# Use 5-fold cross-validation with 2 repeats as our evaluation procedure.
-# (instead of the default "bootstrap").
+# Use 5-fold cross-validation with 2 repeats as our evaluation procedure (instead of the default "bootstrap")
 cv_control =
   trainControl(method = "repeatedcv",
+               # Number of folds
                number = 5L,
+               # Number of complete sets of folds to compute
                repeats = 2L,
-               # Calculate class probabilities.
+               # Calculate class probabilities?
                classProbs = TRUE,
-               # Indicate that our response variable is binary.
+               # Indicate that our response variable is binary
                summaryFunction = twoClassSummary) 
+```
 
+#### Define `xgb_grid`
+
+```{r}
 # Ask caret what hyperparameters can be tuned for the xgbTree algorithm.
 modelLookup("xgbTree")
 
@@ -61,7 +54,7 @@ modelLookup("xgbTree")
   # Number of trees to fit, aka boosting iterations
   nrounds = c(50, 250, 800),
   # Depth of the decision tree (how many levels of splits).
-	max_depth = c(1L, 3L, 6L), 
+	max_depth = c(1, 3, 6), 
   # Learning rate: lower means the ensemble will adapt more slowly.
 	eta = c(0.0001, 0.01, 0.2),
   # Make this larger and xgboost will tend to make smaller trees
@@ -70,13 +63,25 @@ modelLookup("xgbTree")
   subsample = 1.0,
   # Stop splitting a tree if we only have this many obs in a tree node.
 	min_child_weight = 10L))
+
 # Other hyperparameters: gamma, column sampling, row sampling
 
 # How many combinations of settings do we end up with?
 nrow(xgb_grid)
 ```
 
-Fit the model. Note that we will now use area under the ROC curve (called "AUC") as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).  
+### Fit model
+
+Note that we will now use *A*rea *U*nder the ROC *C*urve (called "AUC") as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).  
+
+However, xgboost is expecting character strings as the factor level names so our integer 1s and 0s will not do. Let's quickly recode the 1s as "yes" and 0s as "no". 
+
+```{r}
+xgb_train_y = as.factor(ifelse(train_y == 1, "yes", "no"))
+xgb_test_y = as.factor(ifelse(test_y == 1, "yes", "no"))
+table(train_y, xgb_y)
+table(test_y, xgb_test_y)
+```
 
 > NOTE: This will take a few minutes to complete! See the .html file for the output.
 
@@ -84,36 +89,40 @@ Fit the model. Note that we will now use area under the ROC curve (called "AUC")
 set.seed(1)
 
 # cbind: caret expects the Y response and X predictors to be part of the same dataframe
-model = caret::train(train_y ~ ., data = cbind(train_y, train_x), 
+model = caret::train(xgb_train_y ~ ., data = cbind(xgb_train_y, train_x), 
              # Use xgboost's tree-based algorithm (i.e. gbm)
              method = "xgbTree",
              # Use "AUC" as our performance metric, which caret incorrectly calls "ROC"
              metric = "ROC",
-             # Specify our cross-validation settings.
+             # Specify our cross-validation settings
              trControl = cv_control,
-             # Test multiple configurations of the xgboost algorithm.
+             # Test multiple configurations of the xgboost algorithm
              tuneGrid = xgb_grid,
-             # Hide detailed output (setting to TRUE will print that output).
+             # Hide detailed output (setting to TRUE will print that output)
              verbose = FALSE)
 
-# See how long this algorithm took to complete.
+# See how long this algorithm took to complete (from ?proc.time)
+# user time = the CPU time charged for the execution of user instructions of the calling process
+# system time = the CPU time charged for execution by the system on behalf of the calling  process
+# elapsed time = real time since the process was started
 model$times 
 
-# Review model summary table.
+# Review model summary table. 
+# model$bestTune = "The final values used for the model were..."
 model
 ```
 
 ### Examine results
 
 ```{r}
-
-# Extract the hyperparameters with the best performance.
+# Extract the hyperparameters with the best performance
 model$bestTune
 
-# And the corresponding performance metrics
+# And the corresponding performance metrics. 
 model$results[as.integer(rownames(model$bestTune)), ]
 
-# Plot the performance across all hyperparameter combinations.
+# Plot the performance across all hyperparameter combinations. Nice!
+options(scipen = 999)
 ggplot(model) + theme_minimal() + ggtitle("Xgboost hyperparameter comparison") 
 
 # Show variable importance (text).
@@ -127,24 +136,32 @@ vip::vip(model$finalModel) + theme_minimal()
 
 # Generate predicted labels.
 predicted_labels = predict(model, test_x)
-table(test_y, predicted_labels)
+table(xgb_test_y, predicted_labels)
 
 # Generate class probabilities.
 pred_probs = predict(model, test_x, type = "prob")
 head(pred_probs)
 
 # View final model
-(cm = confusionMatrix(predicted_labels, test_y))
+(cm = confusionMatrix(predicted_labels, xgb_test_y))
 
 # Define ROC characteristics
-(rocCurve = pROC::roc(response = test_y,
+(rocCurve = pROC::roc(response = xgb_test_y,
                       predictor = pred_probs[, "yes"],
-                      levels = rev(levels(test_y)),
+                      levels = rev(levels(xgb_test_y)),
                       auc = TRUE, ci = TRUE))
 
 # Plot ROC curve with optimal threshold.
-plot(rocCurve, print.thres = "best", main = "XGBoost on test set", col = "blue") 
+plot(rocCurve, 
+     print.thres.cex = 2,
+     print.thres = "best", 
+     main = "XGBoost on test set", col = "blue", las = 1) 
 
+# Get specificiety and sensitivity at particular threshold
+pROC::coords(rocCurve, 0.01, transpose = FALSE)
+pROC::coords(rocCurve, 0.525, transpose = FALSE) # best
+pROC::coords(rocCurve, 0.99, transpose = FALSE)
 ```
 
-##### Challenge 5
+### Challenge 4
+Open Challenge 4 in the "Challenges" folder. 
