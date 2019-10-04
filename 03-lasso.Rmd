@@ -2,7 +2,7 @@
 
 ## Load packages
 
-Load any packages we need for this analysis.
+Load packages
 
 ```{r load_packages}
 library(glmnet)

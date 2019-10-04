@@ -2,6 +2,8 @@
 
 ## Clear your workspace
 
+Delete the regression variables from your global environment. We will be working with the classification variables from now on. 
+
 ```{r}
 rm(list = ls())
 ```
