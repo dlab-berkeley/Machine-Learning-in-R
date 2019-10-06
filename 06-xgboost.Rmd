@@ -1,13 +1,13 @@
 # XGBoost
 
-### Load packages
+## Load packages
 
 ```{r load_packages}
 library(caret)
 library(xgboost)
 ```
 
-### Setup data
+## Load data
 
 Your variables from 04-decision-trees.Rmd will still work here.
 
@@ -23,11 +23,9 @@ However, the cases that the model has difficulty predicting are _upweighted_ so 
 
 Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Bootstrap is the default, but we want cross-validation.  
 
-## Basic analysis
-
 Create two objects - `cv_control` and `xgb_grid`. `cv_control` will allow us to customize the cross-validation settings, while `xgb_grid` lets us evaluate the model with different settings:
 
-#### Define `cv_control`
+### Define `cv_control`
 
 ```{r caret_prep}
 # Use 5-fold cross-validation with 2 repeats as our evaluation procedure (instead of the default "bootstrap")
@@ -43,7 +41,7 @@ cv_control =
                summaryFunction = twoClassSummary) 
 ```
 
-#### Define `xgb_grid`
+### Define `xgb_grid`
 
 ```{r}
 # Ask caret what hyperparameters can be tuned for the xgbTree algorithm.
@@ -70,7 +68,7 @@ modelLookup("xgbTree")
 nrow(xgb_grid)
 ```
 
-### Fit model
+## Fit model
 
 Note that we will now use *A*rea *U*nder the ROC *C*urve (called "AUC") as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).  
 
@@ -106,13 +104,15 @@ model = caret::train(xgb_train_y ~ ., data = cbind(xgb_train_y, train_x),
 # system time = the CPU time charged for execution by the system on behalf of the calling  process
 # elapsed time = real time since the process was started
 model$times 
-
-# Review model summary table. 
-# model$bestTune = "The final values used for the model were..."
-model
 ```
 
-### Examine results
+Review model summary table
+```{r}
+model
+# model$bestTune = "The final values used for the model were..."
+```
+
+## Investigate Results
 
 ```{r}
 # Extract the hyperparameters with the best performance
@@ -163,5 +163,5 @@ pROC::coords(rocCurve, 0.525, transpose = FALSE) # best
 pROC::coords(rocCurve, 0.99, transpose = FALSE)
 ```
 
-### Challenge 4
+## Challenge 4
 Open Challenge 4 in the "Challenges" folder. 

@@ -8,7 +8,7 @@ library(vip)
 library(ggplot2)
 ```
 
-### Setup data
+## Load data
 
 Your variables from 04-decision-trees.Rmd will still work here.
 
@@ -18,9 +18,7 @@ The random forest algorithm seeks to improve on the performance of a single deci
 
 Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"). An algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used by any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
 
-## Basic analysis
-
-### Fit model
+## Fit model
 
 Fit a random forest model that predicts the number of people with heart disease using the other variables as our X predictors. If our Y variable is a factor, `ranger` will by default perform classification; if it is numeric/integer regression will be performed and if it is omitted it will run an unsupervised analysis.
 
@@ -41,6 +39,8 @@ set.seed(1)
 The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$. OOB stands for "out of bag" - and bag is short for "bootstrap aggregation". So OOB estimates performance by comparing the predicted outcome value to the actual value across all trees using only the observations that were not part of the training data for that tree.
 
 We can examine the relative variable importance in table and graph form, but without all the hard coding that we did in 04-decision-trees.Rmd. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.
+
+## Investigate Results
 
 ```{r rf_varimp_plot}
 vip::vip(rf1) + theme_bw()
@@ -79,5 +79,5 @@ ggplot(predicted_prob, aes(x = yes)) + geom_histogram() + theme_minimal()
 
 How did it do? Are the accuracies for the training and test sets similar?  
 
-### Challenge 3
+## Challenge 3
 Open Challenge 3 in the "Challenges" folder. 

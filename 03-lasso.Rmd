@@ -2,14 +2,12 @@
 
 ## Load packages
 
-Load packages
-
 ```{r load_packages}
 library(glmnet)
 library(ggplot2)
 ```
 
-# Load data we created in 02-preprocessing.Rmd
+## Load data we created in 02-preprocessing.Rmd
 
 ```{r}
 # Objects: task_reg, task_class
@@ -29,7 +27,7 @@ head(train_y, n = 20)
 head(train_x)
 ```
 
-## Ordinary least squares
+## Overview
 
 Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors. 
 
@@ -50,15 +48,17 @@ predicted = predict(fit, test_x)
 sqrt(mse_reg)
 ```
 
-## Lasso
-
 > Linear regression is a useful introduction to machine learning, but in your research you might be faced with warning messages after `predict()` about the [rank of your matrix](https://stats.stackexchange.com/questions/35071/what-is-rank-deficiency-and-how-to-deal-with-it).
 
 The lasso is useful to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
 
+## Fit model
+
 ```{r}
 lasso = cv.glmnet(as.matrix(train_x), train_y, family = "gaussian", alpha = 1)
 ```
+
+## Investigate Results
 
 Visualize the distribution of log(lamba) vs mean-squared error.   
 ```{r}
@@ -138,5 +138,5 @@ mean((predictions - test_y)^2)
 sqrt(mean((predictions - test_y)^2))
 ```
 
-### Challenge 1
+## Challenge 1
 Open Challenge 1 in the "Challenges" folder. 

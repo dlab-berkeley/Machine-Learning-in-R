@@ -16,7 +16,7 @@ library(rpart)
 library(rpart.plot)
 ```
 
-# Load data we created in 02-preprocessing.Rmd
+## Load data we created in 02-preprocessing.Rmd
 
 ```{r setup_data}
 # Objects: task_reg, task_class
@@ -30,11 +30,13 @@ test_x = task_class$data[-task_class$train_rows, task_class$covariates]
 test_y = task_class$data[-task_class$train_rows, task_class$outcome]
 ```
 
-## Intro
+## Overview
 
 Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. They attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.  
 
 Let's see how a decision tree classifies if a person suffers from heart disease (`target` = 1) or not (`target` = 0).
+
+## Fit Model
 
 ```{r}
 set.seed(3)
@@ -49,6 +51,8 @@ print(tree)
 ```
 
 Although interpreting the text can be intimidating, a decision tree's main strength is its tree-like plot, which is much easier to interpret.
+
+## Investigate Results
 
 ```{r plot_tree}
 rpart.plot::rpart.plot(tree) 
@@ -108,5 +112,5 @@ rpart.plot(tree_pruned6)
 
 You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type `?rpart` to learn more.  
 
-### Challenge 2
+## Challenge 2
 Open Challenge 2 in the "Challenges" folder. 
