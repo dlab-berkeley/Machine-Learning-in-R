@@ -1,0 +1,92 @@
+# Challenge 5 - solution
+# 06-ensembles.Rmd 
+
+Below is the abridged 07-ensembles.Rmd code. However, first add "SL.nnet" to `sl_lib`. Artifical neural networks are a standard in machine learning of all flavors. After this workshop, you should check out D-Lab's [Introduction to Deep Learning in R using Keras](https://github.com/dlab-berkeley/Deep-Learning-in-R) workshop. 
+
+How does the default neural network  perform compared to your original algorithms? Why?
+
+```{r}
+sl_lib = c("SL.mean", "SL.glm", "SL.rpart", "SL.ranger", "SL.xgboost",
+                      "SL.nnet")
+sl_lib
+```
+
+```{r}
+set.seed(1, "L'Ecuyer-CMRG") 
+
+cv_sl =
+  SuperLearner::CV.SuperLearner(Y = train_y, X = train_x,
+                                verbose = FALSE,
+                                SL.library = sl_lib, family = binomial(),
+                                cvControl = list(V = 10L, stratifyCV = TRUE))
+
+summary(cv_sl)
+```
+
+```{r}
+plot(cv_sl) + theme_minimal()
+auc_table(cv_sl)
+plot_roc(cv_sl)
+print(cvsl_weights(cv_sl), row.names = FALSE)
+```
+
+"SL.nnet" is only slightly worse than "SL.rpart" and barely better than "SL.mean"! :^(
+
+## Create your own learner
+
+Thankfully, SuperLearner makes it easy to create your own customized algorithms to include in `sl_lib`. Create a custom neural network
+
+```{r}
+new_nnet = SuperLearner::create.Learner("SL.nnet",
+                    detailed_names = TRUE,
+                    name_prefix = "new_nnet",
+                    # What is the main tuned hyperparameter of neural networks?
+                    tune = list(size = c(1, 2, 3, 4, 8, 16, 32)),
+                    params = list(MaxNWts = 6000))
+
+# How many new_nnet learners did you create? (7)
+new_nnet$names
+```
+
+## Update `sl_lib`
+
+```{r}
+# Add the 7 custom new_nnet learners
+sl_lib = c(sl_lib, new_nnet$names)
+
+# View updated sl_lib (should be 13)
+sl_lib
+
+# View the code for one of the new learners
+new_nnet_4
+```
+
+## Test one single custom learner
+
+```{r}
+(example_result = new_nnet_4(Y = train_y, X = train_x, newX = train_x, 
+                             family = gaussian()))
+```
+
+## Re-fit
+
+```{r}
+set.seed(1, "L'Ecuyer-CMRG") 
+
+cv_sl =
+  SuperLearner::CV.SuperLearner(Y = train_y, X = train_x,
+                                verbose = FALSE,
+                                SL.library = sl_lib, family = binomial(),
+                                cvControl = list(V = 5L, stratifyCV = TRUE))
+
+summary(cv_sl)
+```
+
+Did any of the slightly tuned neural nets perform better than the default? How can you tell?
+
+```{r}
+plot(cv_sl) + theme_minimal()
+auc_table(cv_sl)
+plot_roc(cv_sl)
+print(cvsl_weights(cv_sl), row.names = FALSE)
+```
