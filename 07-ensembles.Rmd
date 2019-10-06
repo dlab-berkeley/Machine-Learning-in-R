@@ -2,46 +2,48 @@
 
 ## Overview
 
-You have learned some of the characteristics for fitting several individual algorithms and have explored a little about how you can define their different (hyper)parameters. However, the ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters.  
+In the preprocessing, lasso, decision tree, random forest, and boosted tree notebooks you have learned: 
+- Ways to setup your data to plug it into different algorithms  
+- Some common moving parts of different algorithms  
+- How to define control structures and grid searchers and why they are important  
+- How to configure hyperparameter settings to improve performance  
+- Why comparing more than one algorithm at once is preferred  
 
-### Load packages
+The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters. This is a generally advisable approach to machine learning instead of fitting single algorithms. 
+
+## Load packages
 
 ```{r packages}
 library(SuperLearner)
 library(ck37r)
 ```
 
-### Setup data
+## Load data
 
-```{r setup_data}
-# Load data we created in 02-preprocessing.Rmd.
-# Objects: task_reg, task_class
-load("data/preprocessed.RData")
+Your variables from 04-decision-trees.Rmd will still work here.
 
-# Pull out data for easier analysis.
-train_x = task_class$data[task_class$train_rows, task_class$covariates]
-train_y = task_class$data[task_class$train_rows, task_class$outcome]
+## Overview
 
-test_x = task_class$data[-task_class$train_rows, task_class$covariates]
-test_y = task_class$data[-task_class$train_rows, task_class$outcome]
-```
-
-## Analysis
-
-Let's see how the four classification algorithms you learned in this workshop (lasso, decision tree, random forest, and gradient boosted machines) compare to each other and also to binary logistic regression (`glm`) and to the mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
+Let's see how the four classification algorithms you learned in this workshop (1-lasso, 2-decision tree, 3-random forest, and 4-gradient boosted trees) compare to each other and also to 5-binary logistic regression (`glm`) and to the 6-mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
 
 A "wrapper" is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:
+
+### Choose algorithms
 
 ```{r}
 SuperLearner::listWrappers()
 ```
 
-Fit the ensemble:
-
 ```{r cvsl_fit, cache = TRUE}
 # Compile the algorithm wrappers to be used.
 sl_lib = c("SL.mean", "SL.glm", "SL.rpart", "SL.ranger", "SL.xgboost")
+```
 
+## Fit Model
+
+Fit the ensemble! 
+
+```{r}
 # This is a seed that is compatible with multicore parallel processing.
 # See ?set.seed for more information.
 set.seed(1, "L'Ecuyer-CMRG") 
@@ -56,27 +58,38 @@ cv_sl =
 summary(cv_sl)
 ```
 
-> NOTE: Again, this will take a few minutes to complete! See the .html file for the output!
+### Risk
 
 Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the AUC!
-```{r cvsl_review}
 
+### Plot the risk
+
+```{r cvsl_review}
 # Plot the cross-validated risk estimate.
 plot(cv_sl) + theme_minimal()
+```
 
-# Compute AUC for all estimators.
+### Compute AUC for all estimators
+
+```{r}
 auc_table(cv_sl)
+```
 
-# Plot the ROC curve for the best estimator.
+### Plot the ROC curve for the best estimator
+
+```{r}
 plot_roc(cv_sl)
+```
 
-# Review weight distribution for the SuperLearner
+### Review weight distribution for the SuperLearner
+
+```{r}
 print(cvsl_weights(cv_sl), row.names = FALSE)
 ```
 
 "Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
 
-##### Challenge 6
-1. What are the elements of the `cv_sl` object? Take a look at 1 or 2 of them. Hint: use the `names()` function to list the elements of an object, then `$` to access them (just like how you would access columns in a dataframe).
+## Challenge 5
+Open Challenge 5 in the "Challenges" folder. 
 
 A longer tutorial on SuperLearner is available here: (https://github.com/ck37/superlearner-guide)
