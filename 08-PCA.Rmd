@@ -1,5 +1,11 @@
 # Principal Component Analysis
 
+Clear your workspace
+
+```{r}
+rm(list = ls())
+```
+
 # Load packages
 
 ```{r}
