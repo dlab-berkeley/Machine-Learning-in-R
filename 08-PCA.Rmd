@@ -1,42 +1,42 @@
 # Principal Component Analysis
 
-## Overview
-
-### Unsupervised approaches
-
-Since we are not trying to predict the value of any target variable like in supervised approaches, the value of unsupervised machine learning can be to see how data separate based solely on the nature of their features. This is a major value, as we can include all of the data at once, and just see how it sorts! Unsupervised approaches are also useful for optimizing other machine learning algorithms.  
-
-Principal component analysis (PCA) is a powerful linear transformation technique used to explore patterns in data and highly correlated variables. It is useful for distilling variation across many variables onto a reduced feature space, such as a two-dimensional scatterplot. 
-
-## Load packages
+# Load packages
 
 ```{r}
 library(dplyr)
 library(PCAmixdata)
 ```
 
-## Load data
+# Load data
 
 Reimport the heart disease dataset. 
 
 ```{r}
-heart = read.csv("./data-raw/heart.csv")
+load("data/preprocessed.RData")
 ```
 
-### Reclass variables
+# Overview
+
+## Unsupervised approaches
+
+Since we are not trying to predict the value of any target variable like in supervised approaches, the value of unsupervised machine learning can be to see how data separate based solely on the nature of their features. This is a major value, as we can include all of the data at once, and just see how it sorts! Unsupervised approaches are also useful for optimizing other machine learning algorithms.  
+
+Principal component analysis (PCA) is a powerful linear transformation technique used to explore patterns in data and highly correlated variables. It is useful for distilling variation across many variables onto a reduced feature space, such as a two-dimensional scatterplot. 
+
+## Reclass variables
 
 dplyr is essential for changing the classes of multiple features at once :^) 
 
-### Scale numeric variables
+## Scale numeric variables
 
 ```{r}
 vars_to_scale = c("age", "trestbps", "chol", "thalach", "oldpeak")
-h = heart %>% mutate_at(scale, .vars = vars(vars_to_scale))
+h = data %>% mutate_at(scale, .vars = vars(vars_to_scale))
 h = h %>% mutate_at(as.numeric, .vars = vars(vars_to_scale))
 head(h)
 ```
 
-### Factorize categorical variables 
+## Factorize categorical variables 
 
 ```{r}
 # Quick rename target outcomes
@@ -49,9 +49,14 @@ h = h %>% mutate_at(as.factor, .vars = vars(vars_to_fac))
 
 # Awesome!
 sapply(h, class)
+
+# Create subset of numeric-only data (along with h.target)
+# Combine the scaled numeric data and the original target feature
+ml_num = data.frame(subset(h, select = vars_to_scale), h$target)
+head(ml_num)
 ```
 
-## Fit the model
+# Fit model
 
 ```{r}
 split = splitmix(h)
@@ -115,13 +120,7 @@ ggplot(pca2, aes(x = reorder(rownames(pca2), -dim.2), y = dim.2)) +
 
 ```
 
-## PCA for Machine Learning
-
-```{r}
-# Combine the scaled numeric data and the original target feature
-ml_num = data.frame(heart_num_scaled, h$target)
-head(ml_num)
-```
+# PCA for Machine Learning
 
 Create a 70/30 training/test split
 ```{r}
@@ -145,7 +144,7 @@ table(train_x$h.target)
 table(test_x$h.target)
 ```
 
-# fit PCA model to training set for numeric values
+# Fit PCA model to training set for numeric values
 ```{r}
 ?prcomp
 pca_ml = prcomp(subset(train_x, select = -h.target), 
@@ -168,7 +167,7 @@ predicted_values = predict(pca_ml,
 head(predicted_values)
 ```
 
-### Define plotting parameters
+## Define plotting parameters
 ```{r}
 # Assign one color to each condition
 target_colors = 1:2
@@ -182,7 +181,7 @@ target_shapes = c(1,16)
 target_PCs = 1:2
 ```
 
-### Store the scores inside of dataframes
+## Store the scores inside of dataframes
 ```{r}
 # Assign the data into dataframes like before
 gg_train = data.frame(pca_ml$x[, target_PCs])
@@ -192,7 +191,7 @@ gg_test = data.frame(predicted_values[, target_PCs])
 head(gg_test)
 ```
 
-# Construct the scatterplot
+# Visualize
 We can plot the training and test data on the same plot! 
 
 ```{r}
@@ -224,3 +223,9 @@ ggplot(
         legend.title = element_text(size = 10),
         legend.text = element_text(size = 10))  
 ```
+
+## Save `ml_num` for use in 09-hclust.Rmd
+```{r}
+save(ml_num, file = "data/unsupervised.RData")
+```
+
