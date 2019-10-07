@@ -136,7 +136,7 @@ task_reg$train_rows = training_rows
 head(task_reg$train_rows)
 ```
 
-### Classification setup
+## Classification setup
 
 Assign the outcome variable to its own vector for the decision tree, random forest, gradient boosted tree, and SuperLearner **CLASSIFICATION tasks**. However, keep in mind that these algorithms can also perform regression!  
 
@@ -180,6 +180,6 @@ table(task_class$data[-training_rows, "target"])
 We save our preprocessed data into an RData file so that we can easily load it in other files.
 
 ```{r save_data}
-save(task_reg, task_class,
+save(data, task_reg, task_class,
      file = "data/preprocessed.RData")
 ```
