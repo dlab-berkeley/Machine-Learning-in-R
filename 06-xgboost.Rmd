@@ -1,5 +1,11 @@
 # XGBoost
 
+Clear your workspace
+
+```{r}
+rm(list = ls())
+```
+
 ## Load packages
 
 ```{r load_packages}
@@ -7,9 +13,21 @@ library(caret)
 library(xgboost)
 ```
 
-## Load data
+## Load data 
 
-Your variables from 04-decision-trees.Rmd will still work here.
+Load the training and test x and y variables we created in 02-preprocessing.Rmd for this *classification* task.
+
+```{r setup_data}
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+
+# Pull out classification preprocessed data for easier analysis.
+train_x = task_class$data[task_class$train_rows, task_class$covariates]
+train_y = task_class$data[task_class$train_rows, task_class$outcome]
+
+test_x = task_class$data[-task_class$train_rows, task_class$covariates]
+test_y = task_class$data[-task_class$train_rows, task_class$outcome]
+```
 
 ## Overview
 

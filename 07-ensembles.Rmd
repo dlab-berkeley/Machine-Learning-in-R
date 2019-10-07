@@ -1,5 +1,34 @@
 # Ensembles
 
+Clear your workspace
+
+```{r}
+rm(list = ls())
+```
+
+## Load packages
+
+```{r packages}
+library(SuperLearner)
+library(ck37r)
+```
+
+## Load data 
+
+Load the training and test x and y variables we created in 02-preprocessing.Rmd for this *classification* task.
+
+```{r setup_data}
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+
+# Pull out classification preprocessed data for easier analysis.
+train_x = task_class$data[task_class$train_rows, task_class$covariates]
+train_y = task_class$data[task_class$train_rows, task_class$outcome]
+
+test_x = task_class$data[-task_class$train_rows, task_class$covariates]
+test_y = task_class$data[-task_class$train_rows, task_class$outcome]
+```
+
 ## Overview
 
 In the preprocessing, lasso, decision tree, random forest, and boosted tree notebooks you have learned: 
@@ -10,19 +39,6 @@ In the preprocessing, lasso, decision tree, random forest, and boosted tree note
 - Why comparing more than one algorithm at once is preferred  
 
 The ["SuperLearner" R package](https://cran.r-project.org/web/packages/SuperLearner/index.html) is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters. This is a generally advisable approach to machine learning instead of fitting single algorithms. 
-
-## Load packages
-
-```{r packages}
-library(SuperLearner)
-library(ck37r)
-```
-
-## Load data
-
-Your variables from 04-decision-trees.Rmd will still work here.
-
-## Overview
 
 Let's see how the four classification algorithms you learned in this workshop (1-lasso, 2-decision tree, 3-random forest, and 4-gradient boosted trees) compare to each other and also to 5-binary logistic regression (`glm`) and to the 6-mean of Y as a benchmark algorithm, in terms of their cross-validated error!  
 

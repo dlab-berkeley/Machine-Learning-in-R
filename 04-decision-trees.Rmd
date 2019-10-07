@@ -16,7 +16,9 @@ library(rpart)
 library(rpart.plot)
 ```
 
-## Load data we created in 02-preprocessing.Rmd
+## Load data 
+
+Load the training and test x and y variables we created in 02-preprocessing.Rmd for this *classification* task. 
 
 ```{r setup_data}
 # Objects: task_reg, task_class

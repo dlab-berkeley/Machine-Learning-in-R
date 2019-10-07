@@ -7,7 +7,9 @@ library(glmnet)
 library(ggplot2)
 ```
 
-## Load data we created in 02-preprocessing.Rmd
+## Load data 
+
+Load the training and test x and y variables we created in 02-preprocessing.Rmd for the OLS and Lasso *regression* tasks. 
 
 ```{r}
 # Objects: task_reg, task_class
