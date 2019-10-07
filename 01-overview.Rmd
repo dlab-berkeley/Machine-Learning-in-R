@@ -11,8 +11,9 @@ if (FALSE) {
   # Install packages from CRAN.
   install.packages(c(# Algorithms
                      "glmnet", "ranger", "rpart", "xgboost",
+                     "PCAmixdata", "pvclust", "mclust", 
                      # Visualization
-                     "ggplot2", "rpart.plot", "vip",
+                     "ggplot2", "rpart.plot", "vip", "ape", 
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages
@@ -28,14 +29,18 @@ if (FALSE) {
 
 # Hide the many messages and possible warnings from loading all these packages.
 suppressMessages(suppressWarnings({  
+  library(ape)          # Cluster visualizations
   library(caret)        # createDataPartition creates a stratified random split 
   library(ck37r)        # impute_missing_values, standardize, SuperLearner helpers
   library(dplyr)        # Data cleaning
-  library(glmnet)       # lasso 
+  library(glmnet)       # Lasso 
   library(ggplot2)      # Graphics 
-  library(magrittr)     # Pipes %>% for data cleaning, installed by dplyr.
+  library(magrittr)     # Pipes %>% for data cleaning, installed by dplyr
+  library(mclust)       # Model-based clustering
+  library(PCAmixdata)   # PCA
   library(pROC)         # Compute and plot AUC 
-  library(ranger)       # random forest algorithm
+  library(pvclust)      # Dendrograms with p-values
+  library(ranger)       # Random forest algorithm
   library(remotes)      # Allows installing packages from github
   library(rio)          # Import/export for any filetype.
   library(rpart)        # Decision tree algorithm
