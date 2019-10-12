@@ -129,7 +129,8 @@ gap_lib = c("SL.mean", "SL.bayesglm", "SL.knn",
 set.seed(1, "L'Ecuyer-CMRG") 
 
 ## MAcBook Pro benchmark (2.5 GHz Intel Core i7, 16 GB 1600 MHz DDR3)
-## 
+##    user      system    elapsed 
+###   134.249   3.297     136.343 
 ## 
 
 ## Benten benchmark: 
