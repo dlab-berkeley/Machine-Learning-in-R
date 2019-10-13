@@ -1,0 +1,243 @@
+# 10-take-home-challenge - solution
+# Putting it all together :^)
+
+Use the variable names provided below to complete the code to predict how well a random selection of algorithms can use population, life expectancy, and gdp per capita income to predict whether a country is located in the Americas verus the rest of the world. 
+
+## 1. Clear your workspace
+```{r}
+rm(list = ls())
+```
+
+## 2. Load libraries and data
+```{r}
+# Load libraries
+library(caret)
+library(ck37r)
+library(ggplot2)
+library(SuperLearner)
+
+# Load gapminder data
+gap = read.csv("data-raw/gapminder-FiveYearData.csv")
+```
+
+## 3. Check for missing data
+
+No `NA`
+```{r}
+colSums(is.na(gap))
+```
+
+## 4. Drop country and year
+
+To speed up the model fitting process and simplify its interpretation
+```{r}
+gap = subset(gap, select = -c(country, year))
+head(gap)
+```
+
+## 5. Collapse factor levels
+
+Turn `gap$continent` into a factor varible with just 2 levels: 
+- Level "Americas" should contain just the Americas
+- Level "World" should contain Africa, Asia, Europe, and Oceania
+```{r}
+levels(gap$continent) = list(
+  ## 
+  "Americas" = "Americas", 
+  ## 
+  "World" = c("Africa", "Asia", "Europe", "Oceania"))
+
+l_sum = merge(
+  data.frame(table(gap$continent)), 
+  data.frame(prop.table(table(gap$continent))), 
+  by = "Var1")
+
+levels(gap$continent)
+
+colnames(l_sum) = c("Location", "Freq", "%")
+
+l_sum
+```
+
+## 6. Define y and recode to binary
+```{r}
+y = ifelse(gap$continent == "Americas", 1, 0)
+gap$bin = y
+str(gap)
+
+table(gap$bin, gap$continent)
+```
+
+## 7. Define x
+```{r}
+x = subset(gap, select = -continent)
+str(x)
+```
+
+## 8. Create the task
+```{r}
+gap_task = list(
+  data = x, 
+  outcome = "bin"
+)
+gap_task$covariates = setdiff(names(gap_task$data), gap_task$outcome)
+
+gap_task
+
+head(gap_task$data)
+gap_task$covariates
+table(gap_task$outcome)
+```
+
+## 9. Define training rows
+```{r}
+training_rows = caret::createDataPartition(gap_task$data[[gap_task$outcome]],
+                             p = 0.70, list = FALSE) 
+gap_task$train_rows = training_rows
+```
+
+Define training and testing x and y variables using `gap_task`
+```{r}
+train_x = gap_task$data[gap_task$train_rows, gap_task$covariates]
+train_y = gap_task$data[gap_task$train_rows, gap_task$outcome]
+
+test_x = gap_task$data[-gap_task$train_rows, gap_task$covariates]
+test_y = gap_task$data[-gap_task$train_rows, gap_task$outcome]
+
+# What are dimensions of our training and test data? 
+table(train_y)
+length(train_y) == nrow(train_x)
+
+table(test_y)
+length(test_y) == nrow(test_x)
+```
+
+## 9. Tune your own learners! 
+See the help file for `create.Learner` to create custom tunings for xgboost and nnet.  
+
+- xgboost should have five max depths: 1, 2, 3,4, and 5  
+- nnet should have four different node sizes: 1, 4, 16, and 32  
+Define SL.xgb2
+```{r}
+# Create a new xgboost learner called "SL.xgb2"
+SL.xgb2 = SuperLearner::create.Learner("SL.xgboost",
+           detailed_names = T,
+           name_prefix = "xgb2",
+           tune = list(
+             max_depth = 1:5)
+           )
+
+# Inspect the SL.xgb2 list
+SL.xgb2
+
+# Try one to make sure it works! 
+(example_xgb2 = xgb2_2(Y = train_y, X = train_x, 
+                       newX = train_x, 
+                       family = gaussian(), 
+                       obsWeights = rep(1, nrow(train_x)),
+                       MaxNWgts = 6000))
+```
+
+Define SL.nnet2
+```{r}
+# Create a new nnet learner called "SL.nnet2"
+SL.nnet2 = SuperLearner::create.Learner("SL.nnet", 
+            detailed_names = T,
+            name_prefix = "nnet2",
+            tune = list(
+              # Tune size
+              size = c(1, 4, 16, 32)
+              ))
+# Inspect the SL.nnet2 list
+SL.nnet2
+
+# Try one to make sure it works! 
+(example_nnet2 = nnet2_4(Y = train_y, X = train_x, 
+                        new_x = train_x, 
+                        family = gaussian()))
+```
+
+## 11. Choose algorithms
+```{r}
+# Start by looking here! 
+listWrappers()
+
+gap_lib = c(
+  # Random selections from looking at listWrappers()
+  "SL.mean", "SL.bayesglm", "SL.knn", "SL.lm", 
+  "SL.glm", "SL.glmnet", "SL.gam", "SL.earth", 
+  "SL.polymars", "SL.step","SL.rpart", "SL.ranger", 
+  "SL.randomForest", "SL.xgboost", "SL.nnet", "SL.lda", 
+  
+  # Add our custom learners! 
+  SL.xgb2$names, 
+  SL.nnet2$names
+            )
+```
+
+## 11. Fit cross-validated SuperLearner ensemble and view output
+How many different tunings are we fitting? 
+```{r}
+cat("Library length:", length(gap_lib), "\n")
+# Library length: 25 
+```
+
+Fit the cross-validated SuperLearner ensemble
+```{r}
+set.seed(1, "L'Ecuyer-CMRG") 
+
+## MAcBook Pro benchmark (2.5 GHz Intel Core i7, 16 GB 1600 MHz DDR3)
+##    user      system    elapsed 
+##    295.550   6.164     302.107    
+
+# TODO: Benten benchmark: 
+##    user      system    elapsed
+##    
+
+system.time(
+  {
+    gap_cv =
+      SuperLearner::CV.SuperLearner(Y = train_y, X = train_x,
+                                    verbose = FALSE,
+                                    SL.library = gap_lib, family = binomial(),
+                                    cvControl = list(V = 5L, stratifyCV = TRUE))
+  }
+)
+
+# View summary model output
+summary(gap_cv)
+
+# Unhashtag the below line of code to see warnings if glm.fit throws an error
+# warnings()
+```
+
+## 12. Save output
+
+1. Save risk plot
+```{r}
+plot(gap_cv) + theme_minimal()
+ggsave("visuals/1-risk-plot-gap_cv.png")
+```
+
+2. Save auc table
+```{r}
+auc_table(gap_cv)
+write.csv(auc_table(gap_cv), file = "visuals/2-auc-table-gap_cv.csv")
+
+# View auc info
+print(ck37r::cvsl_auc(gap_cv))
+```
+
+3. Save auc plot for best learner
+```{r}
+plot_roc(gap_cv)
+ggsave("visuals/3-auc-plot-gap_cv.png")
+```
+
+4. Save weight table
+```{r}
+print(cvsl_weights(gap_cv), row.names = FALSE)
+write.csv(print(cvsl_weights(gap_cv), row.names = FALSE), 
+          file = "visuals/4-weight-table-gap_cv.csv")
+```
+
