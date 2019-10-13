@@ -19,7 +19,10 @@ RStudio Binder:
       - Random forests
       - Gradient boosted machines
       - SuperLearner ensembling
-      
+      - Principal component analysis  
+      - Hierarchical agglomerative clustering  
+  - Challenge questions  
+  
 ## Getting started
 
 Please follow the notes in [participant-instructions.md](participant-instructions.md).
