@@ -173,11 +173,12 @@ Fit the cross-validated SuperLearner ensemble
 ```{r}
 set.seed(1, "L'Ecuyer-CMRG") 
 
-## MAcBook Pro benchmark (2.5 GHz Intel Core i7, 16 GB 1600 MHz DDR3)
-##    user      system    elapsed 
-##    295.550   6.164     302.107    
+# TODO: Benten benchmark
+# SuperMicro 7048GR-TR 16 DIMMs workspace with 4 GPUs: 256GB (8 x 32GB) RAM and 3 GPU cards 
+# 1. NVIDIA Titan X card 12GB
+# 2. NVIDIA Turing RTX2070 8GB
+# 3. NVIDIA Turing Titan RTX 24GB PCI-E
 
-# TODO: Benten benchmark: 
 ##    user      system    elapsed
 ##    
 
