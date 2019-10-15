@@ -1,11 +1,5 @@
 # Ensembles
 
-Clear your workspace
-
-```{r}
-rm(list = ls())
-```
-
 ## Load packages
 
 ```{r packages}
@@ -20,13 +14,6 @@ Load the training and test x and y variables we created in 02-preprocessing.Rmd 
 ```{r setup_data}
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
-
-# Pull out classification preprocessed data for easier analysis.
-train_x = task_class$data[task_class$train_rows, task_class$covariates]
-train_y = task_class$data[task_class$train_rows, task_class$outcome]
-
-test_x = task_class$data[-task_class$train_rows, task_class$covariates]
-test_y = task_class$data[-task_class$train_rows, task_class$outcome]
 ```
 
 ## Overview
@@ -66,7 +53,7 @@ set.seed(1, "L'Ecuyer-CMRG")
 
 # This will take a few minutes to execute - take a look at the .html file to see the output!
 cv_sl =
-  SuperLearner::CV.SuperLearner(Y = train_y, X = train_x,
+  SuperLearner::CV.SuperLearner(Y = train_y_class, X = train_x_class,
                                 verbose = FALSE,
                                 SL.library = sl_lib, family = binomial(),
                                 # For a publication we would do V = 10 or 20
