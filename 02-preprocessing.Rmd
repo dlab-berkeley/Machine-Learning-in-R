@@ -12,7 +12,7 @@ library(caret)
 
 ## Load the data
 
-Load the heart disease and iris datasets. 
+Load the heart disease dataset. 
 
 ```{r load_data}
 # Load the heart disease dataset using import() from the rio package.
@@ -23,24 +23,21 @@ str(data)
 ## Read background information and variable descriptions  
 https://archive.ics.uci.edu/ml/datasets/heart+Disease
 
-```{r}
-# Load the iris dataset (built into R)
-data(iris)
-?iris
-str(iris)
-```
-
 ## Data preprocessing
 
 Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly setup your $y$ and $x$ variables and split your data appropriately. 
 
-One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). Doing this manually is always good practice. In general however, functions like `lm` will do this for you automatically. More on this below. 
+> NOTE: also, use the `save` function to save your variables of interest. In the remaining walkthroughs, we will use the `load` function to load the relevant variables. 
 
-> NOTE: Keep in mind that training/test dataset splitting is common, but not always preferred. We will introduce you to cross-validation in the second half of this workshop where _all_ the data are used and multiple training/testing splits are utilized. 
+### What is one-hot encoding?
+
+One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). Doing this manually is always good practice. In general however, functions like `lm` will do this for you automatically. 
 
 ## Handling missing data
 
-Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). K-nearest neighbor imputation can also be useful but median imputation is demonstrated below. However, you will want to learn about [Generalized Low Rank Models](https://stanford.edu/~boyd/papers/pdf/glrm.pdf) for missing data imputation in your research.
+Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). K-nearest neighbor imputation can also be useful but median imputation is demonstrated below.  
+
+However, you will want to learn about [Generalized Low Rank Models](https://stanford.edu/~boyd/papers/pdf/glrm.pdf) for missing data imputation in your research. See the `impute_missing_values` function from the ck37r package to learn more - you might need to install an h2o dependency.  
 
 First, count the number of missing values across variables in our dataset.  
 
@@ -51,9 +48,9 @@ colSums(is.na(data))
 We have no missing values, so let's introduce a few to the "oldpeak" feature for this example to see how it works: 
 
 ```{r}
+# Add five missing values added to oldpeak in row numbers 50, 100, 150, 200, 250
 data$oldpeak[c(50, 100, 150, 200, 250)] = NA
 
-# Five missing values in oldpeak in row numbers 50, 100, 150, 200, 250
 colSums(is.na(data))
 colMeans(is.na(data))
 ```
@@ -87,9 +84,9 @@ str(data)
 
 ## Defining *y* outcome vectors and *x* feature dataframes
 
-## Convert factors to indicators
+### Convert factors to indicators
 
-Now expand "ca", "cp", "slope", and "thal" features to out into indicators. 
+Now expand "ca", "cp", "slope", and "thal" features out into indicators. 
 
 ```{r factors_to_indicators}
 result = ck37r::factors_to_indicators(data, verbose = TRUE)
@@ -97,11 +94,15 @@ result = ck37r::factors_to_indicators(data, verbose = TRUE)
 data = result$data
 
 str(data)
+
+dim(data)
 ```
+
+What happened?
 
 ## Regression setup
 
-Now that the data have been imputed and properly converted, we can assign the regression outcome variable (`age`) to its own vector for the lasso **REGRESSION tasks**. Remember that lasso can also perform classification as well. 
+Now that the data have been imputed and properly converted, we can assign the regression outcome variable (`age`) to its own vector for the lasso **REGRESSION task**. Remember that lasso can also perform classification as well. 
 
 ### Set seed for reproducibility
 
@@ -109,16 +110,18 @@ Take the simple approach to data splitting and divide our data into training and
 
 ### Random versus stratified random split
 
+Splitting data into training and test subsets is a fundamental step in machine learning. Usually, the marjority portion of the original dataset is partitioned to the training set, where the algorithms learn the relationships between the $x$ feature predictors and the $y$ outcome variable. Then, these models are given new data (the test set) to see how well they perform on data they have not yet seen. 
+
 Since age is a continuous variable and will be the outcome for the OLS and lasso regressions, we will not perform a stratified random split like we will for the classification tasks (see below). Instead, [let's randomly assign](https://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function) 70% of the `age` values to the training set and the remaining 30% to the test set.
 
 ```{r}
-# Create a list to organize our machine learning task.
+# Create a list to organize our regression task
 task_reg = list(
   data = data,
   outcome = "age"
 )
 
-# All variables can be used as covariates except the outcome.
+# All variables can be used as covariates except the outcome ("age")
 (task_reg$covariates = setdiff(names(data), task_reg$outcome))
 
 names(task_reg)
@@ -134,27 +137,35 @@ training_rows = sample(nrow(task_reg$data), size = training_size)
 
 task_reg$train_rows = training_rows
 head(task_reg$train_rows)
+
+# View our regresion task list
+names(task_reg)
 ```
 
 ## Classification setup
 
-Assign the outcome variable to its own vector for the decision tree, random forest, gradient boosted tree, and SuperLearner **CLASSIFICATION tasks**. However, keep in mind that these algorithms can also perform regression!  
+Assign the outcome variable to its own vector for the decision tree, random forest, gradient boosted tree, and SuperLearner ensemble **CLASSIFICATION tasks**. However, keep in mind that these algorithms can also perform regression!  
 
-This time however, "target" (1 = person has heart disease, 0 = person does not have heart disease) will by our y outcome variable - the others will be our x features. 
+This time however, "target" will by our y outcome variable (1 = person has heart disease, 0 = person does not have heart disease) - the others will be our x features. 
 
 ```{r}
+# Store everything in a list like we did for the regression task
 task_class = list(
   data = data,
   outcome = "target"
 )
+
 (task_class$covariates = setdiff(names(task_class$data), task_class$outcome))
+
+# See the names of the list elements
+names(task_class)
 ```
            
 Our factors have still been converted to indicators from the regression setup! :) 
 
 ### Stratified random split
 
-We then can use [stratified random sampling](https://stats.stackexchange.com/questions/250273/benefits-of-stratified-vs-random-sampling-for-generating-training-data-in-classi) to divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
+For classification, we then use [stratified random sampling](https://stats.stackexchange.com/questions/250273/benefits-of-stratified-vs-random-sampling-for-generating-training-data-in-classi) to divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
 
 ```{r}
 # Set seed for reproducibility.
@@ -177,7 +188,7 @@ table(task_class$data[-training_rows, "target"])
 
 ### Save our preprocessed data
 
-We save our preprocessed data into an RData file so that we can easily load it in other files.
+We save our preprocessed data into an RData file so that we can easily load it the later files.
 
 ```{r save_data}
 save(data, task_reg, task_class,
