@@ -16,7 +16,10 @@ Load the heart disease dataset.
 
 ```{r load_data}
 # Load the heart disease dataset using import() from the rio package.
-data = import("data-raw/heart.csv")
+data_original = import("data-raw/heart.csv")
+
+# Preserve the original copy
+data = data_original
 str(data)
 ```
 
@@ -220,7 +223,8 @@ test_y_class = task_class$data[-task_class$train_rows, task_class$outcome]
 We save our preprocessed data into an RData file so that we can easily load it the later files.
 
 ```{r save_data}
-save(data, task_reg, task_class,
+save(data, data_original, 
+     task_reg, task_class,
      train_x_reg, train_y_reg, test_x_reg, test_y_reg,
      train_x_class, train_y_class, test_x_class, test_y_class,
      file = "data/preprocessed.RData")
