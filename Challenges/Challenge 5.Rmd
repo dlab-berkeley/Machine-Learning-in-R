@@ -5,6 +5,12 @@ Below is the abridged 07-ensembles.Rmd code. However, first add "SL.nnet" to `sl
 
 How does the default neural network  perform compared to your original algorithms? Why?
 
+### 1. Load data
+```{r setup_data}
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+```
+
 ```{r}
 sl_lib = c("SL.mean", "SL.glm", "SL.rpart", "SL.ranger", "SL.xgboost",
                       "__.____")
@@ -32,7 +38,7 @@ print(cvsl________(_____), row.names = FALSE)
 
 "SL.nnet" is only slightly worse than "SL.rpart" and barely better than "SL.mean"! :^(
 
-## Create your own learner
+## 2. Create your own learner
 
 Thankfully, SuperLearner makes it easy to create your own customized algorithms to include in `sl_lib`. Create a custom neural network
 
@@ -49,7 +55,7 @@ new_nnet = SuperLearner::create.Learner("SL.nnet",
 new_nnet$names
 ```
 
-## Update `sl_lib`
+## 3. Update `sl_lib`
 
 ```{r}
 # Add the 7 custom new_nnet learners
@@ -62,14 +68,14 @@ sl_lib
 new_nnet_4
 ```
 
-## Test one single custom learner
+## 4. Test one single custom learner
 
 ```{r}
 (example_result = new_nnet_4(Y = train_y, X = train_x, newX = train_x, 
                              family = gaussian()))
 ```
 
-## Re-fit
+## 5. Re-fit
 
 ```{r}
 set.seed(1, "L'Ecuyer-CMRG") 

@@ -3,7 +3,14 @@
 
 Below is the abridged 07-ensembles.Rmd code. However, first add "SL.nnet" to `sl_lib`. Artifical neural networks are a standard in machine learning of all flavors. After this workshop, you should check out D-Lab's [Introduction to Deep Learning in R using Keras](https://github.com/dlab-berkeley/Deep-Learning-in-R) workshop. 
 
-How does the default neural network  perform compared to your original algorithms? Why?
+How does the default neural network perform compared to your original algorithms? Why?
+
+### 1. Load data
+```{r setup_data}
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+```
+
 
 ```{r}
 sl_lib = c("SL.mean", "SL.glm", "SL.rpart", "SL.ranger", "SL.xgboost",
@@ -15,7 +22,7 @@ sl_lib
 set.seed(1, "L'Ecuyer-CMRG") 
 
 cv_sl =
-  SuperLearner::CV.SuperLearner(Y = train_y, X = train_x,
+  SuperLearner::CV.SuperLearner(Y = train_y_class, X = train_x_class,
                                 verbose = FALSE,
                                 SL.library = sl_lib, family = binomial(),
                                 cvControl = list(V = 10L, stratifyCV = TRUE))
@@ -30,9 +37,9 @@ plot_roc(cv_sl)
 print(cvsl_weights(cv_sl), row.names = FALSE)
 ```
 
-"SL.nnet" is only slightly worse than "SL.rpart" and barely better than "SL.mean"! :^(
+"SL.nnet" is slightly worse than "SL.rpart" and only barely better than "SL.mean"! :^(
 
-## Create your own learner
+## 2. Create your own learner
 
 Thankfully, SuperLearner makes it easy to create your own customized algorithms to include in `sl_lib`. Create a custom neural network
 
@@ -48,7 +55,7 @@ new_nnet = SuperLearner::create.Learner("SL.nnet",
 new_nnet$names
 ```
 
-## Update `sl_lib`
+## 3. Update `sl_lib`
 
 ```{r}
 # Add the 7 custom new_nnet learners
@@ -61,20 +68,20 @@ sl_lib
 new_nnet_4
 ```
 
-## Test one single custom learner
+## 4. Test one single custom learner
 
 ```{r}
-(example_result = new_nnet_4(Y = train_y, X = train_x, newX = train_x, 
+(example_result = new_nnet_4(Y = train_y_class, X = train_x_class, newX = train_x_class, 
                              family = gaussian()))
 ```
 
-## Re-fit
+## 5. Re-fit
 
 ```{r}
 set.seed(1, "L'Ecuyer-CMRG") 
 
 cv_sl =
-  SuperLearner::CV.SuperLearner(Y = train_y, X = train_x,
+  SuperLearner::CV.SuperLearner(Y = train_y_class, X = train_x_class,
                                 verbose = FALSE,
                                 SL.library = sl_lib, family = binomial(),
                                 cvControl = list(V = 5L, stratifyCV = TRUE))
