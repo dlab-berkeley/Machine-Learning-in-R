@@ -64,17 +64,17 @@ printcp(tree)
 plotcp(tree)
 
 # Adjust complexity parameters
-tree_pruned1 = prune(tree, cp = 0.01) # 1 split
-tree_pruned2 = prune(tree, cp = 0.035000) # 2 splits
+tree_pruned1 = prune(tree, cp = 0.054348) # 1 split
+tree_pruned9 = prune(tree, cp = 0.015000) # 9 splits
 ```
 
 ### 6. Print detailed results, variable importance, and summary of splits.
 
 ```{r}
 summary(tree_pruned1) 
-rpart.plot(tree_pruned2)
+rpart.plot(tree_pruned9)
 
 summary(tree_pruned2) 
-rpart.plot(tree_pruned2)
+rpart.plot(tree_pruned9)
 ```
 
