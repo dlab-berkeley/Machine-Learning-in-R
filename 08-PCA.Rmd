@@ -1,11 +1,5 @@
 # Principal Component Analysis
 
-Clear your workspace
-
-```{r}
-rm(list = ls())
-```
-
 # Load packages
 
 ```{r}
@@ -37,7 +31,7 @@ dplyr is essential for changing the classes of multiple features at once :^)
 
 ```{r}
 vars_to_scale = c("age", "trestbps", "chol", "thalach", "oldpeak")
-h = data %>% mutate_at(scale, .vars = vars(vars_to_scale))
+h = data_original %>% mutate_at(scale, .vars = vars(vars_to_scale))
 h = h %>% mutate_at(as.numeric, .vars = vars(vars_to_scale))
 head(h)
 ```
@@ -138,22 +132,22 @@ training_rows = caret::createDataPartition(ml_num$h.target,
                                            p = 0.70, list = FALSE) 
 
 # Partition training dataset
-train_x = ml_num[training_rows, ] 
+train_x_class = ml_num[training_rows, ] 
 
 # Partition test dataset
-test_x = ml_num[-training_rows, ] 
+test_x_class = ml_num[-training_rows, ] 
 
-dim(train_x)
-dim(test_x)
+dim(train_x_class)
+dim(test_x_class)
 
-table(train_x$h.target)
-table(test_x$h.target)
+table(train_x_class$h.target)
+table(test_x_class$h.target)
 ```
 
 # Fit PCA model to training set for numeric values
 ```{r}
 ?prcomp
-pca_ml = prcomp(subset(train_x, select = -h.target), 
+pca_ml = prcomp(subset(train_x_class, select = -h.target), 
                        retx = TRUE, 
                        center = FALSE, scale = FALSE)
 pca_ml
@@ -169,7 +163,7 @@ expl.var
 ## Generate predicted values of PCs for test dataset
 ```{r}
 predicted_values = predict(pca_ml, 
-                           newdata = subset(test_x, select = -h.target))
+                           newdata = subset(test_x_class, select = -h.target))
 head(predicted_values)
 ```
 
@@ -204,7 +198,7 @@ We can plot the training and test data on the same plot!
 ggplot(
   # training data
   gg_train, aes(x = gg_train[,1], y = gg_train[,2], 
-                color = train_x$h.target)) + 
+                color = train_x_class$h.target)) + 
   geom_point(shape = 0, alpha = .5, stroke = 1, size = 3) + 
   stat_ellipse(show.legend = FALSE, lwd = 0.5) + 
   labs(color = "Has heart disease?", 
@@ -220,7 +214,7 @@ ggplot(
   # test data
   
   geom_point(gg_test, mapping = aes(x = gg_test[,1], y = gg_test[,2], 
-                                    color = test_x$h.target, 
+                                    color = test_x_class$h.target, 
                                     size = 3, alpha = 0.75)) + 
   guides(size = FALSE, alpha = FALSE) + 
   theme(legend.position = "top") + 
