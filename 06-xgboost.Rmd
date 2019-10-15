@@ -1,15 +1,10 @@
 # XGBoost
 
-Clear your workspace
-
-```{r}
-rm(list = ls())
-```
-
 ## Load packages
 
 ```{r load_packages}
 library(caret)
+library(pROC)
 library(xgboost)
 ```
 
@@ -20,13 +15,6 @@ Load the training and test x and y variables we created in 02-preprocessing.Rmd 
 ```{r setup_data}
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
-
-# Pull out classification preprocessed data for easier analysis.
-train_x = task_class$data[task_class$train_rows, task_class$covariates]
-train_y = task_class$data[task_class$train_rows, task_class$outcome]
-
-test_x = task_class$data[-task_class$train_rows, task_class$covariates]
-test_y = task_class$data[-task_class$train_rows, task_class$outcome]
 ```
 
 ## Overview
@@ -93,10 +81,10 @@ Note that we will now use *A*rea *U*nder the ROC *C*urve (called "AUC") as our p
 However, xgboost is expecting character strings as the factor level names so our integer 1s and 0s will not do. Let's quickly recode the 1s as "yes" and 0s as "no". 
 
 ```{r}
-xgb_train_y = as.factor(ifelse(train_y == 1, "yes", "no"))
-xgb_test_y = as.factor(ifelse(test_y == 1, "yes", "no"))
-table(train_y, xgb_y)
-table(test_y, xgb_test_y)
+xgb_train_y_class = as.factor(ifelse(train_y_class == 1, "yes", "no"))
+xgb_test_y_class = as.factor(ifelse(test_y_class == 1, "yes", "no"))
+table(train_y_class, xgb_train_y_class)
+table(test_y_class, xgb_test_y_class)
 ```
 
 > NOTE: This will take a few minutes to complete! See the .html file for the output.
@@ -105,7 +93,7 @@ table(test_y, xgb_test_y)
 set.seed(1)
 
 # cbind: caret expects the Y response and X predictors to be part of the same dataframe
-model = caret::train(xgb_train_y ~ ., data = cbind(xgb_train_y, train_x), 
+model = caret::train(xgb_train_y_class ~ ., data = cbind(xgb_train_y_class, train_x_class), 
              # Use xgboost's tree-based algorithm (i.e. gbm)
              method = "xgbTree",
              # Use "AUC" as our performance metric, which caret incorrectly calls "ROC"
@@ -153,20 +141,20 @@ vip::vip(model) + theme_minimal()
 vip::vip(model$finalModel) + theme_minimal()
 
 # Generate predicted labels.
-predicted_labels = predict(model, test_x)
-table(xgb_test_y, predicted_labels)
+predicted_labels = predict(model, test_x_class)
+table(xgb_test_y_class, predicted_labels)
 
 # Generate class probabilities.
-pred_probs = predict(model, test_x, type = "prob")
+pred_probs = predict(model, test_x_class, type = "prob")
 head(pred_probs)
 
 # View final model
-(cm = confusionMatrix(predicted_labels, xgb_test_y))
+(cm = confusionMatrix(predicted_labels, xgb_test_y_class))
 
 # Define ROC characteristics
-(rocCurve = pROC::roc(response = xgb_test_y,
+(rocCurve = pROC::roc(response = xgb_test_y_class,
                       predictor = pred_probs[, "yes"],
-                      levels = rev(levels(xgb_test_y)),
+                      levels = rev(levels(xgb_test_y_class)),
                       auc = TRUE, ci = TRUE))
 
 # Plot ROC curve with optimal threshold.
