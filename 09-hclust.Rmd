@@ -1,11 +1,5 @@
 # Hierarchical Agglomerative Clustering
 
-Clear your workspace
-
-```{r}
-rm(list = ls())
-```
-
 # Load data
 
 Review the numeric heart dataset from 08-PCA.Rmd
@@ -108,6 +102,8 @@ pvrect(pvclust_model_complete, alpha = 0.95)
 
 ```{r}
 pvclust_model_single = pvclust(ml_num[,-6],
+                               method.hclust = "single",
+                               method.dist = "euclidean",
                                nboot = 1000, parallel = T)
 
 plot(pvclust_model_single)
@@ -118,6 +114,8 @@ pvrect(pvclust_model_single, alpha = 0.95)
 
 ```{r}
 pvclust_model_average = pvclust(ml_num[,-6],
+                                method.hclust = "average",
+                                 method.dist = "euclidean",
                                 nboot = 1000, parallel = T)
 
 plot(pvclust_model_complete)
