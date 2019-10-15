@@ -20,13 +20,6 @@ library(rpart.plot)
 ```{r setup_data}
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
-
-# Pull out classification preprocessed data for easier analysis.
-train_x = task_class$data[task_class$train_rows, task_class$covariates]
-train_y = task_class$data[task_class$train_rows, task_class$outcome]
-
-test_x = task_class$data[-task_class$train_rows, task_class$covariates]
-test_y = task_class$data[-task_class$train_rows, task_class$outcome]
 ```
 
 ### 3. Fit the tree
@@ -41,7 +34,7 @@ Then, fit the model
 
 ```{r}
 set.seed(3)
-tree = rpart::rpart(train_y ~ ., data = train_x,
+tree = rpart::rpart(train_y_class ~ ., data = train_x_class,
              # Use method = "anova" for a continuous outcome.
              method = "class",
              # Can use "gini" for gini coefficient.

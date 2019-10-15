@@ -15,29 +15,35 @@ set.seed(1)
 ```
 
 ### 2. Define y variable
+
 ```{r}
 iris_y = iris$Petal.Width
 ```
 
 ### 3. Define x variables
+
 Remove Petal.Width from the dataset
+
 ```{r}
 iris_x = subset(iris, select = -Petal.Width)
 dim(iris_x)
 ```
 
 ### 4. Convert Species from factor to indicator
+
 ```{r}
 features_iris = data.frame(model.matrix( ~ . -1 , iris_x))
 head(features_iris)
 ```
 
 ### 5. Perform a stratified random split.
+
 ```{r}
 training_rows_iris = caret::createDataPartition(iris_y, p = 0.70, list = FALSE) 
 ```
 
 ### 6. Partition training and test sets
+
 ```{r}
 train_x_iris = features_iris[training_rows_iris, ] # partition training dataset
 test_x_iris = features_iris[-training_rows_iris, ] # partition test dataset
@@ -54,6 +60,7 @@ length(test_y_iris)
 ```
 
 ### 7. Fit lasso model and visualize lambda distribution and different lambda values
+
 ```{r}
 lasso_iris = cv.glmnet(as.matrix(train_x_iris), train_y_iris, family = "gaussian", alpha = 1)
 plot(lasso_iris)
@@ -72,6 +79,7 @@ predictions_iris = predict(lasso_iris, s = lasso_iris$lambda.1se, newx = as.matr
 ```
 
 # 8. Calculate MSE and RMSE
+
 ```{r}
 # Calculate mean-squared error = 0.0262426
 mean((predictions_iris - test_y_iris)^2)

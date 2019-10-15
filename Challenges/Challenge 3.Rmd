@@ -11,12 +11,19 @@ library(vip)
 library(ggplot2)
 ```
 
+### 2. Load data
+
+```{r setup_data}
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+```
+
 ### 2. Fit the model
 
 ```{r rf_fit}
 set.seed(1)
-(rf1 = ranger::ranger(train_y ~ ., 
-                   data = train_x, 
+(rf1 = ranger::ranger(train_y_class ~ ., 
+                   data = train_x_class, 
                    # Number of trees
                    num.trees = ____, 
                    # Number of variables randomly sampled as candidates at each split.
@@ -42,13 +49,14 @@ vip::vi(rf1)
 
 ```{r}
 # This will predict the outcome class.
-predicted_label = as.integer(predict(rf1, data = test_x)$predictions[, 1] > 0.5)
+predicted_label = as.integer(predict(rf1, data = test_x_class)$predictions[, 1] > 0.5)
 str(predicted_label)
-table(predicted_label, test_y)
+table(predicted_label, test_y_class)
 ```
 
 ### 5. Examine accuracy of the test set:
+
 ```{r prob_hist}
-# 0.8333333!!
-mean(predicted_label == test_y) 
+
+mean(predicted_label == test_y_class) 
 ```

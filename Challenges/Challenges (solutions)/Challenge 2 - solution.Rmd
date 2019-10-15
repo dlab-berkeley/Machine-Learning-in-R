@@ -20,13 +20,6 @@ library(rpart.plot)
 ```{r setup_data}
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
-
-# Pull out classification preprocessed data for easier analysis.
-train_x = task_class$data[task_class$train_rows, task_class$covariates]
-train_y = task_class$data[task_class$train_rows, task_class$outcome]
-
-test_x = task_class$data[-task_class$train_rows, task_class$covariates]
-test_y = task_class$data[-task_class$train_rows, task_class$outcome]
 ```
 
 ### 3. Fit the tree
@@ -41,7 +34,7 @@ Then, fit the model
 
 ```{r}
 set.seed(3)
-tree = rpart::rpart(train_y ~ ., data = train_x,
+tree = rpart::rpart(train_y_class ~ ., data = train_x_class,
              # Use method = "anova" for a continuous outcome.
              method = "class",
              # Can use "gini" for gini coefficient.
@@ -72,7 +65,7 @@ plotcp(tree)
 
 # Adjust complexity parameters
 tree_pruned1 = prune(tree, cp = 0.01) # 1 split
-tree_pruned2 = prune(tree, cp = 0.035000) # 2 splits
+tree_pruned2 = prune(tree, cp = 0.035000) # 4 splits
 ```
 
 ### 6. Print detailed results, variable importance, and summary of splits.
