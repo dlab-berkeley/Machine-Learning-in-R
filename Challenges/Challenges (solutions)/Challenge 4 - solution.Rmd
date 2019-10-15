@@ -5,12 +5,18 @@ Below is the code from 06-xgboost.Rmd in abridged form. Can you alter `cv_contro
 
 ### 1. Setup
 
+### 2. Load data
+```{r setup_data}
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+```
+
 ```{r load_packages}
 library(caret)
 library(xgboost)
 ```
 
-### 2. Define `cv_control` and `xgb_grid`
+### 3. Define `cv_control` and `xgb_grid`
 
 ```{r}
 cv_control =

@@ -10,7 +10,13 @@ library(caret)
 library(xgboost)
 ```
 
-### 2. Define `cv_control` and `xgb_grid`
+### 2. Load data
+```{r setup_data}
+# Objects: task_reg, task_class
+load("data/preprocessed.RData")
+```
+
+### 3. Define `cv_control` and `xgb_grid`
 
 ```{r}
 cv_control =
