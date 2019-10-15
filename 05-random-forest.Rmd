@@ -10,7 +10,7 @@ library(ggplot2)
 
 ## Load data 
 
-Load the training and test x and y variables we created in 02-preprocessing.Rmd for this *classification* task.
+Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variables we defined in 02-preprocessing.Rmd for this *classification* task. 
 
 ```{r setup_data}
 # Objects: task_reg, task_class
