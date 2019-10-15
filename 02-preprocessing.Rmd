@@ -208,7 +208,11 @@ head(train_x_reg)
 ### Classification variables
 
 ```{r}
+train_x_class = task_class$data[task_class$train_rows, task_class$covariates]
+train_y_class = task_class$data[task_class$train_rows, task_class$outcome]
 
+test_x_class = task_class$data[-task_class$train_rows, task_class$covariates]
+test_y_class = task_class$data[-task_class$train_rows, task_class$outcome]
 ```
 
 ### Save our preprocessed data
@@ -217,5 +221,7 @@ We save our preprocessed data into an RData file so that we can easily load it t
 
 ```{r save_data}
 save(data, task_reg, task_class,
+     train_x_reg, train_y_reg, test_x_reg, test_y_reg,
+     train_x_class, train_y_class, test_x_class, test_y_class,
      file = "data/preprocessed.RData")
 ```
