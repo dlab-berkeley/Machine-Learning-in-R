@@ -1,11 +1,5 @@
 # Random Forests
 
-Clear your workspace
-
-```{r}
-rm(list = ls())
-```
-
 ## Load packages
 
 ```{r load_packages}
@@ -21,13 +15,6 @@ Load the training and test x and y variables we created in 02-preprocessing.Rmd 
 ```{r setup_data}
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
-
-# Pull out classification preprocessed data for easier analysis.
-train_x = task_class$data[task_class$train_rows, task_class$covariates]
-train_y = task_class$data[task_class$train_rows, task_class$outcome]
-
-test_x = task_class$data[-task_class$train_rows, task_class$covariates]
-test_y = task_class$data[-task_class$train_rows, task_class$outcome]
 ```
 
 ## Overview
@@ -42,8 +29,8 @@ Fit a random forest model that predicts the number of people with heart disease 
 
 ```{r rf_fit}
 set.seed(1)
-(rf1 = ranger::ranger(train_y ~ ., 
-                   data = train_x, 
+(rf1 = ranger::ranger(train_y_class ~ ., 
+                   data = train_x_class, 
                    # Number of trees
                    num.trees = 500, 
                    # Number of variables randomly sampled as candidates at each split.
@@ -76,21 +63,28 @@ Now, the goal is to see how the model performs on the test dataset:
 
 ```{r}
 # This will predict the outcome class.
-predicted_label = as.integer(predict(rf1, data = test_x)$predictions[, 1] > 0.5)
+predicted_label = as.integer(predict(rf1, data = test_x_class)$predictions[, 1] > 0.5)
+
 str(predicted_label)
-table(predicted_label, test_y)
+
+table(predicted_label, test_y_class)
 ```
 
 Check the accuracy of the test set:
 ```{r prob_hist}
-# 0.8111111
-mean(predicted_label == test_y) 
+
+mean(predicted_label == test_y_class) 
 
 # We can also generated probability predictions, which are more granular.
-predicted_prob = as.data.frame(predict(rf1, data = test_x)$predictions)
+predicted_prob = as.data.frame(predict(rf1, data = test_x_class)$predictions)
+
 colnames(predicted_prob) = c("no", "yes")
+
 summary(predicted_prob)
-ggplot(predicted_prob, aes(x = yes)) + geom_histogram() + theme_minimal()
+
+ggplot(predicted_prob, aes(x = yes)) + 
+  geom_histogram() + 
+  theme_minimal()
 
 # TODO: add terminal node count in for ranger.
 ```
