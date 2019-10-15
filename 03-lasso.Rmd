@@ -9,24 +9,11 @@ library(ggplot2)
 
 ## Load data 
 
-Load the training and test x and y variables we created in 02-preprocessing.Rmd for the OLS and Lasso *regression* tasks. 
+Load `train_x_reg`, `train_y_reg`, `test_x_reg`, and `test_y_reg` variables we created in 02-preprocessing.Rmd for the OLS and Lasso *regression* tasks. 
 
 ```{r}
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
-
-# Pull out regression preprocessed data for easier analysis
-train_x = task_reg$data[task_reg$train_rows, task_reg$covariates]
-train_y = task_reg$data[task_reg$train_rows, task_reg$outcome]
-
-test_x = task_reg$data[-task_reg$train_rows, task_reg$covariates]
-test_y = task_reg$data[-task_reg$train_rows, task_reg$outcome]
-
-# Look at ages of first 20 individuals
-head(train_y, n = 20)
-
-# Look at features for the corresponding first 6 individuals
-head(train_x)
 ```
 
 ## Overview
@@ -35,16 +22,16 @@ Below is an refresher of ordinary least squares linear (OLS) regression that pre
 
 ```{r}
 # Fit the regression model; lm() will automatically add a temporary intercept column
-fit = lm(train_y ~ ., data = train_x)
+fit = lm(train_y_reg ~ ., data = train_x_reg)
 
 # View the output
 summary(fit) 
 
 # Predict outcome for the test data
-predicted = predict(fit, test_x)
+predicted = predict(fit, test_x_reg)
 
 # 8. Calculate mean-squared error
-(mse_reg = mean((test_y - predicted)^2))
+(mse_reg = mean((test_y_reg - predicted)^2))
 
 # Root mean-squared error
 sqrt(mse_reg)
@@ -57,12 +44,13 @@ The lasso is useful to try and remove some of the non-associated features from t
 ## Fit model
 
 ```{r}
-lasso = cv.glmnet(as.matrix(train_x), train_y, family = "gaussian", alpha = 1)
+lasso = cv.glmnet(as.matrix(train_x_reg), train_y_reg, family = "gaussian", alpha = 1)
 ```
 
 ## Investigate Results
 
 Visualize the distribution of log(lamba) vs mean-squared error.   
+
 ```{r}
 plot(lasso)
 
@@ -79,16 +67,19 @@ qplot(log(lasso$lambda), lasso$lambda) + theme_minimal()
 ```
 
 Show plot of different lambda values: 
+
 ```{r}
 plot(lasso$glmnet.fit, xvar = "lambda", label = TRUE)
 ```
 
 Show the lambda that results in the minimum estimated mean-squared error (MSE):
+
 ```{r}
 lasso$lambda.min
 ```
 
 Show higher lambda within [one standard error](https://stats.stackexchange.com/questions/80268/empirical-justification-for-the-one-standard-error-rule-when-using-cross-validat) of performance of the minimum
+
 ```{r}
 lasso$lambda.1se
 
@@ -102,6 +93,7 @@ Look at the coefficients
 ```
 
 Look at the coefficients for lambda.min
+
 ```{r}
 (coef_min = coef(lasso, s = "lambda.min"))
 
@@ -111,15 +103,15 @@ cbind(as.matrix(coef_1se), as.matrix(coef_min))
 
 Predict on the test set
 ```{r}
-predictions = predict(lasso, newx = as.matrix(test_x),
+predictions = predict(lasso, newx = as.matrix(test_x_reg),
                       s = lasso$lambda.1se)
 
 # How far off were we, based on absolute error?
-rounded_errors = round(abs(test_y - predictions))
+rounded_errors = round(abs(test_y_reg - predictions))
 table(rounded_errors)
 
 # Group the absolute error into 4 bins.
-grouped_errors = round(abs(test_y - predictions) / 5)
+grouped_errors = round(abs(test_y_reg - predictions) / 5)
 grouped_errors[grouped_errors > 2] = 3
 table(grouped_errors)
 
@@ -128,16 +120,16 @@ how_close = factor(grouped_errors, labels = c("very close", "close", "meh", "far
 table(rounded_errors, how_close)
 
 # Scatter plot of actual vs. predicted
-qplot(test_y, predictions, color = how_close) + theme_minimal()
+qplot(test_y_reg, predictions, color = how_close) + theme_minimal()
 ```
 
 Calculate MSE and RMSE:
 ```{r}
 # Calculate mean-squared error.
-mean((predictions - test_y)^2)
+mean((predictions - test_y_reg)^2)
 
 # Calculate root mean-squared error.
-sqrt(mean((predictions - test_y)^2))
+sqrt(mean((predictions - test_y_reg)^2))
 ```
 
 ## Challenge 1

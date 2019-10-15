@@ -186,6 +186,31 @@ mean(task_class$data[-training_rows, "target"])
 table(task_class$data[-training_rows, "target"])
 ```
 
+## Define training and test x and y variables for regression and classification
+
+### Regression variables
+
+```{r}
+# Pull out regression preprocessed data for easier analysis
+train_x_reg = task_reg$data[task_reg$train_rows, task_reg$covariates]
+train_y_reg = task_reg$data[task_reg$train_rows, task_reg$outcome]
+
+test_x_reg = task_reg$data[-task_reg$train_rows, task_reg$covariates]
+test_y_reg = task_reg$data[-task_reg$train_rows, task_reg$outcome]
+
+# Look at ages of first 20 individuals
+head(train_y_reg, n = 20)
+
+# Look at features for the corresponding first 6 individuals
+head(train_x_reg)
+```
+
+### Classification variables
+
+```{r}
+
+```
+
 ### Save our preprocessed data
 
 We save our preprocessed data into an RData file so that we can easily load it the later files.
