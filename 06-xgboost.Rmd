@@ -56,9 +56,9 @@ modelLookup("xgbTree")
 # More details at https://xgboost.readthedocs.io/en/latest/parameter.html
 (xgb_grid = expand.grid(
   # Number of trees to fit, aka boosting iterations
-  nrounds = c(50, 250, 800),
+  nrounds = c(100, 300, 500, 700, 900),
   # Depth of the decision tree (how many levels of splits).
-	max_depth = c(1, 3, 6), 
+	max_depth = c(1, 6), 
   # Learning rate: lower means the ensemble will adapt more slowly.
 	eta = c(0.0001, 0.01, 0.2),
   # Make this larger and xgboost will tend to make smaller trees
