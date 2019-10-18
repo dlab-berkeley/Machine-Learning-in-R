@@ -39,7 +39,7 @@ SuperLearner::listWrappers()
 
 ```{r cvsl_fit, cache = TRUE}
 # Compile the algorithm wrappers to be used.
-sl_lib = c("SL.mean", "SL.glm", "SL.rpart", "SL.ranger", "SL.xgboost")
+sl_lib = c("SL.mean", "SL.glm", "SL.glmnet", "SL.rpart", "SL.ranger", "SL.xgboost")
 ```
 
 ## Fit Model
