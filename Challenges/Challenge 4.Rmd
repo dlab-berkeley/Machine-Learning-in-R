@@ -20,15 +20,9 @@ load("data/preprocessed.RData")
 
 ```{r}
 cv_control =
-  trainControl(method = "repeatedcv",
-               # Number of folds
-               number = 10L,
-               # Number of complete sets of folds to compute
-               repeats = 3L,
-               # Calculate class probabilities?
-               classProbs = TRUE,
-               # Indicate that our response variable is binary
-               summaryFunction = twoClassSummary) 
+  trainControl(
+    ## YOUR CODE HERE
+  ) 
 
 modelLookup("xgbTree")
 
@@ -41,16 +35,16 @@ nrow(xgb_grid)
 ### 4. Recode y variables
 
 ```{r}
-xgb_train_y = as.factor(ifelse(train_y == 1, "yes", "no"))
-xgb_test_y = as.factor(ifelse(test_y == 1, "yes", "no"))
-table(train_y, xgb_y)
-table(test_y, xgb_test_y)
+xgb_train_y = as.factor(ifelse(train_y_class == 1, "yes", "no"))
+xgb_test_y = as.factor(ifelse(test_y_class == 1, "yes", "no"))
+table(train_y_class, xgb_train_y)
+table(test_y_class, xgb_test_y)
 ```
 
 ### 5. Fit model
 
 ```{r}
-model = caret::train(xgb_train_y ~ ., data = cbind(xgb_train_y, train_x), 
+model = caret::train(xgb_train_y ~ ., data = cbind(xgb_train_y, train_x_class), 
              method = "xgbTree",
              metric = "ROC",
              trControl = cv_control,

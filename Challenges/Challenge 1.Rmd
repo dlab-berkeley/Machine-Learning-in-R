@@ -28,6 +28,7 @@ dim(iris_x)
 
 ### 4. Convert Species from factor to indicator
 ```{r}
+?model.matrix
 features_iris = data.frame(_____.______( ~ . -1 , ______))
 head(features_iris)
 ```

@@ -34,7 +34,7 @@ modelLookup("xgbTree")
 
 (xgb_grid = expand.grid(
   nrounds = c(50, 250, 800),
-  max_depth = c(1, 2, 3, 6), 
+  max_depth = c(1, 6), 
   eta = c(0.0001, 0.01, 0.2),
   gamma = 0,
   colsample_bytree = 1.0,
@@ -46,16 +46,16 @@ nrow(xgb_grid)
 ### 4. Recode y variables
 
 ```{r}
-xgb_train_y = as.factor(ifelse(train_y == 1, "yes", "no"))
-xgb_test_y = as.factor(ifelse(test_y == 1, "yes", "no"))
-table(train_y, xgb_y)
-table(test_y, xgb_test_y)
+xgb_train_y = as.factor(ifelse(train_y_class == 1, "yes", "no"))
+xgb_test_y = as.factor(ifelse(test_y_class == 1, "yes", "no"))
+table(train_y_class, xgb_train_y)
+table(test_y_class, xgb_test_y)
 ```
 
 ### 5. Fit model
 
 ```{r}
-model = caret::train(xgb_train_y ~ ., data = cbind(xgb_train_y, train_x), 
+model = caret::train(xgb_train_y ~ ., data = cbind(xgb_train_y, train_x_class), 
              method = "xgbTree",
              metric = "ROC",
              trControl = cv_control,
@@ -82,11 +82,11 @@ vip::vip(model) + theme_minimal()
 vip::vip(model$finalModel) + theme_minimal()
 
 # Generate predicted labels.
-predicted_labels = predict(model, test_x)
+predicted_labels = predict(model, test_x_class)
 table(xgb_test_y, predicted_labels)
 
 # Generate class probabilities.
-pred_probs = predict(model, test_x, type = "prob")
+pred_probs = predict(model, test_x_class, type = "prob")
 head(pred_probs)
 
 # View final model

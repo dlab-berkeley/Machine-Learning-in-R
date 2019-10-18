@@ -24,23 +24,13 @@ load("data/preprocessed.RData")
 
 ### 3. Fit the tree
 
-Wait! First, define the control structure 
-
-```{r}
-ctrl = rpart.control(minsplit = 5, minbucket = 3, cp = 0.015) 
-```
-
-Then, fit the model
-
 ```{r}
 set.seed(3)
 tree = rpart::rpart(train_y_class ~ ., data = train_x_class,
              # Use method = "anova" for a continuous outcome.
              method = "class",
              # Can use "gini" for gini coefficient.
-             parms = list(split = "information"), 
-             # Define the control structure
-             control = ctrl)
+             parms = list(split = "information"))
                
 # View confusing tree output
 print(tree)
@@ -62,19 +52,34 @@ printcp(tree)
 
 # Plot those estimated error rates.
 plotcp(tree)
-
-# Adjust complexity parameters
-tree_pruned1 = prune(tree, cp = 0.054348) # 1 split
-tree_pruned9 = prune(tree, cp = 0.015000) # 9 splits
 ```
 
-### 6. Print detailed results, variable importance, and summary of splits.
+### 6. Prune the tree with `rpart.control`
+
+Select the CP with the lowest xerror (or a simpler tree within one standard error), add it to `rpart.control`, and then refit the tree. 
 
 ```{r}
-summary(tree_pruned1) 
-rpart.plot(tree_pruned9)
+ctrl = rpart.control(minsplit = 5, minbucket = 3, cp = 0.030612) 
+```
 
-summary(tree_pruned2) 
-rpart.plot(tree_pruned9)
+```{r}
+set.seed(3)
+tree2 = rpart::rpart(train_y_class ~ ., data = train_x_class,
+             # Use method = "anova" for a continuous outcome.
+             method = "class",
+             # Can use "gini" for gini coefficient.
+             parms = list(split = "information"), 
+             # Add rpart.control
+             control = ctrl)
+               
+print(tree2)
+```
+
+
+### 7. Print detailed results, variable importance, and summary of splits.
+
+```{r}
+summary(tree2) 
+rpart.plot(tree2)
 ```
 
