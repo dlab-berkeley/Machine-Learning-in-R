@@ -90,7 +90,7 @@ pca1 = data.frame(res.pcamix$ind$coord, h$target)
 ggplot(pca1, aes(x = dim.1, y = dim.2, color = h.target)) + 
   geom_point() + 
   theme_bw() +
-  guides(color =guide_legend(title = "Has heart \n disease?")) + 
+  guides(color = guide_legend(title = "Has heart \n disease?")) + 
   ggtitle("PCA of heart disease") +
   xlab(paste("Dimension 2", paste0("(", 
                                    round(res.pcamix$eig[1, 2], 2), 
@@ -219,7 +219,7 @@ ggplot(
   guides(size = FALSE, alpha = FALSE) + 
   theme(legend.position = "top") + 
   ggtitle("Heart disease training/test data") + 
-  theme(plot.title = element_text(hjust = 0.5, size = 20),
+  theme(plot.title = element_text(hjust = 0.5, size = 10),
         legend.title = element_text(size = 10),
         legend.text = element_text(size = 10))  
 ```
