@@ -129,7 +129,7 @@ model$results[as.integer(rownames(model$bestTune)), ]
 
 # Plot the performance across all hyperparameter combinations. Nice!
 options(scipen = 999)
-ggplot(model) + theme_minimal() + ggtitle("Xgboost hyperparameter comparison") 
+ggplot(model) + theme_bw() + ggtitle("Xgboost hyperparameter comparison") 
 
 # Show variable importance (text).
 caret::varImp(model)
