@@ -25,7 +25,13 @@ RStudio Binder:
   
 ## Getting started
 
-Please follow the notes in [participant-instructions.md](participant-instructions.md).
+Please follow the notes in [participant-instructions.md](participant-instructions.md).  
+
+#### HAVE FUN! :^)
+
+The seven algorithm R Markdown files (lasso, decision tree, random forest, xgboost, SuperLearner, PCA, and clustering) are designed to function in a standalone manner.  
+
+After installing and librarying the packages in 01-overview.Rmd, run all the code in 02-preprocessing.Rmd to preprocess the data. Then, open any one of the seven algorithm R Markdown files and "Run All" code to see the results and visualizations! 
 
 ## Assumed participant background
 
