@@ -232,8 +232,6 @@ class: left
 - Random forest  
 - Boosting  
 - SuperLearner  
-
->BONUS: PCA and hierarical clustering unsupervised methods
   
 ### 2) Vizualize important information:  
 - Lasso coefficient paths  
