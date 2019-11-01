@@ -430,7 +430,7 @@ Leo Breiman also wrote the seminal paper on random forests:
 
 # XGBoost
 
-Boosting takes this ensemble idea a step further! The XGBoost algorithm takes a bunch of weak trees and "boosts" them insto strong trees. This algorithm downweights cases it can easily predict but upweights the cases it has trouble predicting. 
+Boosting takes this ensemble idea a step further! The XGBoost algorithm takes a bunch of weak trees and "boosts" them into strong trees. This algorithm downweights cases it can easily predict but upweights the cases it has trouble predicting. 
 
 This is not teleological though, as boosting fits a forest of trees sequentially on the residual of the previous tree. This learning rate can be specified, or how fast each tree should learn the error of the previous tree. Here we also introduce:  
 - `caret::trainControl` for defining cross-validation (rather than bootstrap) settings  
