@@ -513,6 +513,8 @@ Distance and cluster method information are usually displayed at the bottom of t
 
 <img style="right;" src="slides_img/clust-rad-link-unc.png"/>
 
+### Open "09-hclust.Rmd" to work through the clustering examples.
+
 ---
 
 # D-Lab's Introduction to Deep Learning in R
