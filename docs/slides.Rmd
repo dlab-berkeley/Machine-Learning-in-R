@@ -340,7 +340,7 @@ Remember that in multivariate regression, there is more than one $x$ variable.
 
 [Mean squared error (MSE) and root mean squared error (RMSE)](https://en.wikipedia.org/wiki/Mean_squared_error) are quick ways to evaluate performance. MSE measures the difference between observed and expected values, with smaller values indicative of greater predictive accuracy. The advantage of RMSE is that it can be easier to interpret and explain because it is on the same unit scale as the outcome variable we are predicting. 
 
-Remember that under the hood, [`lm`](https://www.rdocumentation.org/packages/stats/versions/3.5.2/topics/lm) is one-hot encoding factors to indicators, but [`model.matrix`](https://www.rdocumentation.org/packages/stats/versions/3.5.2/topics/model.matrix) was already manually used to do so.  
+Remember that under the hood, [`lm`](https://www.rdocumentation.org/packages/stats/versions/3.5.2/topics/lm) is one-hot encoding factors to indicators, but [`model.matrix`](https://www.rdocumentation.org/packages/stats/versions/3.5.2/topics/model.matrix) can be used to do so manually.  
 
 Also be sure to [check out this blog post](http://blog.yhat.com/posts/r-lm-summary.html) on how to fit and interpret linear models. 
 
