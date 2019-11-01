@@ -2,7 +2,7 @@
 title: "Introduction to Machine Learning in R"
 subtitle: ""
 author: "D-Lab - Evan Muzzall and Chris Kennedy"
-date: "March 13, 2019 (updated: `r Sys.Date()`)"
+date: "October 15, 2019 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
     css: ["scrollable.css", "mtheme_max.css", "fonts_mtheme_max.css"]
@@ -52,12 +52,11 @@ theme_set(thm)
 class: title-slide   
 <a href="https://github.com/dlab-berkeley/Machine-Learning-in-R"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 
-
 <br><br><br><br>
 # .font130[Introduction to Machine Learning in R]
 
 ### Evan Muzzall and Chris Kennedy  
-### May 10, 2019
+### October 15, 2019
 
 ---
 
@@ -225,7 +224,7 @@ class: left
 
 # Workshop goals
 
-### 1) Learn the basics of using six machine learning algorithms in R:  
+### 1) Learn the basics of using six supervised machine learning algorithms in R:  
 
 - OLS regression  
 - Lasso  
@@ -233,6 +232,8 @@ class: left
 - Random forest  
 - Boosting  
 - SuperLearner  
+
+>BONUS: PCA and hierarical clustering unsupervised methods
   
 ### 2) Vizualize important information:  
 - Lasso coefficient paths  
@@ -389,6 +390,8 @@ For basic classification, we are no longer using MSE or RMSE but instead classif
 
 To determine the top split ("root node"), the model looks at all cutpoints to see which group stands out as the best split. The "complexity parameter" can be used to [prune](https://en.wikipedia.org/wiki/Decision_tree_pruning) the tree to a lesser number of splits and removes unnecessary information. 
 
+Breiman et al's book [Classification and Regression Trees (1984)](https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418) is a must read for learning more about decision trees. 
+
 ---
 
 # Decision trees
@@ -397,3 +400,129 @@ To determine the top split ("root node"), the model looks at all cutpoints to se
 
 ### Open "4-decision-trees.Rmd" to work through the decision tree examples. 
 
+---
+
+# Random forest
+
+The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest can be viewed as an **ensemble** method, or model averaging approach.  
+
+Random forests are 
+- **random** because each tree is a bagged sample _and_ because only a subset of all predictors (the **mtry** hyperparameter) are used as candidates at each split (not all predictors like single decision trees)
+  - This reduced number of predictor candidates at each split allows for something other than the best split to be the top split, thus growing many different looking trees - this "decorrelates" the trees.  
+- **forests** because many trees are grown!
+
+Leo Breiman also wrote the seminal paper on random forests:  
+[Breiman L. 2001. Random forests. Machine learning 45:5–32](https://stat.berkeley.edu/~breiman/randomforest2001.pdf)
+
+---
+
+# Random forest 
+
+.pull-left[
+.center[![](slides_img/pexels-free-forest.png)]
+]
+
+.pull-right[
+.center[![](slides_img/med-rf.png)]
+]
+
+### Open "05-random-forest.Rmd" to work through the random forest examples.
+
+---
+
+# XGBoost
+
+Boosting takes this ensemble idea a step further! The XGBoost algorithm takes a bunch of weak trees and "boosts" them insto strong trees. This algorithm downweights cases it can easily predict but upweights the cases it has trouble predicting. 
+
+This is not teleological though, as boosting fits a forest of trees sequentially on the residual of the previous tree. This learning rate can be specified, or how fast each tree should learn the error of the previous tree. Here we also introduce:  
+- `caret::trainControl` for defining cross-validation (rather than bootstrap) settings  
+- `caret::expand.grid` for creating a grid search of hyperparameters to tune, allowing us to fit multiple combinations of the algoritihm simultaneously. 
+- *A*rea *U*nder the Receiver Operating Characteristic *C*urve (AUC) as a performance metric.  
+
+---
+
+# XGBoost
+
+.pull-left[
+.center[![](slides_img/xgb-cvhyper.png)]
+]
+
+.pull-right[
+.center[![Irony](slides_img/xgb-testAUC.png)]
+]
+
+### Open "06-xgboost.Rmd" to work through the xgboost examples. 
+
+---
+
+# SuperLearner
+
+The SuperLearner R package takes this idea of ensembling even further! Instead of ensembling only trees-based methods, we can simultaneously compare the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters. This is a generally advisable approach to machine learning instead of fitting single algorithms. 
+
+Let's compare the algorithms you have previously fitted individually in this workshop: lasso, decision tree, random forest, and xgboost. We will add two other algorithms for fun: logistic regression and the mean of our Y response variable. 
+
+- **Risk:** is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. Lower is better! 
+- **Discrete.SL:** the singled best-performing algorithm. 
+- **Super Learner:** the weighted ensemble average algorithm comprised of a combination of our selected algorithms. 
+- **SL.glm_All:** logistic regression (`glm`); one of the most common algorithms across scientific disciplines. 
+- **SL.mean_All:** the mean of our Y response variable; this is the simplest algorithm and should perform the worst of all. 
+
+---
+
+# SuperLearner
+
+.pull-left[
+.center[![](slides_img/cvsl-risk.png)]
+]
+
+.pull-right[
+.center[![Irony](slides_img/cvsl-auc.png)]
+]
+
+### Open "07-ensembles.Rmd" to work through the SuperLearner ensemble examples. 
+
+---
+
+# Principal component analysis
+
+The previous methods we have examined are supervised - they are used to predict some $y$ outcome variable based on $x$ predictors. Principal component analysis (PCA) is an unsupervised method, which does not use any $y$ variable for supervision but instead sorts the data based _only_ on the $x$ variables. PCA and other ordintation/dimension reduction techniques are helpful for optimizing other machine learning algorithms. 
+
+PCA is a powerful linear transformation technique used to explore patterns in data and highly correlated variables. It is useful for distilling variation into "components" across many variables onto a reduced feature space, such as a two or three-dimensional scatterplot. Axis loadings can then be extracted to see which variables contribute most to variation along each component.
+
+---
+
+# Principal component analysis
+
+<img style="right;width:325px;" src="slides_img/pca-scatter.png"/>
+<img style="center;width:350px;" src="slides_img/pca-sqload.png"/>
+<img style="left;width:350px;" src="slides_img/pca-ml.png"/>
+
+### Open "08-PCA.Rmd" to work through the principal component analysis examples.
+
+---
+
+# Hierarchical agglomerative clustering
+
+Hierarchical agglomerative clustering is a bottom-up approach. Each observation begins as its own cluster and forms clusters with like items as it moves up the hierarchy. That is, all leaves are their own clusters to begin with and form clusters as grouping moves up the trunk and various branches are formed.  
+
+Distance and cluster method information are usually displayed at the bottom of the graph, while the vertical axis displays the height, which refers to the distance between clusters. We can also "cut" the dendrogram to specify a number of clusters, which is similar to defining _k_ in k-means clustering (which can also be problematic).  
+
+---
+
+# Hierarchical agglomerative clustering
+
+<img style="right;" src="slides_img/clust-rad-link-unc.png"/>
+
+---
+
+# D-Lab's Introduction to Deep Learning in R
+
+Want to apply your newfound skills to building deep neural networks using Keras in R? Check out our Introduction to Deep Learning in R! Join us to learn about the below graph that represents a neural network for classifying images of dogs and humans - and how to tell if it is doing a good job: 
+
+<video width="500" height="300" controls>
+  <source src="slides_img/dogs-humans-classifier.mov" type="video/mp4">
+</video>
+
+Slideshow: https://dlab-berkeley.github.io/Deep-Learning-in-R/slides.html#1
+
+Repository: https://github.com/dlab-berkeley/Deep-Learning-in-R
