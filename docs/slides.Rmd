@@ -483,7 +483,7 @@ Let's compare the algorithms you have previously fitted individually in this wor
 
 # Principal component analysis
 
-The previous methods we have examined are supervised - they are used to predict some $y$ outcome variable based on $x$ predictors. Principal component analysis (PCA) is an unsupervised method, which does not use any $y$ variable for supervision but instead sorts the data based _only_ on the $x$ variables. PCA and other ordintation/dimension reduction techniques are helpful for optimizing other machine learning algorithms. 
+The previous methods we have examined are supervised - they are used to predict some $y$ outcome variable based on $x$ predictors. Principal component analysis (PCA) is an unsupervised method, which does not use any $y$ variable for supervision but instead sorts the data based _only_ on the $x$ variables. PCA and other ordination/dimension reduction techniques are helpful for optimizing other machine learning algorithms. 
 
 PCA is a powerful linear transformation technique used to explore patterns in data and highly correlated variables. It is useful for distilling variation into "components" across many variables onto a reduced feature space, such as a two or three-dimensional scatterplot. Axis loadings can then be extracted to see which variables contribute most to variation along each component.
 
