@@ -121,7 +121,7 @@ This workshop will utilize a variety of packages to install and organize the cod
 
 * Chris Kennedy's R Toolkit: "ck37r"
 
-### Highlight and run lines 12-26 inside 1-overview.Rmd to install these packages. Then, highlight and run lines 30-46 to import them. 
+### Highlight and run lines 12-27 inside 1-overview.Rmd to install these packages. Then, highlight and run lines 31-51 to import them. 
 
 ---
 
