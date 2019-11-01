@@ -37,8 +37,8 @@ After installing and librarying the packages in 01-overview.Rmd, run all the cod
 
 We assume that participants have familiarity with:
 
-* basic R syntax
-* statistical concepts such as mean and standard deviation
+* Basic R syntax
+* Statistical concepts such as mean and standard deviation
 
 ## Technology requirements
 
