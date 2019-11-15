@@ -1,4 +1,4 @@
-cran_packages =
+ cran_packages =
   c("caret",
     "dplyr",
     "glmnet",
@@ -12,6 +12,8 @@ cran_packages =
     "SuperLearner",
     "vip",
     "xgboost",
+    "PCAmixdata", "pvclust", "mclust", 
+    "ape",
     NULL)
 install.packages(cran_packages)
 remotes::install_github("ck37/ck37r")
