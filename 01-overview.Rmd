@@ -21,7 +21,7 @@ if (FALSE) {
                      # Import/export of any filetype.
                      "rio",
                      # Misc
-                     "pROC"))
+                     "pROC", "bookdown"))
   
   # Install packages not on CRAN or with old version on CRAN.
   remotes::install_github(c("ck37/ck37r"))
