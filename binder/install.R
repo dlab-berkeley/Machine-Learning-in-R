@@ -1,5 +1,6 @@
  cran_packages =
-  c("caret",
+  c("bookdown",
+    "caret",
     "dplyr",
     "glmnet",
     "ggplot2",
