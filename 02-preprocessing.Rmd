@@ -74,7 +74,7 @@ str(data)
 colSums(is.na(data))
 ```
 
-Since the "ca", "cp", "slope", and "thal" features are currently interger type, convert them to factors. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
+Since the "ca", "cp", "slope", and "thal" features are currently integer type, convert them to factors. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
 
 ```{r}
 data = ck37r::categoricals_to_factors(data,
