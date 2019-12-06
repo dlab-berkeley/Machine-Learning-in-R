@@ -33,9 +33,12 @@ features_iris = data.frame(_____.______( ~ . -1 , ______))
 head(features_iris)
 ```
 
-### 5. Perform a stratified random split.
+### 5. Perform a 70/30 random split.
 ```{r}
-training_rows_iris = _____::___________________(______, p = 0.70, list = FALSE) 
+(training_size = floor(0.70 * nrow(_____________)))
+# Set seed for reproducibility.
+set.seed(1)
+training_rows_iris = sample(nrow(_____________), size = _____________)
 ```
 
 ### 6. Partition training and test sets

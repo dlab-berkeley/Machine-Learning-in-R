@@ -37,10 +37,13 @@ features_iris = data.frame(model.matrix( ~ . -1 , iris_x))
 head(features_iris)
 ```
 
-### 5. Perform a stratified random split.
+### 5. Perform a 70/30 random split.
 
 ```{r}
-training_rows_iris = caret::createDataPartition(iris_y, p = 0.70, list = FALSE) 
+(training_size = floor(0.70 * nrow(features_iris)))
+# Set seed for reproducibility.
+set.seed(1)
+training_rows_iris = sample(nrow(features_iris), size = training_size)
 ```
 
 ### 6. Partition training and test sets
