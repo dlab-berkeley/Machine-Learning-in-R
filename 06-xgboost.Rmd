@@ -165,7 +165,7 @@ plot(rocCurve,
 
 # Get specificiety and sensitivity at particular threshold
 pROC::coords(rocCurve, 0.01, transpose = FALSE)
-pROC::coords(rocCurve, 0.525, transpose = FALSE) # best
+pROC::coords(rocCurve, 0.525, transpose = FALSE) 
 pROC::coords(rocCurve, 0.99, transpose = FALSE)
 ```
 
