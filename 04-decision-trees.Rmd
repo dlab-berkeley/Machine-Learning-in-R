@@ -112,5 +112,7 @@ rpart.plot(tree_pruned6)
 
 You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type `?rpart` to learn more.  
 
+Be sure to check out [gormanalysis](https://www.gormanalysis.com/blog/decision-trees-in-r-using-rpart/) excellent overview to help internalize what you learned in this example. 
+
 ## Challenge 2
 Open Challenge 2 in the "Challenges" folder. 
