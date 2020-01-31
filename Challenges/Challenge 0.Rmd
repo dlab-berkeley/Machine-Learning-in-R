@@ -1,5 +1,5 @@
 # Challenge 0
-# 03-lasso.Rmd (OLS)
+# Ordinary least squares (OLS) regression "by hand"
 
 ## 1. Generate toy predictor (X) and response (Y) variables
 ```{r}
