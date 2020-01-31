@@ -21,7 +21,7 @@ load("data/preprocessed.RData")
 In the preprocessing, lasso, decision tree, random forest, and boosted tree notebooks you have learned: 
 - Ways to setup your data to plug it into different algorithms  
 - Some common moving parts of different algorithms  
-- How to define control structures and grid searchers and why they are important  
+- How to define control structures and grid searches and why they are important  
 - How to configure hyperparameter settings to improve performance  
 - Why comparing more than one algorithm at once is preferred  
 
