@@ -87,7 +87,7 @@ table(train_y_class, xgb_train_y_class)
 table(test_y_class, xgb_test_y_class)
 ```
 
-> NOTE: This will take a few minutes to complete! See the .html file for the output.
+> NOTE: This will take a few minutes to complete! 
 
 ```{r xgb_fit, cache = TRUE}
 set.seed(1)
