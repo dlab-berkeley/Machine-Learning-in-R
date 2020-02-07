@@ -10,32 +10,32 @@ Y = c(1, 3, 5, 9, 19, 21)
 ## 2. Calculate means of X and Y
 
 ```{r}
-mean(X)
-mean(Y)
+(x_mean = mean(X))
+(y_mean = mean(Y))
 ```
 
 ## 3. Calculate error for each observation
 ```{r}
-X-mean(X)
-Y-mean(Y)
+(x_err = X - x_mean)
+(y_err = Y - y_mean)
 ```
 
 ## 4. Plot the data
 ```{r}
-plot(x=X, y=Y, main="example")
+plot(x = X, y = Y, main = "OLS")
 ```
 
 ## 5. Estimate B1 coefficient (slope)
 
 ````{r}
-B1 <- sum((X-mean(X)) * (Y-mean(Y))) / sum((X-mean(X))^2)
+B1 = sum(x_err * y_err) / sum(x_err ^2)
 B1
 ```
 
 ## 6. Estimate B0 coefficient (intercept)
 
 ```{r}
-B0 <- mean(Y) - (B1 * mean(X))
+B0 = y_mean - (B1 * x_mean)
 B0
 ```
 
@@ -48,7 +48,7 @@ abline(B0, B1, col = "green", lwd = 4)
 ## 8. Generate predicted values by plugging in our X values to the equation: 
 
 ```{r}
-Y_hat <- B0 + B1 * X
+Y_hat = B0 + B1 * X
 Y_hat
 ```
 
@@ -56,36 +56,36 @@ Y_hat
 
 First, calculatte the error for each observation by subracting it from the predicted value:
 ```{r}
-Y_err <- Y_hat - Y
-Y_err
+y_obs_err = Y_hat - Y
+y_obs_err
 ```
 
 ## 10. Then, calculate the square of each of these errors:
 ```{r}
-Y_err_sq <- Y_err^2
-Y_err_sq
+y_err_sq = y_obs_err ^ 2
+y_err_sq
 ```
 
 ## 11. Sum these values
 ```{r}
-sum_squared_err <- sum(Y_err_sq)
+sum_squared_err = sum(y_err_sq)
 sum_squared_err
 ```
 
 ## 12. Divide by n and take square root to produce the RMSE:
 
 ```{r}
-RMSE <- sqrt(sum_squared_err / length(Y))
+RMSE = sqrt(sum_squared_err / length(Y))
 RMSE
 ```
 
 ## 13. Sanity check
 
 ```{r}
-RMSE == sqrt(sum((Y_hat - Y)^2) / length(Y))
+RMSE == sqrt(sum(y_err_sq) / length(Y))
 
 ## double sanity check - fit the model using the lm function in R:
-lm_toy <- lm(Y ~ X)
+lm_toy = lm(Y ~ X)
 lm_toy
 B1
 B0
