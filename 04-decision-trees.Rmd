@@ -30,9 +30,11 @@ set.seed(3)
 tree = rpart::rpart(train_y_class ~ ., data = train_x_class,
              # Use method = "anova" for a continuous outcome.
              method = "class",
-             # # https://stackoverflow.com/questions/4553947/decision-tree-on-information-gain
+             
              # Can use "gini" for gini coefficient.
              parms = list(split = "information")) 
+
+# https://stackoverflow.com/questions/4553947/decision-tree-on-information-gain
 
 # Here is the text-based display of the decision tree. Yikes!  :^( 
 print(tree)
