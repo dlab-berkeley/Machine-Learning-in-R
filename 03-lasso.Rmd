@@ -34,6 +34,7 @@ predicted = predict(fit, test_x_reg)
 (mse_reg = mean((test_y_reg - predicted)^2))
 
 # Root mean-squared error
+# We are off ~7.54 years for predicting age
 sqrt(mse_reg)
 ```
 
@@ -126,7 +127,9 @@ table(rounded_errors, how_close)
 
 # Scatter plot of actual vs. predicted
 qplot(test_y_reg, predictions, 
-      color = how_close) + theme_minimal()
+      color = how_close) +
+  geom_point(size = 5, alpha = 0.7) + 
+  theme_minimal()
 ```
 
 Calculate MSE and RMSE:
