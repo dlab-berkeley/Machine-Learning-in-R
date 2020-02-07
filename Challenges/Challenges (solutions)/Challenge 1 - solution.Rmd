@@ -3,6 +3,8 @@
 
 Fill in the blanks to complete the below lasso code that predicts "Petal.Width" variable from the iris dataset. What predictors are most strongly associated with values for "Petal.Width"? 
 
+> HINT: Use the `03-lasso.Rmd` and `Challenge 1 - solution.Rmd` files as your guide!
+
 ### 1. Setup
 - Load the iris dataset 
 - Load the glmnet library
