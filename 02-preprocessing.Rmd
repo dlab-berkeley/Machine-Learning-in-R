@@ -78,7 +78,7 @@ Since the "ca", "cp", "slope", and "thal" features are currently integer type, c
 
 ```{r}
 data = ck37r::categoricals_to_factors(data,
-              categoricals = c("ca", "cp", "slope", "thal"),
+              categoricals = c("sex", "ca", "cp", "slope", "thal"),
               verbose = TRUE)
 
 # Inspect the updated data frame
@@ -89,7 +89,7 @@ str(data)
 
 ### Convert factors to indicators
 
-Now expand "ca", "cp", "slope", and "thal" features out into indicators. 
+Now expand "sex", "ca", "cp", "slope", and "thal" features out into indicators. 
 
 ```{r factors_to_indicators}
 result = ck37r::factors_to_indicators(data, verbose = TRUE)
