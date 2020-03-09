@@ -36,15 +36,15 @@ Create two objects - `cv_control` and `xgb_grid`. `cv_control` will allow us to 
 ```{r caret_prep}
 # Use 5-fold cross-validation with 2 repeats as our evaluation procedure (instead of the default "bootstrap")
 cv_control =
-  trainControl(method = "repeatedcv",
-               # Number of folds
-               number = 5L,
-               # Number of complete sets of folds to compute
-               repeats = 2L,
-               # Calculate class probabilities?
-               classProbs = TRUE,
-               # Indicate that our response variable is binary
-               summaryFunction = twoClassSummary) 
+  caret::trainControl(method = "repeatedcv",
+                      # Number of folds
+                      number = 5L,
+                      # Number of complete sets of folds to compute
+                      repeats = 2L,
+                      # Calculate class probabilities?
+                      classProbs = TRUE,
+                      # Indicate that our response variable is binary
+                      summaryFunction = twoClassSummary) 
 ```
 
 ### Define `xgb_grid`
@@ -52,6 +52,9 @@ cv_control =
 ```{r}
 # Ask caret what hyperparameters can be tuned for the xgbTree algorithm.
 modelLookup("xgbTree")
+
+# turn off scientific notation
+options(scipen = 999)
 
 # More details at https://xgboost.readthedocs.io/en/latest/parameter.html
 (xgb_grid = expand.grid(
@@ -125,6 +128,9 @@ model
 model$bestTune
 
 # And the corresponding performance metrics. 
+
+# TODO: fix 
+
 model$results[as.integer(rownames(model$bestTune)), ]
 
 # Plot the performance across all hyperparameter combinations. Nice!
