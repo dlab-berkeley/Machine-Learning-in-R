@@ -54,7 +54,7 @@ Y_hat
 
 ## 9. Calculate root mean sqaure error (RMSE) for our predictions. 
 
-First, calculatte the error for each observation by subracting it from the predicted value:
+First, calculate the error for each observation by subracting it from the predicted value:
 ```{r}
 y_obs_err = Y_hat - Y
 y_obs_err
