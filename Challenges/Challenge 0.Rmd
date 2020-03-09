@@ -27,8 +27,8 @@ plot(x = X, y = Y, main = "OLS")
 
 ## 5. Estimate B1 coefficient (slope)
 
-````{r}
-B1 = sum(x_err * y_err) / sum(x_err ^2)
+```{r}
+B1 = sum(x_err * y_err) / sum(x_err ^ 2)
 B1
 ```
 
