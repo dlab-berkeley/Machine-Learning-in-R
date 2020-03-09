@@ -18,6 +18,12 @@ load("data/preprocessed.RData")
 
 ## Overview
 
+* LASSO = sets Beta coefficients of unrelated (to Y) predcitors to zero
+
+* RIDGE = sets Beta coefficients of unrealted (to Y) predictors NEAR ZERO but does not remove them
+
+* ELASTICNET = a combination of LASSO and RIDGE
+
 Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors.  
 
 ```{r}
