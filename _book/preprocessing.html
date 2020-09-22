@@ -555,8 +555,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb32-14"><a href="preprocessing.html#cb32-14"></a>test_x_reg &lt;-<span class="st"> </span><span class="kw">bake</span>(recipe_reg, raw_test_x_reg)</span>
 <span id="cb32-15"><a href="preprocessing.html#cb32-15"></a></span>
 <span id="cb32-16"><a href="preprocessing.html#cb32-16"></a><span class="co"># y variables </span></span>
-<span id="cb32-17"><a href="preprocessing.html#cb32-17"></a>train_y_reg &lt;-<span class="st"> </span>train_x_reg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(age)</span>
-<span id="cb32-18"><a href="preprocessing.html#cb32-18"></a>test_y_reg &lt;-<span class="st"> </span>test_x_reg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(age)</span>
+<span id="cb32-17"><a href="preprocessing.html#cb32-17"></a>train_y_reg &lt;-<span class="st"> </span>train_x_reg<span class="op">$</span>age <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</span>
+<span id="cb32-18"><a href="preprocessing.html#cb32-18"></a>test_y_reg &lt;-<span class="st"> </span>test_x_reg<span class="op">$</span>age <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</span>
 <span id="cb32-19"><a href="preprocessing.html#cb32-19"></a></span>
 <span id="cb32-20"><a href="preprocessing.html#cb32-20"></a><span class="co"># First 6 rows </span></span>
 <span id="cb32-21"><a href="preprocessing.html#cb32-21"></a><span class="kw">head</span>(train_x_reg)</span></code></pre></div>
@@ -628,8 +628,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb39-14"><a href="preprocessing.html#cb39-14"></a>test_x_class &lt;-<span class="st"> </span><span class="kw">bake</span>(recipe_class, raw_test_x_class)</span>
 <span id="cb39-15"><a href="preprocessing.html#cb39-15"></a></span>
 <span id="cb39-16"><a href="preprocessing.html#cb39-16"></a><span class="co"># y variables </span></span>
-<span id="cb39-17"><a href="preprocessing.html#cb39-17"></a>train_y_class &lt;-<span class="st"> </span>train_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(target)</span>
-<span id="cb39-18"><a href="preprocessing.html#cb39-18"></a>test_y_class &lt;-<span class="st"> </span>test_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(target)</span>
+<span id="cb39-17"><a href="preprocessing.html#cb39-17"></a>train_y_class &lt;-<span class="st"> </span>train_x_class<span class="op">$</span>target <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</span>
+<span id="cb39-18"><a href="preprocessing.html#cb39-18"></a>test_y_class &lt;-<span class="st"> </span>test_x_class<span class="op">$</span>target <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</span>
 <span id="cb39-19"><a href="preprocessing.html#cb39-19"></a></span>
 <span id="cb39-20"><a href="preprocessing.html#cb39-20"></a><span class="co"># First 6 rows </span></span>
 <span id="cb39-21"><a href="preprocessing.html#cb39-21"></a><span class="kw">head</span>(train_x_class)</span></code></pre></div>

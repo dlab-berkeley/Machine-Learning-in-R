@@ -245,8 +245,8 @@ train_x_reg <- bake(recipe_reg, raw_train_x_reg)
 test_x_reg <- bake(recipe_reg, raw_test_x_reg)
 
 # y variables 
-train_y_reg <- train_x_reg %>% select(age)
-test_y_reg <- test_x_reg %>% select(age)
+train_y_reg <- train_x_reg$age %>% as.numeric()
+test_y_reg <- test_x_reg$age %>% as.numeric()
 
 # First 6 rows 
 head(train_x_reg)
@@ -314,8 +314,8 @@ train_x_class <- bake(recipe_class, raw_train_x_class)
 test_x_class <- bake(recipe_class, raw_test_x_class)
 
 # y variables 
-train_y_class <- train_x_class %>% select(target)
-test_y_class <- test_x_class %>% select(target)
+train_y_class <- train_x_class$target %>% as.numeric()
+test_y_class <- test_x_class$target %>% as.numeric()
 
 # First 6 rows 
 head(train_x_class)
