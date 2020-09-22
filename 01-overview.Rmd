@@ -19,7 +19,7 @@ if (FALSE) {
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages
-                     "remotes", "dplyr", "purrr",
+                     "remotes", "dplyr", "purrr", "here",
                      # Import/export of any filetype.
                      "rio",
                      # Misc
