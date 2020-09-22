@@ -1,9 +1,9 @@
  cran_packages =
-  c("bookdown",
+  c("tidyverse",
+    "tidymodels",
+    "bookdown",
     "caret",
-    "dplyr",
     "glmnet",
-    "ggplot2",
     "pROC",
     "ranger",
     "rpart",
