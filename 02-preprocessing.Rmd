@@ -31,14 +31,36 @@ class(data)
 ## Read background information and variable descriptions  
 https://archive.ics.uci.edu/ml/datasets/heart+Disease
 
-![Heart Diseases dataset availalbe at the UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/assets/MLimages/Large45.jpg)
+## Quick overviews on machine learning 
+
+
+- In this workshop, we will cover classical and ensemble machine learning models. 
+
+
+![Based on https://vas3k.com/blog/machine_learning/](https://i.vas3k.ru/7vz.jpg)
+
+
+- As for the first step, we will focus on supervised machine learning (regression and classification).
+
+
+![Based on https://vas3k.com/blog/machine_learning/](https://i.vas3k.ru/7w1.jpg)
+
 
 ## Machine learning workflow 
 
-Before diving into the specific problem (i.e., preprocessing), let's take a step back and think about the big picture.
+- Before diving into the specific problem (i.e., preprocessing), let's take a step back and think about the big picture.
 
 ![A schematic for the typical modeling process (from Tidy Modeling with R)](https://www.tmwr.org/premade/modeling-process.svg)
-- Preeprocessing happens between the EDA and the initial feature engineering. 
+
+
+- Preprocessing happens between the EDA and the initial feature engineering. 
+
+
+![Based on https://vas3k.com/blog/machine_learning/](https://i.vas3k.ru/7r8.jpg)
+
+
+- Data (e.g., text, image, and video) and Features (the dimensions of a numeric vector) are different!
+
 
 ## Why taking a tidyverse approach to machine learning?
 
@@ -209,6 +231,9 @@ test_x_reg <- bake(recipe_reg, raw_test_x_reg)
 train_y_reg <- train_x_reg %>% select(age)
 test_y_reg <- test_x_reg %>% select(age)
 
+# First 6 rows 
+head(train_x_reg)
+
 ```
 
 - Note that other imputation methods are also available. Fancier methods tend to take longer time than simpler ones such as mean, median, or mode imputation. 
@@ -274,6 +299,9 @@ test_x_class <- bake(recipe_class, raw_test_x_class)
 # y variables 
 train_y_class <- train_x_class %>% select(target)
 test_y_class <- test_x_class %>% select(target)
+
+# First 6 rows 
+head(train_x_class)
 
 ```
 
