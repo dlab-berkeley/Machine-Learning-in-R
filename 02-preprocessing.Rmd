@@ -238,7 +238,7 @@ recipe_reg <- raw_train_x_reg %>%
   # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators). 
   step_dummy(c("sex", "ca", "cp", "slope", "thal")) %>%
   # Prepare a dataset to base each step on
-  prep(training = raw_train_x_reg) 
+  prep(retain = TRUE) 
 
 ```
 
@@ -249,12 +249,12 @@ train_x_reg <- juice(recipe_reg, all_predictors())
 test_x_reg <- bake(recipe_reg, raw_test_x_reg, all_predictors())
 
 # y variables 
-train_y_reg <- juice(recipe_reg, all_outcomes())
-test_y_reg <- bake(recipe_reg, raw_test_x_reg, all_outcomes())
+train_y_reg <- juice(recipe_reg, all_outcomes())$age %>% as.numeric()
+test_y_reg <- bake(recipe_reg, raw_test_x_reg, all_outcomes())$age %>% as.numeric()
 
-# First 6 rows 
-head(train_x_reg) # Make sure there's no age variable!
-head(train_y_reg) # Make sure this is age variable!
+# Checks
+names(train_x_reg) # Make sure there's no age variable!
+class(train_y_reg) # Make sure this is a continuous variable!
 
 ```
 
@@ -312,7 +312,7 @@ recipe_class <- raw_train_x_class %>%
   # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators). 
   step_dummy(c("sex", "ca", "cp", "slope", "thal")) %>%
   # Prepare a dataset to base each step on
-  prep(training = raw_train_x_class) 
+  prep(retain = TRUE) 
 
 ```
 
@@ -323,12 +323,12 @@ train_x_class <- juice(recipe_class, all_predictors())
 test_x_class <- bake(recipe_class, raw_test_x_class, all_predictors())
 
 # y variables 
-train_y_class <- juice(recipe_class, all_outcomes())
-test_y_class <- bake(recipe_class, raw_test_x_class, all_outcomes())
+train_y_class <- juice(recipe_class, all_outcomes())$target %>% as.factor()
+test_y_class <- bake(recipe_class, raw_test_x_class, all_outcomes())$target %>% as.factor()
 
-# First 6 rows 
-head(train_x_class) # Make sure there's no target variable!
-head(train_y_class) # Make sure this is target variable!
+# Checks 
+names(train_x_class) # Make sure there's no target variable!
+class(train_y_class) # Make sure this is a factor variable!
 
 ```
 
