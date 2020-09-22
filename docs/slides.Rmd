@@ -1,7 +1,7 @@
 ---
 title: "Introduction to Machine Learning in R"
 subtitle: ""
-author: "D-Lab - Evan Muzzall and Chris Kennedy"
+author: "D-Lab - Evan Muzzall, Chris Kennedy, and Jae Yeon Kim"
 date: "January 31, 2020 (updated: `r Sys.Date()`)"
 output:
   xaringan::moon_reader:
@@ -55,8 +55,8 @@ class: title-slide
 <br><br><br><br>
 # .font130[Introduction to Machine Learning in R]
 
-### Evan Muzzall and Chris Kennedy  
-### January 31, 2020
+### Evan Muzzall, Chris Kennedy, and Jae Yeon Kim  
+### September 28, 2020
 
 ---
 
@@ -71,6 +71,8 @@ class: center, middle, inverse
 
 * [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals): Introduction to data types/structures, and importing/exporting, visualizing, and testing data.  
 * [Data Wrangling with R](https://github.com/dlab-berkeley/R-wrang): Focus on dplyr and tidyr packages.  
+* [Advanced Data Wrangling Techniques in R](https://github.com/dlab-berkeley/advanced-data-wrangling-in-R): Focus on dplyr 1.1.0
+* [How to Automate Repeated Things in R](https://github.com/dlab-berkeley/R-functional-programming): Functional programming in R
 * [R graphics](https://github.com/dlab-berkeley/R-graphics): Base and ggplot2 visualizations.  
 * [Introduction to Deep Learning](https://github.com/dlab-berkeley/Deep-Learning-in-R): Keras basics for artificial neural networks.  
 * [Machine Learning Working Group](https://github.com/dlab-berkeley/MachineLearningWG): R and Python code for a variety of machine learning algorithms.  
@@ -79,6 +81,12 @@ class: center, middle, inverse
 
 # Resources
 _An Introduction to Statistical Learning - with Applications in R (2013)_ by Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Springer: New York. [Amazon](https://www.amazon.com/Introduction-Statistical-Learning-Applications-Statistics/dp/1461471370) or [free PDF](http://www-bcf.usc.edu/~gareth/ISL/). We encourage you to support the authors by purchasing their textbook!  
+
+*Hands-On Machine Learning with R (2020)* by Bradley Boehmke & Brandon Greenwell. [CRC Press](https://www.routledge.com/Hands-On-Machine-Learning-with-R/Boehmke-Greenwell/p/book/9781138495685) or [Amazon](https://www.amazon.com/gp/product/1138495689?pf_rd_p=ab873d20-a0ca-439b-ac45-cd78f07a84d8&pf_rd_r=JBRX0ZJ1WFSR9T3JPTQE)
+
+*Applied Predictive Modeling (2013)* by Max Kuhn and Kjell Johnson. Springer: New York. [Amazon](https://www.amazon.com/Applied-Predictive-Modeling-Max-Kuhn/dp/1461468485?SubscriptionId=0ENGV10E9K9QDNSJ5C82&tag=apm0a-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=1461468485) 
+
+*[Tidy Modeling with R](https://www.tmwr.org/) (2020)* by Max Kuhn and Julia Silge (work-in-progress)
 
 [Also check out the many resources](https://github.com/dlab-berkeley/MachineLearningWG) outlined in D-Lab's Machine Learning Working Group repository. 
 
@@ -111,17 +119,17 @@ This workshop will utilize a variety of packages to install and organize the cod
 
 * Algorithms: "glmnet", "ranger", "rpart", "xgboost"  
 
-* Visualization: "ggplot2", "rpart.plot", "vip"  
+* Visualization: "rpart.plot", "vip"  
 
-* Machine learning frameworks: "caret", "SuperLearner"  
+* Machine learning frameworks: "caret", "SuperLearner", "tidymodels" 
 
-* R utility packages: "remotes", "magrittr", "dplyr"  
+* R utility packages: "tidyverse", "remotes"
 
 * Miscellaneous: "pROC", "rio"  
 
 * Chris Kennedy's R Toolkit: "ck37r"
 
-### Highlight and run lines 12-27 inside 1-overview.Rmd to install these packages. Then, highlight and run lines 31-51 to import them. 
+### Highlight and run lines 12-28 inside 1-overview.Rmd to install these packages. Then, highlight and run lines 36-54 to import them. 
 
 ---
 
