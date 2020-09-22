@@ -6,8 +6,11 @@ Explicitly load the packages that we need for this analysis.
 
 ```{r packages}
 library(rio)
-library(ck37r)
-library(caret)
+library(ck37r) # Chris's package 
+library(caret) # classification and regression training
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
 ```
 
 ## Load the data
@@ -16,73 +19,217 @@ Load the heart disease dataset.
 
 ```{r load_data}
 # Load the heart disease dataset using import() from the rio package.
-data_original = import("data-raw/heart.csv")
+data_original <- import(here("data-raw", "heart.csv"))
 
 # Preserve the original copy
-data = data_original
-str(data)
+data <- data_original
+
+glimpse(data)
+
+class(data)
 ```
 
 ## Read background information and variable descriptions  
 https://archive.ics.uci.edu/ml/datasets/heart+Disease
 
-## Data preprocessing
+![Heart Diseases dataset availalbe at the UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/assets/MLimages/Large45.jpg)
+
+## Machine learning workflow 
+
+Before diving into the specific problem (i.e., preprocessing), let's take a step back and think about the big picture.
+
+![A schematic for the typical modeling process (from Tidy Modeling with R)](https://www.tmwr.org/premade/modeling-process.svg)
+
+## Why taking a tidyverse approach to machine learning?
+
+- Readable code (e.g., `dplyr` is quite intuitive even for beginning R users.)
+- Reusable data structures (e.g., `broom` package helps to visualize model outputs, such as p-value, using `ggplot2`)
+- Extendable code (e.g., you can easily build a machine learning pipeline by using the pipe operator (`%>%`) and the `purrr` package)
+
+## Data preprocessing challenges
 
 Data peprocessing is an integral first step in machine learning workflows. Because different algorithms sometimes require the moving parts to be coded in slightly different ways, always make sure you research the algorithm you want to implement so that you properly setup your $y$ and $x$ variables and split your data appropriately. 
 
 > NOTE: also, use the `save` function to save your variables of interest. In the remaining walkthroughs, we will use the `load` function to load the relevant variables. 
 
-### What is one-hot encoding?
+The list of the preprocessing options draws on the vignette of the [`parsnip`](https://www.tidymodels.org/find/parsnip/) package.
+
+- dummy: Also called one-hot encoding
+- zero variance: removing columns (or features) with a single unique value  
+- impute: Issues related to dealing with missing values
+- decorrelate: Mitigating correlated predictors (e.g., principal component analysis)
+- normalize: Centering and/or scaling predictors 
+- transform: Making predictors symmetric 
+
+In this workshop, we focus on two preprocessing tasks. 
+
+### Task 1: What is one-hot encoding?
 
 One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). Doing this manually is always good practice. In general however, functions like `lm` will do this for you automatically. 
 
-## Handling missing data
+### Task 2: Handling missing data
 
 Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). K-nearest neighbor imputation can also be useful but median imputation is demonstrated below.  
 
 However, you will want to learn about [Generalized Low Rank Models](https://stanford.edu/~boyd/papers/pdf/glrm.pdf) for missing data imputation in your research. See the `impute_missing_values` function from the ck37r package to learn more - you might need to install an h2o dependency.  
 
+```{r}
+# No missing data 
+data %>%
+  map_df(~is.na(.) %>% sum())
+
+# Add five missing values 
+data$oldpeak[c(50, 100, 150, 200, 250)] <- NA
+
+# Check the number of missing values 
+data %>%
+  map_df(~is.na(.) %>% sum())
+
+#data %>%
+ # map(function(x){is.na(x) %>% sum()}) %>%  
+  #  as_tibble()
+
+# Check the rate of missing values
+data %>%
+  map_df(~is.na(.) %>% mean())
+```
+
+```{r}
+# Turn selected numeric variables into factor variables 
+data <- data %>%
+  mutate(across(c("sex", "ca", "cp", "slope", "thal"), as.factor)) 
+```
+
+- You can also create your own `step_` functions. For more information, see [tidymodels.org](https://www.tidymodels.org/learn/develop/recipes/).
+
+```{r}
+
+# Defining two different types of recipes 
+## Continuous variable 
+data$age %>% unique()
+
+# Random sampling
+
+split_reg <- initial_split(data, prop = 0.7)
+raw_train_x_reg <- training(split_reg)
+raw_test_x_reg <- testing(split_reg)
+
+# Stratified random sampling 
+split_class <- initial_split(data, prop = 0.7, strata = target)
+raw_train_x_class <- training(split_class)
+raw_test_x_class <- testing(split_class)
+
+## Regression recipe 
+recipe_reg <- raw_train_x_reg %>%
+  # Define the outcome variable 
+  recipe(age ~ .) %>%
+  # Mean impute oldpeak column 
+  step_meanimpute(oldpeak) %>%
+  # Convert factor variables into dummy variables 
+  step_dummy(c("sex", "ca", "cp", "slope", "thal")) %>%
+  # Training dataset
+  prep(training = raw_train_x_reg) 
+
+train_x_reg <- bake(recipe_reg, raw_train_x_reg)
+test_x_reg <- bake(recipe_reg, raw_test_x_reg)
+```
+
+```{r}
+## Categorical variable 
+data$target %>% unique()
+
+## Classification recipe 
+recipe_class <- raw_train_x_class %>% 
+  # Define the outcome variable 
+  recipe(target ~ .) %>%
+  # Mean impute oldpeak column 
+  step_meanimpute(oldpeak) %>%
+  # Convert factor variables into dummy variables 
+  step_dummy(c("sex", "ca", "cp", "slope", "thal")) %>%
+  # Training dataset
+  prep(training = raw_train_x_class) 
+
+train_x_class <- bake(recipe_class, raw_train_x_class)
+test_x_class <- bake(recipe_class, raw_test_x_class)
+
+```
+
 First, count the number of missing values across variables in our dataset.  
 
-```{r review_missingness}
+- Using base R 
+
+```{r review_missingness base}
+
+# Using base R; The output is a numeric vector.  
 colSums(is.na(data))
+
+class(colSums(is.na(data)))
+```
+
+- Using tidyverse 
+
+```{r review_missingness tidyverse}
+
+# Using tidyverse; The output is a dataframe.
+# Option 1 and Option 2 produce same outputs. 
+
+map_df(data, ~ is.na(.) %>% sum()) # Option 1
+
+map_df(data, 
+       function(x){is.na(x) %>% sum()}) %>% # Option 2 
+  as_tibble()
+
 ```
 
 We have no missing values, so let's introduce a few to the "oldpeak" feature for this example to see how it works: 
 
 ```{r}
 # Add five missing values added to oldpeak in row numbers 50, 100, 150, 200, 250
-data$oldpeak[c(50, 100, 150, 200, 250)] = NA
 
-colSums(is.na(data))
-colMeans(is.na(data))
+data$oldpeak[c(50, 100, 150, 200, 250)] <- NA
+
+# Number 
+map_df(data, ~ is.na(.) %>% sum())
+
+# Percentage 
+map_df(data, ~ is.na(.) %>% mean())
+
 ```
 
 There are now 5 missing values in the "oldpeak" feature. Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. These are additional columns we will add to our data frame that represent the _locations_ within each feature that have missing values - 0 means data are present, 1 means there was a missing (and subsequently imputed) value.  
 
 ```{r impute_missing_values}
-result = ck37r::impute_missing_values(data, verbose = TRUE, type = "standard")
-names(result)
+# Using Chris's function 
+result <- ck37r::impute_missing_values(data, 
+                                       verbose = TRUE, 
+                                       type = "standard")
 
+
+result$data$oldpeak[c(50, 100, 150, 200, 250)]
+
+```
+
+```{r}
 # Use the imputed dataframe.
-data = result$data
+data <- result$data
 
 # View new columns. Note that the indicator feature "miss_oldpeak" has been added as the last column of our data frame. 
-str(data)
+glimpse(data)
 
 # No more missing data!
-colSums(is.na(data))
+map_df(data, ~is.na(.) %>% sum())
+
 ```
 
 Since the "ca", "cp", "slope", and "thal" features are currently integer type, convert them to factors. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
 
 ```{r}
-data = ck37r::categoricals_to_factors(data,
+data <- ck37r::categoricals_to_factors(data,
               categoricals = c("sex", "ca", "cp", "slope", "thal"),
               verbose = TRUE)
 
 # Inspect the updated data frame
-str(data)
+glimpse(data)
 ```
 
 ## Defining *y* outcome vectors and *x* feature dataframes
@@ -92,13 +239,11 @@ str(data)
 Now expand "sex", "ca", "cp", "slope", and "thal" features out into indicators. 
 
 ```{r factors_to_indicators}
-result = ck37r::factors_to_indicators(data, verbose = TRUE)
+result <- ck37r::factors_to_indicators(data, verbose = TRUE)
 
-data = result$data
+data <- result$data
 
-str(data)
-
-dim(data)
+glimpse(data)
 ```
 
 What happened?
@@ -115,22 +260,22 @@ Take the simple approach to data splitting and divide our data into training and
 
 Splitting data into training and test subsets is a fundamental step in machine learning. Usually, the marjority portion of the original dataset is partitioned to the training set, where the algorithms learn the relationships between the $x$ feature predictors and the $y$ outcome variable. Then, these models are given new data (the test set) to see how well they perform on data they have not yet seen. 
 
-Since age is a continuous variable and will be the outcome for the OLS and lasso regressions, we will not perform a stratified random split like we will for the classification tasks (see below). Instead, [let's randomly assign](https://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function) 70% of the `age` values to the training set and the remaining 30% to the test set.
+Since **age** is a **continuous variable** and will be **the outcome** for the OLS and lasso regressions, we will not perform a stratified random split like we will for the classification tasks (see below). Instead, [let's randomly assign](https://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function) 70% of the `age` values to the training set and the remaining 30% to the test set.
 
 ```{r}
 # Create a list to organize our regression task
-task_reg = list(
+task_reg <- list(
   data = data,
   outcome = "age"
 )
 
 # All variables can be used as covariates except the outcome ("age")
-(task_reg$covariates = setdiff(names(data), task_reg$outcome))
+(task_reg$covariates <- setdiff(names(data), task_reg$outcome))
 
 names(task_reg)
 
 # Define the sizes of training (70%) and test (30%) sets.
-(training_size = floor(0.70 * nrow(task_reg$data)))
+(training_size <- floor(0.70 * nrow(task_reg$data)))
 
 # Set seed for reproducibility.
 set.seed(1)
@@ -149,7 +294,7 @@ names(task_reg)
 
 Assign the outcome variable to its own vector for the decision tree, random forest, gradient boosted tree, and SuperLearner ensemble **CLASSIFICATION tasks**. However, keep in mind that these algorithms can also perform regression!  
 
-This time however, "target" will by our y outcome variable (1 = person has heart disease, 0 = person does not have heart disease) - the others will be our x features. 
+This time however, **"target"** will by our y **outcome variable** (1 = person has heart disease, 0 = person does not have heart disease) - the others will be our x features. 
 
 ```{r}
 # Store everything in a list like we did for the regression task
