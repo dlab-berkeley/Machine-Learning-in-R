@@ -64,9 +64,26 @@ https://archive.ics.uci.edu/ml/datasets/heart+Disease
 
 ## Why taking a tidyverse approach to machine learning?
 
+### Benefits 
 - Readable code (e.g., `dplyr` is quite intuitive even for beginning R users.)
 - Reusable data structures (e.g., `broom` package helps to visualize model outputs, such as p-value, using `ggplot2`)
 - Extendable code (e.g., you can easily build a machine learning pipeline by using the pipe operator (`%>%`) and the `purrr` package)
+
+### tidymodels 
+
+- Like `tidyverse`, `tidymodels` is a collection of packages.
+
+    - [`rsample`](https://rsample.tidymodels.org/): for data splitting 
+    
+    - [`recipes`](https://recipes.tidymodels.org/index.html): for pre-processing
+    
+    - [`parsnip`](https://www.tidyverse.org/blog/2018/11/parsnip-0-0-1/): for model building 
+    
+        - [`tune`](https://github.com/tidymodels/tune): parameter tuning 
+    
+    - [`yardstick`](https://github.com/tidymodels/yardstick): for model evaluations 
+    
+    - [`workflows`](https://github.com/tidymodels/workflows): for bundling a pieplne that bundles together pre-processing, modeling, and post-processing requests 
 
 ## Data preprocessing
 
@@ -101,7 +118,7 @@ data <- data %>%
 
 ### Task 2: Handling missing data
 
-Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). K-nearest neighbor imputation can also be useful but median imputation is demonstrated below.  
+Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). K-nearest neighbor imputation can also be useful but median imputation is used in this workshop.  
 
 However, you will want to learn about [Generalized Low Rank Models](https://stanford.edu/~boyd/papers/pdf/glrm.pdf) for missing data imputation in your research. See the `impute_missing_values` function from the ck37r package to learn more - you might need to install an h2o dependency.  
 
