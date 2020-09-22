@@ -11,15 +11,17 @@ if (FALSE) {
   # Install packages from CRAN.
   install.packages(c(# Tidymodels framework 
                      "tidymodels",
+                     # Tidyverse packages including dplyr and ggplot2 
+                     "tidyverse",
                      # Algorithms
                      "glmnet", "ranger", "rpart", "xgboost",
                      "PCAmixdata", "pvclust", "mclust", 
                      # Visualization
-                     "ggplot2", "rpart.plot", "vip", "ape", 
+                     "rpart.plot", "vip", "ape", 
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages
-                     "remotes", "dplyr", "purrr", "here",
+                     "remotes", "here",
                      # Import/export of any filetype.
                      "rio",
                      # Misc
