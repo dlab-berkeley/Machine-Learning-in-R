@@ -4,7 +4,12 @@
 
 ```{r load_packages}
 library(glmnet)
-library(ggplot2)
+library(rio) # painless data import and export
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
+
+theme_set(theme_minimal())
 ```
 
 ## Load data 
@@ -13,49 +18,97 @@ Load `train_x_reg`, `train_y_reg`, `test_x_reg`, and `test_y_reg` variables we d
 
 ```{r}
 # Objects: task_reg, task_class
-load("data/preprocessed.RData")
+load(here("data", "preprocessed.RData"))
+
 ```
 
 ## Overview
 
-* LASSO = sets Beta coefficients of unrelated (to Y) predcitors to zero
+* LASSO = sets Beta coefficients of unrelated (to Y) predictors to zero
 
-* RIDGE = sets Beta coefficients of unrealted (to Y) predictors NEAR ZERO but does not remove them
+* RIDGE = sets Beta coefficients of unrelated (to Y) predictors NEAR ZERO but does not remove them
 
 * ELASTICNET = a combination of LASSO and RIDGE
-
-Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors.  
-
-```{r}
-# Fit the regression model; lm() will automatically add a temporary intercept column
-fit = lm(train_y_reg ~ ., data = train_x_reg)
-
-# View the output
-summary(fit) 
-
-# Predict outcome for the test data
-predicted = predict(fit, test_x_reg)
-
-# 8. Calculate mean-squared error
-(mse_reg = mean((test_y_reg - predicted)^2))
-
-# Root mean-squared error
-# We are off ~7.54 years for predicting age
-sqrt(mse_reg)
-```
 
 Review "Challenge 0" in the Challenges folder for a useful review of how OLS regression works and [see the yhat blog](http://blog.yhat.com/posts/r-lm-summary.html) for help interpreting its output. 
 
 Linear regression is a useful introduction to machine learning, but in your research you might be faced with warning messages after `predict()` about the [rank of your matrix](https://stats.stackexchange.com/questions/35071/what-is-rank-deficiency-and-how-to-deal-with-it).
 
-The lasso is useful to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
+The lasso is useful to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. (You don't need to worry about this, if you use `tidymodels`.) 
 
 Be sure to [read the glmnet vignette](https://web.stanford.edu/~hastie/Papers/Glmnet_Vignette.pdf)
 
-## Fit model
+## Fit model 
+
+### Non-tidy 
+
+#### OLS 
+
+Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors.  
+```{r}
+
+# Fit the regression model; lm() will automatically add a temporary intercept column
+ols <- lm(train_y_reg ~ ., data = train_x_reg)
+
+# Predict outcome for the test data
+ols_predicted <- predict(ols, test_x_reg)
+
+# Root mean-squared error
+sqrt(mean((test_y_reg - predicted)^2))
+
+```
+
+#### LASSO
 
 ```{r}
-lasso = cv.glmnet(as.matrix(train_x_reg), train_y_reg, family = "gaussian", alpha = 1)
+
+# Fit the lasso model 
+lasso <- cv.glmnet(x = as.matrix(train_x_reg), 
+                   y = train_y_reg, 
+                   family = "gaussian", 
+                   alpha = 1)
+
+# Predict outcome for the test data
+lasso_predicted <- predict(lasso, newx = as.matrix(test_x_reg),
+                      s = lasso$lambda.1se) # Tuning parameter 
+
+# Calculate root mean-squared error
+sqrt(mean((lasso_predicted - test_y_reg)^2))
+
+```
+
+### Tidyverse 
+
+```{r}
+parsnip_model <- linear_reg() %>%
+  set_engine("lm") %>% # lm, glmnet, stan, keras, spark 
+  set_mode("regression") %>%
+  fit(train_y_reg ~ ., data = train_x_reg)
+
+parsnip_model
+```
+
+## Tidyverse way 
+
+This part draws heavily on [Alison Hill](https://alison.rbind.io/)'s [tidy modeling workshop](https://education.rstudio.com/blog/2020/02/conf20-intro-ml/) presented at the 2020 RStudio conference. 
+
+```{r}
+# Model specifications 
+rf_mod <- 
+  rand_forest(
+    mode = "classification",
+    trees = 200
+  )
+
+# Fitting 
+rf_fit <- 
+  fit(
+    object = rf_mod,
+    formula = formula(recipe_class),
+    data = train_x_class,
+    engine = "randomForest"
+  )
+
 ```
 
 ## Investigate Results
@@ -67,7 +120,7 @@ plot(lasso)
 # Help interpreting this plot: https://stats.stackexchange.com/questions/404795/interpretation-of-cross-validation-plot-for-lasso-regression
 
 # Generate our own version, but plot lambda (not on log scale) vs. RMSE.
-qplot(lasso$lambda, sqrt(lasso$cvm)) + theme_minimal()
+qplot(lasso$lambda, sqrt(lasso$cvm)) 
 
 ```
 
@@ -75,7 +128,7 @@ qplot(lasso$lambda, sqrt(lasso$cvm)) + theme_minimal()
 
 ```{r}
 # And here is a plot of log(lambda) vs lambda.
-qplot(log(lasso$lambda), lasso$lambda) + theme_minimal()
+qplot(log(lasso$lambda), lasso$lambda) 
 ```
 
 Show plot of different lambda values: 
@@ -115,20 +168,25 @@ cbind(as.matrix(coef_1se), as.matrix(coef_min))
 
 Predict on the test set
 ```{r}
-predictions = predict(lasso, newx = as.matrix(test_x_reg),
+predictions <- predict(lasso, newx = as.matrix(test_x_reg),
                       s = lasso$lambda.1se)
 
 # How far off were we, based on absolute error?
-rounded_errors = round(abs(test_y_reg - predictions))
+rounded_errors <- round(abs(test_y_reg - predictions))
 table(rounded_errors)
 
 # Group the absolute error into 4 bins.
-grouped_errors = round(abs(test_y_reg - predictions) / 5)
+grouped_errors <- round(abs(test_y_reg - predictions) / 5)
 grouped_errors[grouped_errors > 2] = 3
 table(grouped_errors)
 
+```
+
+```{r}
+
 # 4 categories of accuracy
-how_close = factor(grouped_errors, labels = c("very close", "close", "meh", "far"))
+how_close <- factor(grouped_errors, labels = c("very close", "close", "meh", "far"))
+
 table(rounded_errors, how_close)
 
 # Scatter plot of actual vs. predicted
@@ -136,6 +194,7 @@ qplot(test_y_reg, predictions,
       color = how_close) +
   geom_point(size = 5, alpha = 0.7) + 
   theme_minimal()
+
 ```
 
 Calculate MSE and RMSE:

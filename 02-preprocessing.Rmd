@@ -230,7 +230,7 @@ raw_test_x_reg <- testing(split_reg)
 ```{r}
 
 ## Regression recipe 
-recipe_reg <- raw_train_x_reg %>%
+prep_reg <- raw_train_x_reg %>%
   # Define the outcome variable 
   recipe(age ~ .) %>%
   # Median impute oldpeak column 
@@ -245,12 +245,12 @@ recipe_reg <- raw_train_x_reg %>%
 ```{r}
 
 # x features 
-train_x_reg <- juice(recipe_reg, all_predictors()) 
-test_x_reg <- bake(recipe_reg, raw_test_x_reg, all_predictors())
+train_x_reg <- juice(prep_reg, all_predictors()) 
+test_x_reg <- bake(prep_reg, raw_test_x_reg, all_predictors())
 
 # y variables 
-train_y_reg <- juice(recipe_reg, all_outcomes())$age %>% as.numeric()
-test_y_reg <- bake(recipe_reg, raw_test_x_reg, all_outcomes())$age %>% as.numeric()
+train_y_reg <- juice(prep_reg, all_outcomes())$age %>% as.numeric()
+test_y_reg <- bake(prep_reg, raw_test_x_reg, all_outcomes())$age %>% as.numeric()
 
 # Checks
 names(train_x_reg) # Make sure there's no age variable!
@@ -304,7 +304,7 @@ raw_test_x_class <- testing(split_class)
 ```{r}
 
 ## Classification recipe 
-recipe_class <- raw_train_x_class %>% 
+prep_class <- raw_train_x_class %>% 
   # Define the outcome variable 
   recipe(target ~ .) %>%
   # Median impute oldpeak column 
@@ -319,12 +319,12 @@ recipe_class <- raw_train_x_class %>%
 ```{r}
 
 # x features 
-train_x_class <- juice(recipe_class, all_predictors()) 
-test_x_class <- bake(recipe_class, raw_test_x_class, all_predictors())
+train_x_class <- juice(prep_class, all_predictors()) 
+test_x_class <- bake(prep_class, raw_test_x_class, all_predictors())
 
 # y variables 
-train_y_class <- juice(recipe_class, all_outcomes())$target %>% as.factor()
-test_y_class <- bake(recipe_class, raw_test_x_class, all_outcomes())$target %>% as.factor()
+train_y_class <- juice(prep_class, all_outcomes())$target %>% as.factor()
+test_y_class <- bake(prep_class, raw_test_x_class, all_outcomes())$target %>% as.factor()
 
 # Checks 
 names(train_x_class) # Make sure there's no target variable!
@@ -338,6 +338,7 @@ We save our preprocessed data into an RData file so that we can easily load it t
 
 ```{r save_data}
 save(data, data_original, 
+     prep_reg, prep_class, 
      train_x_reg, train_y_reg, 
      test_x_reg, test_y_reg,
      train_x_class, train_y_class, 

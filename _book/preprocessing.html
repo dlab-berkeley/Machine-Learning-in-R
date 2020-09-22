@@ -180,7 +180,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>4.3</b> Overview</a></li>
 <li class="chapter" data-level="4.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#fit-model"><i class="fa fa-check"></i><b>4.4</b> Fit model</a>
 <ul>
-<li class="chapter" data-level="4.4.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#base-r-way"><i class="fa fa-check"></i><b>4.4.1</b> Base R way</a></li>
+<li class="chapter" data-level="4.4.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>4.4.1</b> Non-tidy</a></li>
+<li class="chapter" data-level="4.4.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tidyverse"><i class="fa fa-check"></i><b>4.4.2</b> Tidyverse</a></li>
 </ul></li>
 <li class="chapter" data-level="4.5" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tidyverse-way"><i class="fa fa-check"></i><b>4.5</b> Tidyverse way</a></li>
 <li class="chapter" data-level="4.6" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#investigate-results"><i class="fa fa-check"></i><b>4.6</b> Investigate Results</a></li>
@@ -544,7 +545,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="recipe" class="section level3" number="3.9.3">
 <h3><span class="header-section-number">3.9.3</span> recipe</h3>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="preprocessing.html#cb32-1"></a><span class="co">## Regression recipe </span></span>
-<span id="cb32-2"><a href="preprocessing.html#cb32-2"></a>recipe_reg &lt;-<span class="st"> </span>raw_train_x_reg <span class="op">%&gt;%</span></span>
+<span id="cb32-2"><a href="preprocessing.html#cb32-2"></a>prep_reg &lt;-<span class="st"> </span>raw_train_x_reg <span class="op">%&gt;%</span></span>
 <span id="cb32-3"><a href="preprocessing.html#cb32-3"></a><span class="st">  </span><span class="co"># Define the outcome variable </span></span>
 <span id="cb32-4"><a href="preprocessing.html#cb32-4"></a><span class="st">  </span><span class="kw">recipe</span>(age <span class="op">~</span><span class="st"> </span>.) <span class="op">%&gt;%</span></span>
 <span id="cb32-5"><a href="preprocessing.html#cb32-5"></a><span class="st">  </span><span class="co"># Median impute oldpeak column </span></span>
@@ -554,12 +555,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb32-9"><a href="preprocessing.html#cb32-9"></a><span class="st">  </span><span class="co"># Prepare a dataset to base each step on</span></span>
 <span id="cb32-10"><a href="preprocessing.html#cb32-10"></a><span class="st">  </span><span class="kw">prep</span>(<span class="dt">retain =</span> <span class="ot">TRUE</span>) </span></code></pre></div>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="preprocessing.html#cb33-1"></a><span class="co"># x features </span></span>
-<span id="cb33-2"><a href="preprocessing.html#cb33-2"></a>train_x_reg &lt;-<span class="st"> </span><span class="kw">juice</span>(recipe_reg, <span class="kw">all_predictors</span>()) </span>
-<span id="cb33-3"><a href="preprocessing.html#cb33-3"></a>test_x_reg &lt;-<span class="st"> </span><span class="kw">bake</span>(recipe_reg, raw_test_x_reg, <span class="kw">all_predictors</span>())</span>
+<span id="cb33-2"><a href="preprocessing.html#cb33-2"></a>train_x_reg &lt;-<span class="st"> </span><span class="kw">juice</span>(prep_reg, <span class="kw">all_predictors</span>()) </span>
+<span id="cb33-3"><a href="preprocessing.html#cb33-3"></a>test_x_reg &lt;-<span class="st"> </span><span class="kw">bake</span>(prep_reg, raw_test_x_reg, <span class="kw">all_predictors</span>())</span>
 <span id="cb33-4"><a href="preprocessing.html#cb33-4"></a></span>
 <span id="cb33-5"><a href="preprocessing.html#cb33-5"></a><span class="co"># y variables </span></span>
-<span id="cb33-6"><a href="preprocessing.html#cb33-6"></a>train_y_reg &lt;-<span class="st"> </span><span class="kw">juice</span>(recipe_reg, <span class="kw">all_outcomes</span>())<span class="op">$</span>age <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</span>
-<span id="cb33-7"><a href="preprocessing.html#cb33-7"></a>test_y_reg &lt;-<span class="st"> </span><span class="kw">bake</span>(recipe_reg, raw_test_x_reg, <span class="kw">all_outcomes</span>())<span class="op">$</span>age <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</span>
+<span id="cb33-6"><a href="preprocessing.html#cb33-6"></a>train_y_reg &lt;-<span class="st"> </span><span class="kw">juice</span>(prep_reg, <span class="kw">all_outcomes</span>())<span class="op">$</span>age <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</span>
+<span id="cb33-7"><a href="preprocessing.html#cb33-7"></a>test_y_reg &lt;-<span class="st"> </span><span class="kw">bake</span>(prep_reg, raw_test_x_reg, <span class="kw">all_outcomes</span>())<span class="op">$</span>age <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>()</span>
 <span id="cb33-8"><a href="preprocessing.html#cb33-8"></a></span>
 <span id="cb33-9"><a href="preprocessing.html#cb33-9"></a><span class="co"># Checks</span></span>
 <span id="cb33-10"><a href="preprocessing.html#cb33-10"></a><span class="kw">names</span>(train_x_reg) <span class="co"># Make sure there&#39;s no age variable!</span></span></code></pre></div>
@@ -610,7 +611,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="recipe-1" class="section level3" number="3.10.3">
 <h3><span class="header-section-number">3.10.3</span> recipe</h3>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="preprocessing.html#cb42-1"></a><span class="co">## Classification recipe </span></span>
-<span id="cb42-2"><a href="preprocessing.html#cb42-2"></a>recipe_class &lt;-<span class="st"> </span>raw_train_x_class <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb42-2"><a href="preprocessing.html#cb42-2"></a>prep_class &lt;-<span class="st"> </span>raw_train_x_class <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb42-3"><a href="preprocessing.html#cb42-3"></a><span class="st">  </span><span class="co"># Define the outcome variable </span></span>
 <span id="cb42-4"><a href="preprocessing.html#cb42-4"></a><span class="st">  </span><span class="kw">recipe</span>(target <span class="op">~</span><span class="st"> </span>.) <span class="op">%&gt;%</span></span>
 <span id="cb42-5"><a href="preprocessing.html#cb42-5"></a><span class="st">  </span><span class="co"># Median impute oldpeak column </span></span>
@@ -620,12 +621,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb42-9"><a href="preprocessing.html#cb42-9"></a><span class="st">  </span><span class="co"># Prepare a dataset to base each step on</span></span>
 <span id="cb42-10"><a href="preprocessing.html#cb42-10"></a><span class="st">  </span><span class="kw">prep</span>(<span class="dt">retain =</span> <span class="ot">TRUE</span>) </span></code></pre></div>
 <div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="preprocessing.html#cb43-1"></a><span class="co"># x features </span></span>
-<span id="cb43-2"><a href="preprocessing.html#cb43-2"></a>train_x_class &lt;-<span class="st"> </span><span class="kw">juice</span>(recipe_class, <span class="kw">all_predictors</span>()) </span>
-<span id="cb43-3"><a href="preprocessing.html#cb43-3"></a>test_x_class &lt;-<span class="st"> </span><span class="kw">bake</span>(recipe_class, raw_test_x_class, <span class="kw">all_predictors</span>())</span>
+<span id="cb43-2"><a href="preprocessing.html#cb43-2"></a>train_x_class &lt;-<span class="st"> </span><span class="kw">juice</span>(prep_class, <span class="kw">all_predictors</span>()) </span>
+<span id="cb43-3"><a href="preprocessing.html#cb43-3"></a>test_x_class &lt;-<span class="st"> </span><span class="kw">bake</span>(prep_class, raw_test_x_class, <span class="kw">all_predictors</span>())</span>
 <span id="cb43-4"><a href="preprocessing.html#cb43-4"></a></span>
 <span id="cb43-5"><a href="preprocessing.html#cb43-5"></a><span class="co"># y variables </span></span>
-<span id="cb43-6"><a href="preprocessing.html#cb43-6"></a>train_y_class &lt;-<span class="st"> </span><span class="kw">juice</span>(recipe_class, <span class="kw">all_outcomes</span>())<span class="op">$</span>target <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.factor</span>()</span>
-<span id="cb43-7"><a href="preprocessing.html#cb43-7"></a>test_y_class &lt;-<span class="st"> </span><span class="kw">bake</span>(recipe_class, raw_test_x_class, <span class="kw">all_outcomes</span>())<span class="op">$</span>target <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.factor</span>()</span>
+<span id="cb43-6"><a href="preprocessing.html#cb43-6"></a>train_y_class &lt;-<span class="st"> </span><span class="kw">juice</span>(prep_class, <span class="kw">all_outcomes</span>())<span class="op">$</span>target <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.factor</span>()</span>
+<span id="cb43-7"><a href="preprocessing.html#cb43-7"></a>test_y_class &lt;-<span class="st"> </span><span class="kw">bake</span>(prep_class, raw_test_x_class, <span class="kw">all_outcomes</span>())<span class="op">$</span>target <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.factor</span>()</span>
 <span id="cb43-8"><a href="preprocessing.html#cb43-8"></a></span>
 <span id="cb43-9"><a href="preprocessing.html#cb43-9"></a><span class="co"># Checks </span></span>
 <span id="cb43-10"><a href="preprocessing.html#cb43-10"></a><span class="kw">names</span>(train_x_class) <span class="co"># Make sure there&#39;s no target variable!</span></span></code></pre></div>
@@ -640,11 +641,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h3><span class="header-section-number">3.10.4</span> Save our preprocessed data</h3>
 <p>We save our preprocessed data into an RData file so that we can easily load it the later files.</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="preprocessing.html#cb47-1"></a><span class="kw">save</span>(data, data_original, </span>
-<span id="cb47-2"><a href="preprocessing.html#cb47-2"></a>     train_x_reg, train_y_reg, </span>
-<span id="cb47-3"><a href="preprocessing.html#cb47-3"></a>     test_x_reg, test_y_reg,</span>
-<span id="cb47-4"><a href="preprocessing.html#cb47-4"></a>     train_x_class, train_y_class, </span>
-<span id="cb47-5"><a href="preprocessing.html#cb47-5"></a>     test_x_class, test_y_class,</span>
-<span id="cb47-6"><a href="preprocessing.html#cb47-6"></a>     <span class="dt">file =</span> <span class="kw">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
+<span id="cb47-2"><a href="preprocessing.html#cb47-2"></a>     prep_reg, prep_class, </span>
+<span id="cb47-3"><a href="preprocessing.html#cb47-3"></a>     train_x_reg, train_y_reg, </span>
+<span id="cb47-4"><a href="preprocessing.html#cb47-4"></a>     test_x_reg, test_y_reg,</span>
+<span id="cb47-5"><a href="preprocessing.html#cb47-5"></a>     train_x_class, train_y_class, </span>
+<span id="cb47-6"><a href="preprocessing.html#cb47-6"></a>     test_x_class, test_y_class,</span>
+<span id="cb47-7"><a href="preprocessing.html#cb47-7"></a>     <span class="dt">file =</span> <span class="kw">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
 
 </div>
 </div>
