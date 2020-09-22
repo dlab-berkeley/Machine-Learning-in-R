@@ -9,7 +9,9 @@ if (FALSE) {
   # Run these lines manually (once) to install the necessary packages.
   
   # Install packages from CRAN.
-  install.packages(c(# Algorithms
+  install.packages(c(# Tidymodels framework 
+                     "tidymodels",
+                     # Algorithms
                      "glmnet", "ranger", "rpart", "xgboost",
                      "PCAmixdata", "pvclust", "mclust", 
                      # Visualization
@@ -17,7 +19,7 @@ if (FALSE) {
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages
-                     "remotes", "dplyr",
+                     "remotes", "dplyr", "purrr",
                      # Import/export of any filetype.
                      "rio",
                      # Misc
