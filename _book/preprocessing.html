@@ -544,16 +544,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="recipe" class="section level3" number="3.9.3">
 <h3><span class="header-section-number">3.9.3</span> recipe</h3>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="preprocessing.html#cb32-1"></a><span class="co">## Regression recipe </span></span>
-<span id="cb32-2"><a href="preprocessing.html#cb32-2"></a>prep_reg &lt;-<span class="st"> </span>raw_train_x_reg <span class="op">%&gt;%</span></span>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="preprocessing.html#cb32-1"></a><span class="co"># Regression recipe </span></span>
+<span id="cb32-2"><a href="preprocessing.html#cb32-2"></a>rec_reg &lt;-<span class="st"> </span>raw_train_x_reg <span class="op">%&gt;%</span></span>
 <span id="cb32-3"><a href="preprocessing.html#cb32-3"></a><span class="st">  </span><span class="co"># Define the outcome variable </span></span>
 <span id="cb32-4"><a href="preprocessing.html#cb32-4"></a><span class="st">  </span><span class="kw">recipe</span>(age <span class="op">~</span><span class="st"> </span>.) <span class="op">%&gt;%</span></span>
 <span id="cb32-5"><a href="preprocessing.html#cb32-5"></a><span class="st">  </span><span class="co"># Median impute oldpeak column </span></span>
 <span id="cb32-6"><a href="preprocessing.html#cb32-6"></a><span class="st">  </span><span class="kw">step_medianimpute</span>(oldpeak) <span class="op">%&gt;%</span></span>
 <span id="cb32-7"><a href="preprocessing.html#cb32-7"></a><span class="st">  </span><span class="co"># Expand &quot;sex&quot;, &quot;ca&quot;, &quot;cp&quot;, &quot;slope&quot;, and &quot;thal&quot; features out into dummy variables (indicators). </span></span>
-<span id="cb32-8"><a href="preprocessing.html#cb32-8"></a><span class="st">  </span><span class="kw">step_dummy</span>(<span class="kw">c</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;ca&quot;</span>, <span class="st">&quot;cp&quot;</span>, <span class="st">&quot;slope&quot;</span>, <span class="st">&quot;thal&quot;</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb32-9"><a href="preprocessing.html#cb32-9"></a><span class="st">  </span><span class="co"># Prepare a dataset to base each step on</span></span>
-<span id="cb32-10"><a href="preprocessing.html#cb32-10"></a><span class="st">  </span><span class="kw">prep</span>(<span class="dt">retain =</span> <span class="ot">TRUE</span>) </span></code></pre></div>
+<span id="cb32-8"><a href="preprocessing.html#cb32-8"></a><span class="st">  </span><span class="kw">step_dummy</span>(<span class="kw">c</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;ca&quot;</span>, <span class="st">&quot;cp&quot;</span>, <span class="st">&quot;slope&quot;</span>, <span class="st">&quot;thal&quot;</span>))</span>
+<span id="cb32-9"><a href="preprocessing.html#cb32-9"></a></span>
+<span id="cb32-10"><a href="preprocessing.html#cb32-10"></a><span class="co"># Prepare a dataset to base each step on</span></span>
+<span id="cb32-11"><a href="preprocessing.html#cb32-11"></a>prep_reg &lt;-<span class="st"> </span>rec_reg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">prep</span>(<span class="dt">retain =</span> <span class="ot">TRUE</span>) </span></code></pre></div>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="preprocessing.html#cb33-1"></a><span class="co"># x features </span></span>
 <span id="cb33-2"><a href="preprocessing.html#cb33-2"></a>train_x_reg &lt;-<span class="st"> </span><span class="kw">juice</span>(prep_reg, <span class="kw">all_predictors</span>()) </span>
 <span id="cb33-3"><a href="preprocessing.html#cb33-3"></a>test_x_reg &lt;-<span class="st"> </span><span class="kw">bake</span>(prep_reg, raw_test_x_reg, <span class="kw">all_predictors</span>())</span>
@@ -610,16 +611,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="recipe-1" class="section level3" number="3.10.3">
 <h3><span class="header-section-number">3.10.3</span> recipe</h3>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="preprocessing.html#cb42-1"></a><span class="co">## Classification recipe </span></span>
-<span id="cb42-2"><a href="preprocessing.html#cb42-2"></a>prep_class &lt;-<span class="st"> </span>raw_train_x_class <span class="op">%&gt;%</span><span class="st"> </span></span>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="preprocessing.html#cb42-1"></a><span class="co"># Classification recipe </span></span>
+<span id="cb42-2"><a href="preprocessing.html#cb42-2"></a>rec_class &lt;-<span class="st"> </span>raw_train_x_class <span class="op">%&gt;%</span><span class="st"> </span></span>
 <span id="cb42-3"><a href="preprocessing.html#cb42-3"></a><span class="st">  </span><span class="co"># Define the outcome variable </span></span>
 <span id="cb42-4"><a href="preprocessing.html#cb42-4"></a><span class="st">  </span><span class="kw">recipe</span>(target <span class="op">~</span><span class="st"> </span>.) <span class="op">%&gt;%</span></span>
 <span id="cb42-5"><a href="preprocessing.html#cb42-5"></a><span class="st">  </span><span class="co"># Median impute oldpeak column </span></span>
 <span id="cb42-6"><a href="preprocessing.html#cb42-6"></a><span class="st">  </span><span class="kw">step_medianimpute</span>(oldpeak) <span class="op">%&gt;%</span></span>
 <span id="cb42-7"><a href="preprocessing.html#cb42-7"></a><span class="st">  </span><span class="co"># Expand &quot;sex&quot;, &quot;ca&quot;, &quot;cp&quot;, &quot;slope&quot;, and &quot;thal&quot; features out into dummy variables (indicators). </span></span>
-<span id="cb42-8"><a href="preprocessing.html#cb42-8"></a><span class="st">  </span><span class="kw">step_dummy</span>(<span class="kw">c</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;ca&quot;</span>, <span class="st">&quot;cp&quot;</span>, <span class="st">&quot;slope&quot;</span>, <span class="st">&quot;thal&quot;</span>)) <span class="op">%&gt;%</span></span>
-<span id="cb42-9"><a href="preprocessing.html#cb42-9"></a><span class="st">  </span><span class="co"># Prepare a dataset to base each step on</span></span>
-<span id="cb42-10"><a href="preprocessing.html#cb42-10"></a><span class="st">  </span><span class="kw">prep</span>(<span class="dt">retain =</span> <span class="ot">TRUE</span>) </span></code></pre></div>
+<span id="cb42-8"><a href="preprocessing.html#cb42-8"></a><span class="st">  </span><span class="kw">step_dummy</span>(<span class="kw">c</span>(<span class="st">&quot;sex&quot;</span>, <span class="st">&quot;ca&quot;</span>, <span class="st">&quot;cp&quot;</span>, <span class="st">&quot;slope&quot;</span>, <span class="st">&quot;thal&quot;</span>)) </span>
+<span id="cb42-9"><a href="preprocessing.html#cb42-9"></a></span>
+<span id="cb42-10"><a href="preprocessing.html#cb42-10"></a><span class="co"># Prepare a dataset to base each step on</span></span>
+<span id="cb42-11"><a href="preprocessing.html#cb42-11"></a>prep_class &lt;-<span class="st"> </span>rec_class <span class="op">%&gt;%</span><span class="kw">prep</span>(<span class="dt">retain =</span> <span class="ot">TRUE</span>) </span></code></pre></div>
 <div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="preprocessing.html#cb43-1"></a><span class="co"># x features </span></span>
 <span id="cb43-2"><a href="preprocessing.html#cb43-2"></a>train_x_class &lt;-<span class="st"> </span><span class="kw">juice</span>(prep_class, <span class="kw">all_predictors</span>()) </span>
 <span id="cb43-3"><a href="preprocessing.html#cb43-3"></a>test_x_class &lt;-<span class="st"> </span><span class="kw">bake</span>(prep_class, raw_test_x_class, <span class="kw">all_predictors</span>())</span>
@@ -640,13 +642,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="save-our-preprocessed-data" class="section level3" number="3.10.4">
 <h3><span class="header-section-number">3.10.4</span> Save our preprocessed data</h3>
 <p>We save our preprocessed data into an RData file so that we can easily load it the later files.</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="preprocessing.html#cb47-1"></a><span class="kw">save</span>(data, data_original, </span>
-<span id="cb47-2"><a href="preprocessing.html#cb47-2"></a>     prep_reg, prep_class, </span>
-<span id="cb47-3"><a href="preprocessing.html#cb47-3"></a>     train_x_reg, train_y_reg, </span>
-<span id="cb47-4"><a href="preprocessing.html#cb47-4"></a>     test_x_reg, test_y_reg,</span>
-<span id="cb47-5"><a href="preprocessing.html#cb47-5"></a>     train_x_class, train_y_class, </span>
-<span id="cb47-6"><a href="preprocessing.html#cb47-6"></a>     test_x_class, test_y_class,</span>
-<span id="cb47-7"><a href="preprocessing.html#cb47-7"></a>     <span class="dt">file =</span> <span class="kw">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="preprocessing.html#cb47-1"></a><span class="kw">save</span>(data, data_original, <span class="co"># data </span></span>
+<span id="cb47-2"><a href="preprocessing.html#cb47-2"></a>     rec_reg, rec_class, <span class="co"># recipes </span></span>
+<span id="cb47-3"><a href="preprocessing.html#cb47-3"></a>     prep_reg, prep_class, <span class="co"># preps </span></span>
+<span id="cb47-4"><a href="preprocessing.html#cb47-4"></a>     train_x_reg, train_y_reg, <span class="co"># train sets </span></span>
+<span id="cb47-5"><a href="preprocessing.html#cb47-5"></a>     test_x_reg, test_y_reg, <span class="co"># test sets </span></span>
+<span id="cb47-6"><a href="preprocessing.html#cb47-6"></a>     train_x_class, train_y_class, <span class="co"># train sets </span></span>
+<span id="cb47-7"><a href="preprocessing.html#cb47-7"></a>     test_x_class, test_y_class, <span class="co"># test sets </span></span>
+<span id="cb47-8"><a href="preprocessing.html#cb47-8"></a>     <span class="dt">file =</span> <span class="kw">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
 
 </div>
 </div>

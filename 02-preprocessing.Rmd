@@ -229,16 +229,17 @@ raw_test_x_reg <- testing(split_reg)
 
 ```{r}
 
-## Regression recipe 
-prep_reg <- raw_train_x_reg %>%
+# Regression recipe 
+rec_reg <- raw_train_x_reg %>%
   # Define the outcome variable 
   recipe(age ~ .) %>%
   # Median impute oldpeak column 
   step_medianimpute(oldpeak) %>%
   # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators). 
-  step_dummy(c("sex", "ca", "cp", "slope", "thal")) %>%
-  # Prepare a dataset to base each step on
-  prep(retain = TRUE) 
+  step_dummy(c("sex", "ca", "cp", "slope", "thal"))
+
+# Prepare a dataset to base each step on
+prep_reg <- rec_reg %>% prep(retain = TRUE) 
 
 ```
 
@@ -303,16 +304,17 @@ raw_test_x_class <- testing(split_class)
 
 ```{r}
 
-## Classification recipe 
-prep_class <- raw_train_x_class %>% 
+# Classification recipe 
+rec_class <- raw_train_x_class %>% 
   # Define the outcome variable 
   recipe(target ~ .) %>%
   # Median impute oldpeak column 
   step_medianimpute(oldpeak) %>%
   # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators). 
-  step_dummy(c("sex", "ca", "cp", "slope", "thal")) %>%
-  # Prepare a dataset to base each step on
-  prep(retain = TRUE) 
+  step_dummy(c("sex", "ca", "cp", "slope", "thal")) 
+
+# Prepare a dataset to base each step on
+prep_class <- rec_class %>%prep(retain = TRUE) 
 
 ```
 
@@ -337,11 +339,12 @@ class(train_y_class) # Make sure this is a factor variable!
 We save our preprocessed data into an RData file so that we can easily load it the later files.
 
 ```{r save_data}
-save(data, data_original, 
-     prep_reg, prep_class, 
-     train_x_reg, train_y_reg, 
-     test_x_reg, test_y_reg,
-     train_x_class, train_y_class, 
-     test_x_class, test_y_class,
+save(data, data_original, # data 
+     rec_reg, rec_class, # recipes 
+     prep_reg, prep_class, # preps 
+     train_x_reg, train_y_reg, # train sets 
+     test_x_reg, test_y_reg, # test sets 
+     train_x_class, train_y_class, # train sets 
+     test_x_class, test_y_class, # test
      file = here("data", "preprocessed.RData"))
 ```

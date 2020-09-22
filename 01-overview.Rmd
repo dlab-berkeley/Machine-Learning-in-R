@@ -21,7 +21,7 @@ if (FALSE) {
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages
-                     "remotes", "here",
+                     "remotes", "here", "glue",
                      # Import/export of any filetype.
                      "rio",
                      # Misc

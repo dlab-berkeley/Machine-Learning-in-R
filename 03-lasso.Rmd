@@ -8,6 +8,7 @@ library(rio) # painless data import and export
 library(tidyverse) # tidyverse packages 
 library(tidymodels) # tidymodels framework 
 library(here) # reproducible way to find files 
+library(glue) # glue strings and objects 
 
 theme_set(theme_minimal())
 ```
@@ -38,7 +39,7 @@ The lasso is useful to try and remove some of the non-associated features from t
 
 Be sure to [read the glmnet vignette](https://web.stanford.edu/~hastie/Papers/Glmnet_Vignette.pdf)
 
-## Fit model 
+## Fit and evaluate models 
 
 ### Non-tidy 
 
@@ -54,11 +55,11 @@ ols <- lm(train_y_reg ~ ., data = train_x_reg)
 ols_predicted <- predict(ols, test_x_reg)
 
 # Root mean-squared error
-sqrt(mean((test_y_reg - predicted)^2))
+sqrt(mean((test_y_reg - ols_predicted )^2))
 
 ```
 
-#### LASSO
+#### Lasso
 
 ```{r}
 
@@ -68,50 +69,114 @@ lasso <- cv.glmnet(x = as.matrix(train_x_reg),
                    family = "gaussian", 
                    alpha = 1)
 
+lasso$lambda.min
+
 # Predict outcome for the test data
 lasso_predicted <- predict(lasso, newx = as.matrix(test_x_reg),
-                      s = lasso$lambda.1se) # Tuning parameter 
+                      s = 0.1) # Tuning parameter 
 
 # Calculate root mean-squared error
 sqrt(mean((lasso_predicted - test_y_reg)^2))
 
 ```
 
-### Tidyverse 
+### tidymodels 
+
+#### parsnip 
+
+- Build models 
 
 ```{r}
-parsnip_model <- linear_reg() %>%
-  set_engine("lm") %>% # lm, glmnet, stan, keras, spark 
-  set_mode("regression") %>%
-  fit(train_y_reg ~ ., data = train_x_reg)
 
-parsnip_model
-```
+# OLS spec 
+ols_spec <- linear_reg() %>% # Specify the model 
+  set_engine("lm") %>% # Specify the engine: lm, glmnet, stan, keras, spark 
+  set_mode("regression") # Declare the mode: regression or classification 
 
-## Tidyverse way 
+# Lasso spec 
+lasso_spec <- linear_reg(penalty = 0.1, # tuning parameter 
+                         mixture = 1) %>% # 1 = lasso, 0 = ridge 
+  set_engine("glmnet") %>%
+  set_mode("regression") 
 
-This part draws heavily on [Alison Hill](https://alison.rbind.io/)'s [tidy modeling workshop](https://education.rstudio.com/blog/2020/02/conf20-intro-ml/) presented at the 2020 RStudio conference. 
-
-```{r}
-# Model specifications 
-rf_mod <- 
-  rand_forest(
-    mode = "classification",
-    trees = 200
-  )
-
-# Fitting 
-rf_fit <- 
-  fit(
-    object = rf_mod,
-    formula = formula(recipe_class),
-    data = train_x_class,
-    engine = "randomForest"
-  )
+# If you don't understand parsnip arguments 
+lasso_spec %>% translate() # See the documentation 
 
 ```
 
-## Investigate Results
+- Fit models 
+
+```{r}
+
+ols_fit <- ols_spec %>%
+  fit_xy(x = train_x_reg, y= train_y_reg) 
+  # fit(train_y_reg ~ ., train_x_reg) # When you data are not preprocessed 
+
+lasso_fit <- lasso_spec %>%
+  fit_xy(x = train_x_reg, y= train_y_reg) 
+
+```
+
+#### yardstick 
+
+- Evaluate prediction performance 
+
+```{r}
+
+# Visualize model fit
+visualize_fit <- function(model, names){
+  
+  # Bind ground truth and predicted values  
+  bind_cols(tibble(truth = test_y_reg), # Ground truth 
+            predict(model, test_x_reg)) %>% # Predicted values 
+  
+  # Visualize the residuals 
+  ggplot(aes(x = truth, y = .pred)) +
+    # Diagonal line 
+    geom_abline(lty = 2) +
+    geom_point(alpha = 0.5) +
+    # Make X- and Y- scale uniform 
+    coord_obs_pred() +
+    labs(title = glue::glue("{names}"))
+
+}
+
+map2(list(ols_fit, lasso_fit), c("OLS", "Lasso"), visualize_fit) 
+
+```
+
+```{r}
+
+# Define performance metrics 
+metrics <- yardstick::metric_set(rmse, rsq, mae)
+
+# Build an evaluation function 
+evaluate_model <- function(model){
+  
+  # Bind ground truth and predicted values  
+  bind_cols(tibble(truth = test_y_reg), # Ground truth 
+            predict(model, test_x_reg)) %>% # Predicted values 
+    
+  # Calculate root mean-squared error
+  metrics(truth = truth, estimate = .pred) 
+  }
+
+# Evaluate many models 
+evals <- purrr::map(list(ols_fit, lasso_fit), evaluate_model) %>%
+  reduce(bind_rows) %>%
+  mutate(type = rep(c("OLS", "Lasso"), each = 3))
+
+# Visualize the test results 
+evals %>%
+  ggplot(aes(x = fct_reorder(type, .estimate), y = .estimate)) +
+    geom_point() +
+    labs(x = "Model",
+         y = "Estimate") +
+    facet_wrap(~glue("{toupper(.metric)}"), scales = "free_y") 
+
+```
+
+## Tuning parameters
 
 Visualize the distribution of log(lamba) vs mean-squared error.   
 
@@ -192,8 +257,7 @@ table(rounded_errors, how_close)
 # Scatter plot of actual vs. predicted
 qplot(test_y_reg, predictions, 
       color = how_close) +
-  geom_point(size = 5, alpha = 0.7) + 
-  theme_minimal()
+  geom_point(size = 5, alpha = 0.7) 
 
 ```
 

@@ -1,6 +1,8 @@
  cran_packages =
   c("tidyverse",
     "tidymodels",
+    "glue",
+    "here",
     "bookdown",
     "caret",
     "glmnet",
