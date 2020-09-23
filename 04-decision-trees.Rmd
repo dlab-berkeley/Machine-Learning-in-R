@@ -12,6 +12,8 @@ library(tidyverse) # tidyverse packages
 library(tidymodels) # tidymodels framework 
 library(here) # reproducible way to find files 
 library(glue) # glue strings and objects 
+library(patchwork) # arrange ggplots 
+library(doParallel) # parallel processing 
 
 theme_set(theme_minimal())
 
@@ -88,23 +90,29 @@ tree$variable.importance
 
 ```{r}
 
+# workflow 
+tree_wf <- workflow() %>% add_formula(target~.)
+
+# spec 
 tree_spec <- decision_tree(
   
            # Mode 
            mode = "classification",
            
-           # Tuning parameters; Not optimized yet  
-           cost_complexity = NULL) %>%
-  set_engine("rpart") # rpart, c5.0, spark 
-  
+           # Tuning parameters
+           cost_complexity = NULL, 
+           tree_depth = NULL) %>%
+  set_engine("rpart") # rpart, c5.0, spark
+
+tree_wf <- tree_wf %>% add_model(tree_spec)
+
 ```
 
 - Fit a model
 
 ```{r}
 
-tree_fit <- tree_spec %>%
-  fit_xy(x = train_x_class, y= train_y_class)
+tree_fit <- tree_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
 
 ```
 
@@ -146,12 +154,14 @@ evaluate_class <- function(model){
 
 visualize_metrics <- function(model){
 evaluate_class(model) %>%
-  ggplot(aes(x = fct_reorder(.metric, .estimate), y = .estimate)) +
-    geom_point() +
+  ggplot(aes(x = fct_reorder(glue("{toupper(.metric)}"), .estimate), y = .estimate)) +
+    geom_col() +
     labs(x = "Metrics",
          y = "Estimate")}
 
-visualize_metrics(tree_fit)
+tree_fit_viz_metr <- visualize_metrics(tree_fit)
+
+tree_fit_viz_metr
 
 ```
 - Visualize the confusion matrix. 
@@ -174,31 +184,117 @@ visualize_conf_mat <- function(model){
               size = 13)
 }
 
-visualize_conf_mat(tree_fit)
+tree_fit_viz_mat <- visualize_conf_mat(tree_fit)
+
+tree_fit_viz_mat
 
 ```
 
 ### tune 
 
+#### tune ingredients 
+
 In decision trees the main hyperparameter (configuration setting) is the **complexity parameter** (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.  
 
-`rpart` uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.  
+The other related hyperparameter is `tree_depth`.
 
-Print the results for various CP settings - we want the one with the lowest "xerror". We can also plot the performance estimates for different CP settings. 
+```{r}
 
-Trees of similar sizes might appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. 
+tune_spec <- 
+  decision_tree(
+    cost_complexity = tune(), 
+    tree_depth = tune(),
+    mode = "classification"
+  ) %>%
+  set_engine("rpart")
 
-```{r plotcp_tree}
-# Show estimated error rate at different complexity parameter settings.
-printcp(tree)
+tree_grid <- grid_regular(cost_complexity(),
+                          tree_depth(),
+                          levels = 5) # 2 parameters -> 5*5 = 25 combinations 
 
-# Plot those estimated error rates.
-plotcp(tree)
+tree_grid %>%
+  count(tree_depth)
+
+# 10-fold cross-validation
+
+set.seed(1234) # for reproducibility 
+
+tree_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)))
 
 ```
 
-Print detailed results, variable importance, and summary of splits.
+#### Add these elements to a workflow 
 
-You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type `?rpart` to learn more.  
+```{r}
 
-Be sure to check out [gormanalysis](https://www.gormanalysis.com/blog/decision-trees-in-r-using-rpart/) excellent overview to help internalize what you learned in this example. 
+# Update workflow 
+tree_wf <- tree_wf %>% update_model(tune_spec)
+
+cl <- makeCluster(4)
+registerDoParallel(cl)
+
+# Tuning results 
+tree_res <- tree_wf %>%
+  tune_grid(
+    resamples = tree_folds, 
+    grid = tree_grid,
+    metrics = metrics
+  )
+
+```
+
+#### Visualize 
+
+```{r}
+
+tree_res %>%
+  collect_metrics() %>%
+  mutate(tree_depth = factor(tree_depth)) %>%
+  ggplot(aes(cost_complexity, mean, color = tree_depth)) +
+  # Line + Point plot 
+  geom_line(size = 1.5, alpha = 0.6) +
+  geom_point(size = 2) +
+  # Subplots 
+  facet_wrap(~ .metric, 
+             scales = "free", 
+             nrow = 2) +
+  # Log scale x 
+  scale_x_log10(labels = scales::label_number()) +
+  # Discrete color scale 
+  scale_color_viridis_d(option = "plasma", begin = .9, end = 0) +
+  labs(x = "Cost complexity",
+       col = "Tree depth",
+       y = NULL)
+
+```
+```{r}
+# Optimal parameter
+best_tree <- select_best(tree_res, "recall")
+
+# Add the parameter to the workflow 
+finalize_tree <- tree_wf %>%
+  finalize_workflow(best_tree)
+```
+
+```{r}
+
+tree_fit_tuned <- finalize_tree %>% 
+  fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+# Metrics 
+(tree_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_metrics(tree_fit_tuned) + labs(title = "Tuned"))
+
+# Confusion matrix 
+(tree_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_conf_mat(tree_fit_tuned) + labs(title = "Tuned"))
+
+```
+
+- Visualize variable importance 
+
+```{r}
+
+tree_fit_tuned %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+
+```

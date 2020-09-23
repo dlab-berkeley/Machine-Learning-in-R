@@ -21,7 +21,7 @@ if (FALSE) {
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages
-                     "remotes", "here", "glue",
+                     "remotes", "here", "glue", "doParallel",
                      # Import/export of any filetype.
                      "rio",
                      # Misc
@@ -36,10 +36,7 @@ suppressMessages(suppressWarnings({
   library(ape)          # Cluster visualizations
   library(caret)        # createDataPartition creates a stratified random split 
   library(ck37r)        # impute_missing_values, standardize, SuperLearner helpers
-  library(dplyr)        # Data cleaning
   library(glmnet)       # Lasso 
-  library(ggplot2)      # Graphics 
-  library(magrittr)     # Pipes %>% for data cleaning, installed by dplyr
   library(mclust)       # Model-based clustering
   library(PCAmixdata)   # PCA
   library(pROC)         # Compute and plot AUC 

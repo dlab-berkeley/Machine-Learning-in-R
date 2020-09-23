@@ -310,7 +310,8 @@ rec_class <- raw_train_x_class %>%
   recipe(target ~ .) %>%
   # Median impute oldpeak column 
   step_medianimpute(oldpeak) %>%
-  # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators). 
+  # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators).
+  step_normalize(age) %>%
   step_dummy(c("sex", "ca", "cp", "slope", "thal")) 
 
 # Prepare a dataset to base each step on
