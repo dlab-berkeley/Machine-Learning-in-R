@@ -123,6 +123,7 @@ ggplot(pca2, aes(x = reorder(rownames(pca2), -dim.2), y = dim.2)) +
 # PCA for Machine Learning
 
 Create a 70/30 training/test split
+
 ```{r}
 # Set seed for reproducibility
 set.seed(1)

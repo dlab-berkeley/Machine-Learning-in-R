@@ -28,7 +28,6 @@ The model first tries to predict each value in a dataset - the cases that can be
 However, the cases that the model has difficulty predicting are _upweighted_ so that the model more assertively tries to predict them. This continues for multiple "boosting iterations", with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5). 
 
 Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Bootstrap is the default, but we want cross-validation.  
-
 Create two objects - `cv_control` and `xgb_grid`. `cv_control` will allow us to customize the cross-validation settings, while `xgb_grid` lets us evaluate the model with different settings:
 
 ### Define `cv_control`
@@ -175,5 +174,4 @@ pROC::coords(rocCurve, 0.525, transpose = FALSE)
 pROC::coords(rocCurve, 0.99, transpose = FALSE)
 ```
 
-## Challenge 4
-Open Challenge 4 in the "Challenges" folder. 
+TBD: Challenge 4
