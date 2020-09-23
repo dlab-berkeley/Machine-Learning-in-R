@@ -3,9 +3,21 @@
 ## Load packages
 
 ```{r}
+
 library(caret)
 library(pROC)
 library(xgboost)
+library(vip)
+library(rio) # painless data import and export
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
+library(glue) # glue strings and objects 
+library(patchwork) # arrange ggplots 
+library(doParallel) # parallel processing 
+
+theme_set(theme_minimal())
+
 ```
 
 ## Load data 
@@ -14,7 +26,7 @@ Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variab
 
 ```{r}
 # Objects: task_reg, task_class
-load("data/preprocessed.RData")
+load(here("data", "preprocessed.RData"))
 ```
 
 ## Overview
@@ -30,20 +42,23 @@ However, the cases that the model has difficulty predicting are _upweighted_ so 
 Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Bootstrap is the default, but we want cross-validation.  
 Create two objects - `cv_control` and `xgb_grid`. `cv_control` will allow us to customize the cross-validation settings, while `xgb_grid` lets us evaluate the model with different settings:
 
+## Non-tidy 
+
 ### Define `cv_control`
 
 ```{r caret_prep}
 # Use 5-fold cross-validation with 2 repeats as our evaluation procedure (instead of the default "bootstrap")
-cv_control =
-  caret::trainControl(method = "repeatedcv",
-                      # Number of folds
-                      number = 5L,
-                      # Number of complete sets of folds to compute
-                      repeats = 2L,
-                      # Calculate class probabilities?
-                      classProbs = TRUE,
-                      # Indicate that our response variable is binary
-                      summaryFunction = twoClassSummary) 
+cv_control <- caret::trainControl(
+  method = "repeatedcv",
+  # Number of folds
+  number = 5L,
+  # Number of complete sets of folds to compute
+  repeats = 2L,
+  # Calculate class probabilities?
+  classProbs = TRUE,
+  # Indicate that our response variable is binary
+  summaryFunction = twoClassSummary) 
+
 ```
 
 ### Define `xgb_grid`
@@ -76,15 +91,15 @@ options(scipen = 999)
 nrow(xgb_grid)
 ```
 
-## Fit model
+### Fit model
 
 Note that we will now use *A*rea *U*nder the ROC *C*urve (called "AUC") as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).  
 
 However, xgboost is expecting character strings as the factor level names so our integer 1s and 0s will not do. Let's quickly recode the 1s as "yes" and 0s as "no". 
 
 ```{r}
-xgb_train_y_class = as.factor(ifelse(train_y_class == 1, "yes", "no"))
-xgb_test_y_class = as.factor(ifelse(test_y_class == 1, "yes", "no"))
+xgb_train_y_class <- as.factor(ifelse(train_y_class == 1, "yes", "no"))
+xgb_test_y_class <- as.factor(ifelse(test_y_class == 1, "yes", "no"))
 table(train_y_class, xgb_train_y_class)
 table(test_y_class, xgb_test_y_class)
 ```
@@ -95,7 +110,7 @@ table(test_y_class, xgb_test_y_class)
 set.seed(1)
 
 # cbind: caret expects the Y response and X predictors to be part of the same dataframe
-model = caret::train(xgb_train_y_class ~ ., data = cbind(xgb_train_y_class, train_x_class), 
+model <- caret::train(xgb_train_y_class ~ ., data = cbind(xgb_train_y_class, train_x_class), 
              # Use xgboost's tree-based algorithm (i.e. gbm)
              method = "xgbTree",
              # Use "AUC" as our performance metric, which caret incorrectly calls "ROC"
@@ -113,14 +128,14 @@ model = caret::train(xgb_train_y_class ~ ., data = cbind(xgb_train_y_class, trai
 # elapsed time = real time since the process was started
 model$times 
 ```
+- Review model summary table
 
-Review model summary table
 ```{r}
 model
 # model$bestTune = "The final values used for the model were..."
 ```
 
-## Investigate Results
+### Investigate Results
 
 ```{r}
 # Extract the hyperparameters with the best performance
@@ -172,6 +187,245 @@ plot(rocCurve,
 pROC::coords(rocCurve, 0.01, transpose = FALSE)
 pROC::coords(rocCurve, 0.525, transpose = FALSE) 
 pROC::coords(rocCurve, 0.99, transpose = FALSE)
+
 ```
+
+## Tidy models 
+
+### parsnip 
+
+- Build a model 
+
+1. Specify a model 
+2. Specify an engine 
+3. Specify a mode 
+
+```{r}
+
+# workflow 
+xg_wf <- workflow() %>% add_formula(target~.)
+
+# spec 
+xg_spec <- boost_tree(
+  
+           # Mode 
+           mode = "classification",
+           
+           # Tuning parameters
+           # The number of trees to fit, aka boosting iterations
+           trees = c(100, 300, 500, 700, 900),
+           # The depth of the decision tree (how many levels of splits).
+	         tree_depth = c(1, 6), 
+           # Learning rate: lower means the ensemble will adapt more slowly.
+           learn_rate = c(0.0001, 0.01, 0.2),
+           # Stop splitting a tree if we only have this many obs in a tree node.
+	         min_n = 10L
+          ) %>% 
+  set_engine("xgboost") 
+
+xg_wf <- xg_wf %>% add_model(xg_spec)
+
+```
+
+- Fit a model
+
+```{r}
+
+xg_fit <- xg_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+```
+
+### yardstick 
+
+- Let's formally test prediction performance. 
+
+**Metrics**
+
+- `accuracy`: The proportion of the data predicted correctly 
+
+- `precision`: Positive predictive value
+
+- `recall` (specificity): True positive rate (e.g., healthy people really healthy)
+
+![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
+
+- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
+
+```{r}
+
+# Define performance metrics 
+metrics <- yardstick::metric_set(accuracy, precision, recall)
+
+# Build an evaluation function 
+evaluate_class <- function(model){
+  
+  # Bind ground truth and predicted values  
+  bind_cols(tibble(truth = test_y_class), # Ground truth 
+            predict(model, test_x_class)) %>% # Predicted values 
+    
+  # Calculate root mean-squared error
+  metrics(truth = truth, estimate = .pred_class) 
+}
+
+```
+
+```{r}
+
+visualize_metrics <- function(model){
+evaluate_class(model) %>%
+  ggplot(aes(x = fct_reorder(glue("{toupper(.metric)}"), .estimate), y = .estimate)) +
+    geom_col() +
+    labs(x = "Metrics",
+         y = "Estimate")}
+
+xg_fit_viz_metr <- visualize_metrics(xg_fit)
+
+xg_fit_viz_metr
+
+```
+- Visualize the confusion matrix. 
+
+  - The following visualization code draws on [Diego Usai's medium post](https://towardsdatascience.com/modelling-with-tidymodels-and-parsnip-bae2c01c131c).
+  
+```{r}
+
+visualize_conf_mat <- function(model){
+  bind_cols(tibble(truth = test_y_class), # Ground truth 
+            predict(model, test_x_class)) %>%
+  conf_mat(truth, .pred_class) %>%
+  pluck(1) %>% # Select index 
+  as_tibble() %>% # Vector -> data.frame 
+  ggplot(aes(Prediction, Truth, alpha = n)) +
+    geom_tile(show.legend = FALSE) +
+    geom_text(aes(label = n), 
+              color = "red", 
+              alpha = 1, 
+              size = 13)
+}
+
+xg_fit_viz_mat <- visualize_conf_mat(xg_fit)
+
+xg_fit_viz_mat
+
+```
+
+### tune 
+
+#### tune ingredients 
+
+We focus on the following two parameters:
+
+- `mtry`: The number of predictors to available for splitting at each node.
+
+- `min_n`: The minimum number of data points needed to keep splitting nodes. 
+
+```{r}
+
+tune_spec <- 
+  xg_forest(
+           mode = "classification",
+           
+           # Tuning parameters
+           mtry = tune(), 
+           min_n = tune()) %>%
+  set_engine("ranger",
+             importance = "permutation")
+
+xg_grid <- grid_regular(mtry(range = c(1, 10)),
+                          min_n(range = c(2, 10)),
+                          levels = 5)
+
+xg_grid %>%
+  count(min_n)
+
+# 10-fold cross-validation
+
+set.seed(1234) # for reproducibility 
+
+xg_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+```
+
+#### Add these elements to a workflow 
+
+```{r}
+
+# Update workflow 
+xg_wf <- xg_wf %>% update_model(tune_spec)
+
+cl <- makeCluster(4)
+registerDoParallel(cl)
+
+# Tuning results 
+xg_res <- xg_wf %>%
+  tune_grid(
+    resamples = xg_folds, 
+    grid = xg_grid,
+    metrics = metrics
+  )
+
+```
+
+#### Visualize 
+
+- The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
+
+```{r}
+
+xg_res %>%
+  collect_metrics() %>%
+  mutate(min_n = factor(min_n)) %>%
+  ggplot(aes(mtry, mean, color = min_n)) +
+  # Line + Point plot 
+  geom_line(size = 1.5, alpha = 0.6) +
+  geom_point(size = 2) +
+  # Subplots 
+  facet_wrap(~ .metric, 
+             scales = "free", 
+             nrow = 2) +
+  # Log scale x 
+  scale_x_log10(labels = scales::label_number()) +
+  # Discrete color scale 
+  scale_color_viridis_d(option = "plasma", begin = .9, end = 0) +
+  labs(x = "The number of predictors to be sampled",
+       col = "The minimum number of data points needed for splitting",
+       y = NULL) +
+  theme(legend.position="bottom")
+
+```
+```{r}
+
+# Optimal parameter
+best_tree <- select_best(xg_res, "accuracy")
+
+# Add the parameter to the workflow 
+finalize_tree <- xg_wf %>%
+  finalize_workflow(best_tree)
+
+```
+
+```{r}
+
+xg_fit_tuned <- finalize_tree %>% 
+  fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+# Metrics 
+(xg_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_metrics(xg_fit_tuned) + labs(title = "Tuned"))
+
+# Confusion matrix 
+(xg_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_conf_mat(xg_fit_tuned) + labs(title = "Tuned"))
+
+```
+
+- Visualize variable importance 
+
+```{r}
+
+xg_fit_tuned %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+
+```
+ 
 
 TBD: Challenge 4
