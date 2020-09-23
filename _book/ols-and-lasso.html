@@ -382,7 +382,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb24-5"><a href="ols-and-lasso.html#cb24-5"></a>                   <span class="dt">alpha =</span> <span class="dv">1</span>)</span>
 <span id="cb24-6"><a href="ols-and-lasso.html#cb24-6"></a></span>
 <span id="cb24-7"><a href="ols-and-lasso.html#cb24-7"></a>lasso<span class="op">$</span>lambda.min</span></code></pre></div>
-<pre><code>## [1] 0.2400004</code></pre>
+<pre><code>## [1] 0.4602993</code></pre>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="ols-and-lasso.html#cb26-1"></a><span class="co"># Predict outcome for the test data</span></span>
 <span id="cb26-2"><a href="ols-and-lasso.html#cb26-2"></a>lasso_predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(lasso, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(test_x_reg),</span>
 <span id="cb26-3"><a href="ols-and-lasso.html#cb26-3"></a>                      <span class="dt">s =</span> <span class="fl">0.1</span>) <span class="co"># Tuning parameter; An arbitrary number not optimized </span></span>
@@ -566,11 +566,6 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="visualize" class="section level3" number="4.5.3">
 <h3><span class="header-section-number">4.5.3</span> Visualize</h3>
 <ul>
-<li>The following two visualizations draw on Julia Silge’s <a href="https://juliasilge.com/blog/lasso-the-office/">blog post</a>.</li>
-</ul>
-<div id="rmse-and-rsq" class="section level4" number="4.5.3.1">
-<h4><span class="header-section-number">4.5.3.1</span> RMSE and RSQ</h4>
-<ul>
 <li>Visualize the distribution of log(lamba) vs mean-squared error.</li>
 </ul>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="ols-and-lasso.html#cb41-1"></a><span class="co"># Visualize</span></span>
@@ -615,28 +610,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##   penalty .metric .estimator  mean     n std_err .config
 ##     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  
 ## 1   0.244 rmse    standard    7.71    10   0.351 Model47</code></pre>
-</div>
-<div id="important-variables" class="section level4" number="4.5.3.2">
-<h4><span class="header-section-number">4.5.3.2</span> Important variables</h4>
-<ul>
-<li>Visualize important variables.</li>
-</ul>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="ols-and-lasso.html#cb44-1"></a><span class="kw">finalize_workflow</span>(</span>
-<span id="cb44-2"><a href="ols-and-lasso.html#cb44-2"></a>  rec_wf, </span>
-<span id="cb44-3"><a href="ols-and-lasso.html#cb44-3"></a>  lowest_rmse</span>
-<span id="cb44-4"><a href="ols-and-lasso.html#cb44-4"></a>) <span class="op">%&gt;%</span></span>
-<span id="cb44-5"><a href="ols-and-lasso.html#cb44-5"></a><span class="st">  </span><span class="kw">fit</span>(train_x_reg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">age =</span> train_y_reg))) <span class="op">%&gt;%</span></span>
-<span id="cb44-6"><a href="ols-and-lasso.html#cb44-6"></a><span class="st">  </span><span class="kw">pull_workflow_fit</span>() <span class="op">%&gt;%</span></span>
-<span id="cb44-7"><a href="ols-and-lasso.html#cb44-7"></a><span class="st">  </span>vip<span class="op">::</span><span class="kw">vi</span>(<span class="dt">lambda =</span> lowest_rmse<span class="op">$</span>penalty) <span class="op">%&gt;%</span></span>
-<span id="cb44-8"><a href="ols-and-lasso.html#cb44-8"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">abs</span>(Importance), </span>
-<span id="cb44-9"><a href="ols-and-lasso.html#cb44-9"></a>             <span class="dt">y =</span> <span class="kw">fct_reorder</span>(Variable, <span class="kw">abs</span>(Importance)),</span>
-<span id="cb44-10"><a href="ols-and-lasso.html#cb44-10"></a>             <span class="dt">fill =</span> Sign)) <span class="op">+</span></span>
-<span id="cb44-11"><a href="ols-and-lasso.html#cb44-11"></a><span class="st">  </span><span class="kw">geom_col</span>() <span class="op">+</span></span>
-<span id="cb44-12"><a href="ols-and-lasso.html#cb44-12"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Importance&quot;</span>,</span>
-<span id="cb44-13"><a href="ols-and-lasso.html#cb44-13"></a>       <span class="dt">y =</span> <span class="ot">NULL</span>) </span></code></pre></div>
-<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 
-</div>
 </div>
 </div>
 </div>

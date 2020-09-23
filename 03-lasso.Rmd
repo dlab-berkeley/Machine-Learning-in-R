@@ -240,11 +240,7 @@ rec_res <- rec_wf %>%
 
 ### Visualize 
 
-- The following two visualizations draw on Julia Silge's [blog post](https://juliasilge.com/blog/lasso-the-office/). 
-
-#### RMSE and RSQ 
-
-- Visualize the distribution of log(lamba) vs mean-squared error. 
+- Visualize the distribution of log(lambda) vs mean-squared error. 
 
 ```{r}
 
@@ -287,27 +283,5 @@ rec_res %>%
   filter(.metric == "rmse") %>%
   arrange(mean) %>%
   slice(1)
-
-```
-
-#### Important variables 
-
-- Visualize important variables. 
-
-```{r}
-
-finalize_workflow(
-  rec_wf, 
-  lowest_rmse
-) %>%
-  fit(train_x_reg %>% bind_cols(tibble(age = train_y_reg))) %>%
-  pull_workflow_fit() %>%
-  vip::vi(lambda = lowest_rmse$penalty) %>%
-  ggplot(aes(x = abs(Importance), 
-             y = fct_reorder(Variable, abs(Importance)),
-             fill = Sign)) +
-  geom_col() +
-  labs(x = "Importance",
-       y = NULL) 
 
 ```
