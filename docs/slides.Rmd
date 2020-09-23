@@ -120,15 +120,15 @@ Or (advanced):
 
 This workshop will utilize a variety of packages to install and organize the code, fit the machine learning algorithms, visualize their outputs, and evaluate their performances. 
 
-* Algorithms: "glmnet", "ranger", "rpart", "xgboost"  
+* Algorithms: "glmnet", "rpart", "ranger", "xgboost"  
 
-* Visualization: "rpart.plot", "vip"  
+* Visualization: "vip", "ggplot2" 
 
-* Machine learning frameworks: "caret", "SuperLearner", "tidymodels" 
+* Machine learning frameworks: "tidymodels" , "caret", "SuperLearner"
 
-* R utility packages: "tidyverse", "remotes"
+* R utility packages: "tidyverse"
 
-* Miscellaneous: "pROC", "rio"  
+* Miscellaneous: "rio", "here", "glue"
 
 * Chris Kennedy's R Toolkit: "ck37r"
 
