@@ -36,7 +36,7 @@ Let's see how a decision tree classifies if a person suffers from heart disease 
 
 ## Non-tidy
 
-### Fit a model 
+### Fit model 
 
 ```{r}
 
@@ -245,7 +245,7 @@ tree_res <- tree_wf %>%
 
 #### Visualize 
 
-- The following plot draws on the [vignette](https://www.twitter.com/) of the tidymodels package. 
+- The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
 
 ```{r}
 
@@ -300,3 +300,6 @@ tree_fit_tuned %>%
   vip::vip()
 
 ```
+
+
+TBD: Challenge 2 

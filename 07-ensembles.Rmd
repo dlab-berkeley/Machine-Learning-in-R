@@ -2,7 +2,7 @@
 
 ## Load packages
 
-```{r packages}
+```{r}
 library(SuperLearner)
 library(ck37r)
 ```
@@ -11,7 +11,7 @@ library(ck37r)
 
 Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variables we defined in 02-preprocessing.Rmd for this *classification* task. 
 
-```{r setup_data}
+```{r}
 # Objects: task_reg, task_class
 load("data/preprocessed.RData")
 ```
