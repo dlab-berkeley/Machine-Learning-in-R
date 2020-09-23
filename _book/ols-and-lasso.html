@@ -382,7 +382,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb24-5"><a href="ols-and-lasso.html#cb24-5"></a>                   <span class="dt">alpha =</span> <span class="dv">1</span>)</span>
 <span id="cb24-6"><a href="ols-and-lasso.html#cb24-6"></a></span>
 <span id="cb24-7"><a href="ols-and-lasso.html#cb24-7"></a>lasso<span class="op">$</span>lambda.min</span></code></pre></div>
-<pre><code>## [1] 0.4602993</code></pre>
+<pre><code>## [1] 0.2890814</code></pre>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="ols-and-lasso.html#cb26-1"></a><span class="co"># Predict outcome for the test data</span></span>
 <span id="cb26-2"><a href="ols-and-lasso.html#cb26-2"></a>lasso_predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(lasso, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(test_x_reg),</span>
 <span id="cb26-3"><a href="ols-and-lasso.html#cb26-3"></a>                      <span class="dt">s =</span> <span class="fl">0.1</span>) <span class="co"># Tuning parameter; An arbitrary number not optimized </span></span>
@@ -566,7 +566,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="visualize" class="section level3" number="4.5.3">
 <h3><span class="header-section-number">4.5.3</span> Visualize</h3>
 <ul>
-<li>Visualize the distribution of log(lamba) vs mean-squared error.</li>
+<li>Visualize the distribution of log(lambda) vs mean-squared error.</li>
 </ul>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="ols-and-lasso.html#cb41-1"></a><span class="co"># Visualize</span></span>
 <span id="cb41-2"><a href="ols-and-lasso.html#cb41-2"></a></span>
@@ -591,25 +591,27 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>NOTE: when log(lambda) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. As log(lambda) becomes increasingly negative, lambda is correspondingly closer to zero and we are approaching the OLS solution.</p>
 </blockquote>
 <ul>
-<li><p>Show the lambda that results in the minimum estimated mean-squared error (MSE):</p>
-<ul>
-<li>The RMSE of the initial model: 7.858063</li>
-<li>The RMSE of the tuned model: 7.760019</li>
-</ul></li>
+<li>Show the lambda that results in the minimum estimated mean-squared error (MSE):</li>
 </ul>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="ols-and-lasso.html#cb42-1"></a>best_rmse &lt;-<span class="st"> </span><span class="kw">show_best</span>(rec_res, <span class="dt">metric =</span> <span class="st">&quot;rmse&quot;</span>)</span>
 <span id="cb42-2"><a href="ols-and-lasso.html#cb42-2"></a></span>
 <span id="cb42-3"><a href="ols-and-lasso.html#cb42-3"></a>lowest_rmse &lt;-<span class="st"> </span><span class="kw">select_best</span>(rec_res, <span class="dt">metric =</span> <span class="st">&quot;rmse&quot;</span>)</span>
 <span id="cb42-4"><a href="ols-and-lasso.html#cb42-4"></a></span>
-<span id="cb42-5"><a href="ols-and-lasso.html#cb42-5"></a>rec_res <span class="op">%&gt;%</span></span>
-<span id="cb42-6"><a href="ols-and-lasso.html#cb42-6"></a><span class="st">  </span><span class="kw">collect_metrics</span>() <span class="op">%&gt;%</span></span>
-<span id="cb42-7"><a href="ols-and-lasso.html#cb42-7"></a><span class="st">  </span><span class="kw">filter</span>(.metric <span class="op">==</span><span class="st"> &quot;rmse&quot;</span>) <span class="op">%&gt;%</span></span>
-<span id="cb42-8"><a href="ols-and-lasso.html#cb42-8"></a><span class="st">  </span><span class="kw">arrange</span>(mean) <span class="op">%&gt;%</span></span>
-<span id="cb42-9"><a href="ols-and-lasso.html#cb42-9"></a><span class="st">  </span><span class="kw">slice</span>(<span class="dv">1</span>)</span></code></pre></div>
-<pre><code>## # A tibble: 1 x 7
-##   penalty .metric .estimator  mean     n std_err .config
-##     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  
-## 1   0.244 rmse    standard    7.71    10   0.351 Model47</code></pre>
+<span id="cb42-5"><a href="ols-and-lasso.html#cb42-5"></a><span class="kw">glue</span>(<span class="st">&#39;The RMSE of the intiail model is </span></span>
+<span id="cb42-6"><a href="ols-and-lasso.html#cb42-6"></a><span class="st">     {evals %&gt;%</span></span>
+<span id="cb42-7"><a href="ols-and-lasso.html#cb42-7"></a><span class="st">  filter(type == &quot;Lasso&quot;, .metric == &quot;rmse&quot;) %&gt;%</span></span>
+<span id="cb42-8"><a href="ols-and-lasso.html#cb42-8"></a><span class="st">  select(.estimate) %&gt;%</span></span>
+<span id="cb42-9"><a href="ols-and-lasso.html#cb42-9"></a><span class="st">  round(2)}&#39;</span>)</span></code></pre></div>
+<pre><code>## The RMSE of the intiail model is 
+##    7.86</code></pre>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="ols-and-lasso.html#cb44-1"></a><span class="kw">glue</span>(<span class="st">&#39;The RMSE of the tuned model is {rec_res %&gt;%</span></span>
+<span id="cb44-2"><a href="ols-and-lasso.html#cb44-2"></a><span class="st">  collect_metrics() %&gt;%</span></span>
+<span id="cb44-3"><a href="ols-and-lasso.html#cb44-3"></a><span class="st">  filter(.metric == &quot;rmse&quot;) %&gt;%</span></span>
+<span id="cb44-4"><a href="ols-and-lasso.html#cb44-4"></a><span class="st">  arrange(mean) %&gt;%</span></span>
+<span id="cb44-5"><a href="ols-and-lasso.html#cb44-5"></a><span class="st">  slice(1) %&gt;%</span></span>
+<span id="cb44-6"><a href="ols-and-lasso.html#cb44-6"></a><span class="st">  select(mean) %&gt;%</span></span>
+<span id="cb44-7"><a href="ols-and-lasso.html#cb44-7"></a><span class="st">  round(2)}&#39;</span>)</span></code></pre></div>
+<pre><code>## The RMSE of the tuned model is 7.71</code></pre>
 
 </div>
 </div>

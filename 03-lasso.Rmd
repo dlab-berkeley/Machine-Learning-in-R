@@ -269,19 +269,25 @@ rec_res %>%
 
 - Show the lambda that results in the minimum estimated mean-squared error (MSE):
 
-  - The RMSE of the initial model: 7.858063
-  - The RMSE of the tuned model: 7.760019
-  
 ```{r}
 
 best_rmse <- show_best(rec_res, metric = "rmse")
 
 lowest_rmse <- select_best(rec_res, metric = "rmse")
 
-rec_res %>%
+glue('The RMSE of the intiail model is 
+     {evals %>%
+  filter(type == "Lasso", .metric == "rmse") %>%
+  select(.estimate) %>%
+  round(2)}')
+
+glue('The RMSE of the tuned model is {rec_res %>%
   collect_metrics() %>%
   filter(.metric == "rmse") %>%
   arrange(mean) %>%
-  slice(1)
+  slice(1) %>%
+  select(mean) %>%
+  round(2)}')
 
 ```
+
