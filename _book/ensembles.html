@@ -321,47 +321,30 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>## The following object is masked from &#39;package:utils&#39;:
 ## 
 ##     vi</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="ensembles.html#cb11-1"></a><span class="kw">library</span>(rio) <span class="co"># painless data import and export</span></span>
-<span id="cb11-2"><a href="ensembles.html#cb11-2"></a><span class="kw">library</span>(tidyverse) <span class="co"># tidyverse packages </span></span></code></pre></div>
-<pre><code>## ── Attaching packages ────────────────────</code></pre>
-<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
-## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
-## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
-## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
-<pre><code>## ── Conflicts ──── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="ensembles.html#cb15-1"></a><span class="kw">library</span>(tidymodels) <span class="co"># tidymodels framework </span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="ensembles.html#cb11-1"></a><span class="kw">library</span>(tidymodels) <span class="co"># tidymodels framework </span></span></code></pre></div>
 <pre><code>## ── Attaching packages ────────────────────</code></pre>
 <pre><code>## ✓ broom     0.7.0      ✓ recipes   0.1.13
 ## ✓ dials     0.0.9      ✓ rsample   0.0.7 
+## ✓ dplyr     1.0.2      ✓ tibble    3.0.3 
+## ✓ ggplot2   3.3.2      ✓ tidyr     1.1.2 
 ## ✓ infer     0.5.3      ✓ tune      0.1.1 
 ## ✓ modeldata 0.0.2      ✓ workflows 0.2.0 
-## ✓ parsnip   0.1.3      ✓ yardstick 0.0.7</code></pre>
+## ✓ parsnip   0.1.3      ✓ yardstick 0.0.7 
+## ✓ purrr     0.3.4</code></pre>
 <pre><code>## ── Conflicts ─── tidymodels_conflicts() ──
-## x scales::discard() masks purrr::discard()
-## x dplyr::filter()   masks stats::filter()
-## x recipes::fixed()  masks stringr::fixed()
-## x dplyr::lag()      masks stats::lag()
-## x yardstick::spec() masks readr::spec()
-## x recipes::step()   masks stats::step()</code></pre>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="ensembles.html#cb19-1"></a><span class="kw">library</span>(here) <span class="co"># reproducible way to find files </span></span></code></pre></div>
+## x purrr::discard() masks scales::discard()
+## x dplyr::filter()  masks stats::filter()
+## x dplyr::lag()     masks stats::lag()
+## x recipes::step()  masks stats::step()</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="ensembles.html#cb15-1"></a><span class="kw">library</span>(here) <span class="co"># reproducible way to find files </span></span></code></pre></div>
 <pre><code>## here() starts at /home/jae/Machine-Learning-in-R</code></pre>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="ensembles.html#cb21-1"></a><span class="kw">library</span>(glue) <span class="co"># glue strings and objects </span></span></code></pre></div>
-<pre><code>## 
-## Attaching package: &#39;glue&#39;</code></pre>
-<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
-## 
-##     collapse</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="ensembles.html#cb24-1"></a><span class="kw">suppressMessages</span>(<span class="kw">suppressWarnings</span>(<span class="kw">library</span>(glmnet)))</span>
-<span id="cb24-2"><a href="ensembles.html#cb24-2"></a></span>
-<span id="cb24-3"><a href="ensembles.html#cb24-3"></a><span class="kw">theme_set</span>(<span class="kw">theme_minimal</span>())</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="ensembles.html#cb17-1"></a><span class="kw">theme_set</span>(<span class="kw">theme_minimal</span>())</span></code></pre></div>
 </div>
 <div id="load-data" class="section level2" number="8.2">
 <h2><span class="header-section-number">8.2</span> Load data</h2>
 <p>Load <code>train_x_class</code>, <code>train_y_class</code>, <code>test_x_class</code>, and <code>test_y_class</code> variables we defined in 02-preprocessing.Rmd for this <em>classification</em> task.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="ensembles.html#cb25-1"></a><span class="co"># Objects: task_reg, task_class</span></span>
-<span id="cb25-2"><a href="ensembles.html#cb25-2"></a><span class="kw">load</span>(<span class="kw">here</span>(<span class="st">&quot;data&quot;</span> , <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="ensembles.html#cb18-1"></a><span class="co"># Objects: task_reg, task_class</span></span>
+<span id="cb18-2"><a href="ensembles.html#cb18-2"></a><span class="kw">load</span>(<span class="kw">here</span>(<span class="st">&quot;data&quot;</span> , <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
 </div>
 <div id="overview" class="section level2" number="8.3">
 <h2><span class="header-section-number">8.3</span> Overview</h2>
@@ -376,7 +359,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>A “wrapper” is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:</p>
 <div id="choose-algorithms" class="section level3" number="8.3.1">
 <h3><span class="header-section-number">8.3.1</span> Choose algorithms</h3>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="ensembles.html#cb26-1"></a>SuperLearner<span class="op">::</span><span class="kw">listWrappers</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="ensembles.html#cb19-1"></a>SuperLearner<span class="op">::</span><span class="kw">listWrappers</span>()</span></code></pre></div>
 <pre><code>## All prediction algorithm wrappers in SuperLearner:</code></pre>
 <pre><code>##  [1] &quot;SL.bartMachine&quot;      &quot;SL.bayesglm&quot;         &quot;SL.biglasso&quot;        
 ##  [4] &quot;SL.caret&quot;            &quot;SL.caret.rpart&quot;      &quot;SL.cforest&quot;         
@@ -398,8 +381,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ## [1] &quot;screen.corP&quot;           &quot;screen.corRank&quot;        &quot;screen.glmnet&quot;        
 ## [4] &quot;screen.randomForest&quot;   &quot;screen.SIS&quot;            &quot;screen.template&quot;      
 ## [7] &quot;screen.ttest&quot;          &quot;write.screen.template&quot;</code></pre>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="ensembles.html#cb31-1"></a><span class="co"># Compile the algorithm wrappers to be used.</span></span>
-<span id="cb31-2"><a href="ensembles.html#cb31-2"></a>sl_lib &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;SL.mean&quot;</span>, <span class="st">&quot;SL.glm&quot;</span>, <span class="st">&quot;SL.glmnet&quot;</span>, <span class="st">&quot;SL.rpart&quot;</span>, <span class="st">&quot;SL.ranger&quot;</span>, <span class="st">&quot;SL.xgboost&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="ensembles.html#cb24-1"></a><span class="co"># Compile the algorithm wrappers to be used.</span></span>
+<span id="cb24-2"><a href="ensembles.html#cb24-2"></a>sl_lib &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;SL.mean&quot;</span>, <span class="st">&quot;SL.glm&quot;</span>, <span class="st">&quot;SL.glmnet&quot;</span>, <span class="st">&quot;SL.rpart&quot;</span>, <span class="st">&quot;SL.ranger&quot;</span>, <span class="st">&quot;SL.xgboost&quot;</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="non-tidy" class="section level2" number="8.4">
@@ -407,19 +390,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="fit-model" class="section level3" number="8.4.1">
 <h3><span class="header-section-number">8.4.1</span> Fit model</h3>
 <p>Fit the ensemble!</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="ensembles.html#cb32-1"></a><span class="co"># This is a seed that is compatible with multicore parallel processing.</span></span>
-<span id="cb32-2"><a href="ensembles.html#cb32-2"></a><span class="co"># See ?set.seed for more information.</span></span>
-<span id="cb32-3"><a href="ensembles.html#cb32-3"></a><span class="kw">set.seed</span>(<span class="dv">1</span>, <span class="st">&quot;L&#39;Ecuyer-CMRG&quot;</span>) </span>
-<span id="cb32-4"><a href="ensembles.html#cb32-4"></a></span>
-<span id="cb32-5"><a href="ensembles.html#cb32-5"></a><span class="co"># This will take a few minutes to execute - take a look at the .html file to see the output!</span></span>
-<span id="cb32-6"><a href="ensembles.html#cb32-6"></a>cv_sl &lt;-<span class="st"> </span>SuperLearner<span class="op">::</span><span class="kw">CV.SuperLearner</span>(</span>
-<span id="cb32-7"><a href="ensembles.html#cb32-7"></a>  <span class="dt">Y =</span> <span class="kw">as.numeric</span>(<span class="kw">as.character</span>(train_y_class)), </span>
-<span id="cb32-8"><a href="ensembles.html#cb32-8"></a>  <span class="dt">X =</span> train_x_class,</span>
-<span id="cb32-9"><a href="ensembles.html#cb32-9"></a>  <span class="dt">family =</span> <span class="kw">binomial</span>(),</span>
-<span id="cb32-10"><a href="ensembles.html#cb32-10"></a>  <span class="co"># For a real analysis we would use V = 10.</span></span>
-<span id="cb32-11"><a href="ensembles.html#cb32-11"></a>  <span class="dt">cvControl =</span> <span class="kw">list</span>(<span class="dt">V =</span> 5L, <span class="dt">stratifyCV =</span> <span class="ot">TRUE</span>),</span>
-<span id="cb32-12"><a href="ensembles.html#cb32-12"></a>  <span class="dt">SL.library =</span> sl_lib,</span>
-<span id="cb32-13"><a href="ensembles.html#cb32-13"></a>  <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="ensembles.html#cb25-1"></a><span class="co"># This is a seed that is compatible with multicore parallel processing.</span></span>
+<span id="cb25-2"><a href="ensembles.html#cb25-2"></a><span class="co"># See ?set.seed for more information.</span></span>
+<span id="cb25-3"><a href="ensembles.html#cb25-3"></a><span class="kw">set.seed</span>(<span class="dv">1</span>, <span class="st">&quot;L&#39;Ecuyer-CMRG&quot;</span>) </span>
+<span id="cb25-4"><a href="ensembles.html#cb25-4"></a></span>
+<span id="cb25-5"><a href="ensembles.html#cb25-5"></a><span class="co"># This will take a few minutes to execute - take a look at the .html file to see the output!</span></span>
+<span id="cb25-6"><a href="ensembles.html#cb25-6"></a>cv_sl &lt;-<span class="st"> </span>SuperLearner<span class="op">::</span><span class="kw">CV.SuperLearner</span>(</span>
+<span id="cb25-7"><a href="ensembles.html#cb25-7"></a>  <span class="dt">Y =</span> <span class="kw">as.numeric</span>(<span class="kw">as.character</span>(train_y_class)), </span>
+<span id="cb25-8"><a href="ensembles.html#cb25-8"></a>  <span class="dt">X =</span> train_x_class,</span>
+<span id="cb25-9"><a href="ensembles.html#cb25-9"></a>  <span class="dt">family =</span> <span class="kw">binomial</span>(),</span>
+<span id="cb25-10"><a href="ensembles.html#cb25-10"></a>  <span class="co"># For a real analysis we would use V = 10.</span></span>
+<span id="cb25-11"><a href="ensembles.html#cb25-11"></a>  <span class="dt">cvControl =</span> <span class="kw">list</span>(<span class="dt">V =</span> 5L, <span class="dt">stratifyCV =</span> <span class="ot">TRUE</span>),</span>
+<span id="cb25-12"><a href="ensembles.html#cb25-12"></a>  <span class="dt">SL.library =</span> sl_lib,</span>
+<span id="cb25-13"><a href="ensembles.html#cb25-13"></a>  <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>## Loading required namespace: glmnet</code></pre>
 <pre><code>## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
 ## prediction from a rank-deficient fit may be misleading</code></pre>
 <pre><code>## Loading required namespace: ranger</code></pre>
@@ -588,17 +572,17 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="risk" class="section level3" number="8.4.2">
 <h3><span class="header-section-number">8.4.2</span> Risk</h3>
-<p>Risk is a performance estimate - it’s the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner’s default loss metric is squared error <span class="math inline">\((y_{actual} - y_{predicted})^2\)</span>, so the risk is the mean-squared error (just like in ordinary least <em>squares</em> regression). View the summary, plot results, and compute the AUC!</p>
+<p>Risk is a performance estimate - it’s the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner’s default loss metric is squared error <span class="math inline">\((y_{actual} - y_{predicted})^2\)</span>, so the risk is the mean-squared error (just like in ordinary least <em>squares</em> regression). View the summary, plot results, and compute the Area Under the ROC Curve (AUC)!</p>
 </div>
 <div id="plot-the-risk" class="section level3" number="8.4.3">
 <h3><span class="header-section-number">8.4.3</span> Plot the risk</h3>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="ensembles.html#cb37-1"></a><span class="co"># Plot the cross-validated risk estimate.</span></span>
-<span id="cb37-2"><a href="ensembles.html#cb37-2"></a><span class="kw">plot</span>(cv_sl)</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="ensembles.html#cb31-1"></a><span class="co"># Plot the cross-validated risk estimate.</span></span>
+<span id="cb31-2"><a href="ensembles.html#cb31-2"></a><span class="kw">plot</span>(cv_sl)</span></code></pre></div>
 <p><img src="machine-learning-in-r_files/figure-html/cvsl_review-1.png" width="672" /></p>
 </div>
 <div id="compute-auc-for-all-estimators" class="section level3" number="8.4.4">
 <h3><span class="header-section-number">8.4.4</span> Compute AUC for all estimators</h3>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="ensembles.html#cb38-1"></a><span class="kw">auc_table</span>(cv_sl)</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="ensembles.html#cb32-1"></a><span class="kw">auc_table</span>(cv_sl)</span></code></pre></div>
 <pre><code>##                      auc         se  ci_lower  ci_upper      p-value
 ## SL.mean_All    0.5000000 0.06879264 0.3651689 0.6348311 2.552338e-09
 ## SL.rpart_All   0.7804972 0.04213879 0.6979067 0.8630877 1.966307e-03
@@ -611,12 +595,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="plot-the-roc-curve-for-the-best-estimator" class="section level3" number="8.4.5">
 <h3><span class="header-section-number">8.4.5</span> Plot the ROC curve for the best estimator</h3>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="ensembles.html#cb40-1"></a><span class="kw">plot_roc</span>(cv_sl)</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="ensembles.html#cb34-1"></a><span class="kw">plot_roc</span>(cv_sl)</span></code></pre></div>
 <p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 </div>
 <div id="review-weight-distribution-for-the-superlearner" class="section level3" number="8.4.6">
 <h3><span class="header-section-number">8.4.6</span> Review weight distribution for the SuperLearner</h3>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="ensembles.html#cb41-1"></a><span class="kw">print</span>(<span class="kw">cvsl_weights</span>(cv_sl), <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="ensembles.html#cb35-1"></a><span class="kw">print</span>(<span class="kw">cvsl_weights</span>(cv_sl), <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
 <pre><code>##  # Learner    Mean      SD     Min     Max
 ##  1     glm 0.48741 0.15602 0.26996 0.66418
 ##  2  glmnet 0.28295 0.29432 0.00000 0.66948
@@ -628,26 +612,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li>SuperLearner is currently not available in the tidymodels framework. But you’d like to, you can easily build a parsnip model. Here, I just show a snapshot of the whole process. If you are interested in knowing more about it, please take a look at <a href="https://www.tidymodels.org/learn/develop/models/">this vignette</a> of the tidymodels.</li>
 </ul>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="ensembles.html#cb43-1"></a><span class="co"># Set model </span></span>
-<span id="cb43-2"><a href="ensembles.html#cb43-2"></a><span class="kw">set_new_model</span>(<span class="st">&quot;superlearner&quot;</span>)</span>
-<span id="cb43-3"><a href="ensembles.html#cb43-3"></a></span>
-<span id="cb43-4"><a href="ensembles.html#cb43-4"></a><span class="co"># Set mode </span></span>
-<span id="cb43-5"><a href="ensembles.html#cb43-5"></a><span class="kw">set_model_mode</span>(<span class="dt">model =</span> <span class="st">&quot;superlearner&quot;</span>, </span>
-<span id="cb43-6"><a href="ensembles.html#cb43-6"></a>               <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>)</span>
-<span id="cb43-7"><a href="ensembles.html#cb43-7"></a></span>
-<span id="cb43-8"><a href="ensembles.html#cb43-8"></a><span class="co"># Set model engine </span></span>
-<span id="cb43-9"><a href="ensembles.html#cb43-9"></a><span class="kw">set_model_engine</span>(</span>
-<span id="cb43-10"><a href="ensembles.html#cb43-10"></a>  <span class="st">&quot;superlearner&quot;</span>,</span>
-<span id="cb43-11"><a href="ensembles.html#cb43-11"></a>  <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>,</span>
-<span id="cb43-12"><a href="ensembles.html#cb43-12"></a>  <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span></span>
-<span id="cb43-13"><a href="ensembles.html#cb43-13"></a>)</span>
-<span id="cb43-14"><a href="ensembles.html#cb43-14"></a></span>
-<span id="cb43-15"><a href="ensembles.html#cb43-15"></a><span class="co"># Set dependency </span></span>
-<span id="cb43-16"><a href="ensembles.html#cb43-16"></a><span class="kw">set_dependency</span>(<span class="st">&quot;superlearner&quot;</span>, </span>
-<span id="cb43-17"><a href="ensembles.html#cb43-17"></a>               <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span>, <span class="dt">pkg =</span> <span class="st">&quot;SuperLearner&quot;</span>)</span>
-<span id="cb43-18"><a href="ensembles.html#cb43-18"></a></span>
-<span id="cb43-19"><a href="ensembles.html#cb43-19"></a><span class="co"># Show model info </span></span>
-<span id="cb43-20"><a href="ensembles.html#cb43-20"></a><span class="kw">show_model_info</span>(<span class="st">&quot;superlearner&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="ensembles.html#cb37-1"></a><span class="co"># Set model </span></span>
+<span id="cb37-2"><a href="ensembles.html#cb37-2"></a><span class="kw">set_new_model</span>(<span class="st">&quot;superlearner&quot;</span>)</span>
+<span id="cb37-3"><a href="ensembles.html#cb37-3"></a></span>
+<span id="cb37-4"><a href="ensembles.html#cb37-4"></a><span class="co"># Set mode </span></span>
+<span id="cb37-5"><a href="ensembles.html#cb37-5"></a><span class="kw">set_model_mode</span>(<span class="dt">model =</span> <span class="st">&quot;superlearner&quot;</span>, </span>
+<span id="cb37-6"><a href="ensembles.html#cb37-6"></a>               <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>)</span>
+<span id="cb37-7"><a href="ensembles.html#cb37-7"></a></span>
+<span id="cb37-8"><a href="ensembles.html#cb37-8"></a><span class="co"># Set model engine </span></span>
+<span id="cb37-9"><a href="ensembles.html#cb37-9"></a><span class="kw">set_model_engine</span>(</span>
+<span id="cb37-10"><a href="ensembles.html#cb37-10"></a>  <span class="st">&quot;superlearner&quot;</span>,</span>
+<span id="cb37-11"><a href="ensembles.html#cb37-11"></a>  <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>,</span>
+<span id="cb37-12"><a href="ensembles.html#cb37-12"></a>  <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span></span>
+<span id="cb37-13"><a href="ensembles.html#cb37-13"></a>)</span>
+<span id="cb37-14"><a href="ensembles.html#cb37-14"></a></span>
+<span id="cb37-15"><a href="ensembles.html#cb37-15"></a><span class="co"># Set dependency </span></span>
+<span id="cb37-16"><a href="ensembles.html#cb37-16"></a><span class="kw">set_dependency</span>(<span class="st">&quot;superlearner&quot;</span>, </span>
+<span id="cb37-17"><a href="ensembles.html#cb37-17"></a>               <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span>, <span class="dt">pkg =</span> <span class="st">&quot;SuperLearner&quot;</span>)</span>
+<span id="cb37-18"><a href="ensembles.html#cb37-18"></a></span>
+<span id="cb37-19"><a href="ensembles.html#cb37-19"></a><span class="co"># Show model info </span></span>
+<span id="cb37-20"><a href="ensembles.html#cb37-20"></a><span class="kw">show_model_info</span>(<span class="st">&quot;superlearner&quot;</span>)</span></code></pre></div>
 <pre><code>## Information for `superlearner`
 ##  modes: unknown, classification 
 ## 
@@ -659,18 +643,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 ##  no registered fit modules.
 ## 
 ##  no registered prediction modules.</code></pre>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="ensembles.html#cb45-1"></a><span class="co"># Add arguments </span></span>
-<span id="cb45-2"><a href="ensembles.html#cb45-2"></a><span class="kw">set_model_arg</span>(</span>
-<span id="cb45-3"><a href="ensembles.html#cb45-3"></a>  <span class="dt">model =</span> <span class="st">&quot;superlearner&quot;</span>,</span>
-<span id="cb45-4"><a href="ensembles.html#cb45-4"></a>  <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span>,</span>
-<span id="cb45-5"><a href="ensembles.html#cb45-5"></a>  <span class="dt">parsnip =</span> <span class="st">&quot;cv_control&quot;</span>,</span>
-<span id="cb45-6"><a href="ensembles.html#cb45-6"></a>  <span class="dt">original =</span> <span class="st">&quot;cvControl&quot;</span>,</span>
-<span id="cb45-7"><a href="ensembles.html#cb45-7"></a>  <span class="dt">func =</span> <span class="kw">list</span>(<span class="dt">pkg =</span> <span class="st">&quot;SuperLearner&quot;</span>, </span>
-<span id="cb45-8"><a href="ensembles.html#cb45-8"></a>              <span class="dt">fun =</span> <span class="st">&quot;CV.SuperLearner&quot;</span>),</span>
-<span id="cb45-9"><a href="ensembles.html#cb45-9"></a>  <span class="dt">has_submodel =</span> <span class="ot">TRUE</span> <span class="co"># Are you making multiple iterations?</span></span>
-<span id="cb45-10"><a href="ensembles.html#cb45-10"></a>)</span>
-<span id="cb45-11"><a href="ensembles.html#cb45-11"></a></span>
-<span id="cb45-12"><a href="ensembles.html#cb45-12"></a><span class="kw">show_model_info</span>(<span class="st">&quot;superlearner&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="ensembles.html#cb39-1"></a><span class="co"># Add arguments </span></span>
+<span id="cb39-2"><a href="ensembles.html#cb39-2"></a><span class="kw">set_model_arg</span>(</span>
+<span id="cb39-3"><a href="ensembles.html#cb39-3"></a>  <span class="dt">model =</span> <span class="st">&quot;superlearner&quot;</span>,</span>
+<span id="cb39-4"><a href="ensembles.html#cb39-4"></a>  <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span>,</span>
+<span id="cb39-5"><a href="ensembles.html#cb39-5"></a>  <span class="dt">parsnip =</span> <span class="st">&quot;cv_control&quot;</span>,</span>
+<span id="cb39-6"><a href="ensembles.html#cb39-6"></a>  <span class="dt">original =</span> <span class="st">&quot;cvControl&quot;</span>,</span>
+<span id="cb39-7"><a href="ensembles.html#cb39-7"></a>  <span class="dt">func =</span> <span class="kw">list</span>(<span class="dt">pkg =</span> <span class="st">&quot;SuperLearner&quot;</span>, </span>
+<span id="cb39-8"><a href="ensembles.html#cb39-8"></a>              <span class="dt">fun =</span> <span class="st">&quot;CV.SuperLearner&quot;</span>),</span>
+<span id="cb39-9"><a href="ensembles.html#cb39-9"></a>  <span class="dt">has_submodel =</span> <span class="ot">TRUE</span> <span class="co"># Are you making multiple iterations?</span></span>
+<span id="cb39-10"><a href="ensembles.html#cb39-10"></a>)</span>
+<span id="cb39-11"><a href="ensembles.html#cb39-11"></a></span>
+<span id="cb39-12"><a href="ensembles.html#cb39-12"></a><span class="kw">show_model_info</span>(<span class="st">&quot;superlearner&quot;</span>)</span></code></pre></div>
 <pre><code>## Information for `superlearner`
 ##  modes: unknown, classification 
 ## 

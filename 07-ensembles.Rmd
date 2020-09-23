@@ -7,13 +7,8 @@
 library(SuperLearner)
 library(ck37r)
 library(vip)
-library(rio) # painless data import and export
-library(tidyverse) # tidyverse packages 
 library(tidymodels) # tidymodels framework 
 library(here) # reproducible way to find files 
-library(glue) # glue strings and objects 
-
-suppressMessages(suppressWarnings(library(glmnet)))
 
 theme_set(theme_minimal())
 
@@ -79,7 +74,7 @@ cv_sl <- SuperLearner::CV.SuperLearner(
 
 ### Risk
 
-Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the AUC!
+Risk is a performance estimate - it's the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner's default loss metric is squared error $(y_{actual} - y_{predicted})^2$, so the risk is the mean-squared error (just like in ordinary least _squares_ regression). View the summary, plot results, and compute the Area Under the ROC Curve (AUC)!
 
 ### Plot the risk
 
