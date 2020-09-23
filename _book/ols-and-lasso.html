@@ -183,8 +183,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="4.4.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>4.4.1</b> Non-tidy</a></li>
 <li class="chapter" data-level="4.4.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>4.4.2</b> tidymodels</a></li>
 </ul></li>
-<li class="chapter" data-level="4.5" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tuning-parameters"><i class="fa fa-check"></i><b>4.5</b> Tuning parameters</a></li>
-<li class="chapter" data-level="4.6" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#challenge-1"><i class="fa fa-check"></i><b>4.6</b> Challenge 1</a></li>
+<li class="chapter" data-level="4.5" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tuning-lasso-parameters"><i class="fa fa-check"></i><b>4.5</b> Tuning lasso parameters</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tune-ingredients"><i class="fa fa-check"></i><b>4.5.1</b> tune ingredients</a></li>
+<li class="chapter" data-level="4.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#add-these-elements-to-a-workflow"><i class="fa fa-check"></i><b>4.5.2</b> Add these elements to a workflow</a></li>
+<li class="chapter" data-level="4.5.3" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#visualize"><i class="fa fa-check"></i><b>4.5.3</b> Visualize</a></li>
+</ul></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="decision-trees.html"><a href="decision-trees.html"><i class="fa fa-check"></i><b>5</b> Decision Trees</a>
 <ul>
@@ -290,25 +294,25 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>## Loaded glmnet 4.0-2</code></pre>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="ols-and-lasso.html#cb4-1"></a><span class="kw">library</span>(rio) <span class="co"># painless data import and export</span></span>
 <span id="cb4-2"><a href="ols-and-lasso.html#cb4-2"></a><span class="kw">library</span>(tidyverse) <span class="co"># tidyverse packages </span></span></code></pre></div>
-<pre><code>## ── Attaching packages ──────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ── Attaching packages ─────────── tidyverse 1.3.0 ──</code></pre>
 <pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
 ## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
 ## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
 ## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
-<pre><code>## ── Conflicts ─────────────── tidyverse_conflicts() ──
+<pre><code>## ── Conflicts ────────────── tidyverse_conflicts() ──
 ## x tidyr::expand() masks Matrix::expand()
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()
 ## x tidyr::pack()   masks Matrix::pack()
 ## x tidyr::unpack() masks Matrix::unpack()</code></pre>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="ols-and-lasso.html#cb8-1"></a><span class="kw">library</span>(tidymodels) <span class="co"># tidymodels framework </span></span></code></pre></div>
-<pre><code>## ── Attaching packages ─────────── tidymodels 0.1.1 ──</code></pre>
+<pre><code>## ── Attaching packages ────────── tidymodels 0.1.1 ──</code></pre>
 <pre><code>## ✓ broom     0.7.0      ✓ recipes   0.1.13
 ## ✓ dials     0.0.9      ✓ rsample   0.0.7 
 ## ✓ infer     0.5.3      ✓ tune      0.1.1 
 ## ✓ modeldata 0.0.2      ✓ workflows 0.2.0 
 ## ✓ parsnip   0.1.3      ✓ yardstick 0.0.7</code></pre>
-<pre><code>## ── Conflicts ────────────── tidymodels_conflicts() ──
+<pre><code>## ── Conflicts ───────────── tidymodels_conflicts() ──
 ## x scales::discard() masks purrr::discard()
 ## x tidyr::expand()   masks Matrix::expand()
 ## x dplyr::filter()   masks stats::filter()
@@ -326,13 +330,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <pre><code>## The following object is masked from &#39;package:dplyr&#39;:
 ## 
 ##     collapse</code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="ols-and-lasso.html#cb17-1"></a><span class="kw">theme_set</span>(<span class="kw">theme_minimal</span>())</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="ols-and-lasso.html#cb17-1"></a><span class="kw">library</span>(vip) <span class="co"># variable importance </span></span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;vip&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:utils&#39;:
+## 
+##     vi</code></pre>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="ols-and-lasso.html#cb20-1"></a><span class="kw">theme_set</span>(<span class="kw">theme_minimal</span>())</span></code></pre></div>
 </div>
 <div id="load-data" class="section level2" number="4.2">
 <h2><span class="header-section-number">4.2</span> Load data</h2>
 <p>Load <code>train_x_reg</code>, <code>train_y_reg</code>, <code>test_x_reg</code>, and <code>test_y_reg</code> variables we defined in 02-preprocessing.Rmd for the OLS and Lasso <em>regression</em> tasks.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="ols-and-lasso.html#cb18-1"></a><span class="co"># Objects: task_reg, task_class</span></span>
-<span id="cb18-2"><a href="ols-and-lasso.html#cb18-2"></a><span class="kw">load</span>(<span class="kw">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="ols-and-lasso.html#cb21-1"></a><span class="co"># Objects: task_reg, task_class</span></span>
+<span id="cb21-2"><a href="ols-and-lasso.html#cb21-2"></a><span class="kw">load</span>(<span class="kw">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
 </div>
 <div id="overview" class="section level2" number="4.3">
 <h2><span class="header-section-number">4.3</span> Overview</h2>
@@ -353,32 +363,32 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="ols" class="section level4" number="4.4.1.1">
 <h4><span class="header-section-number">4.4.1.1</span> OLS</h4>
 <p>Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="ols-and-lasso.html#cb19-1"></a><span class="co"># Fit the regression model; lm() will automatically add a temporary intercept column</span></span>
-<span id="cb19-2"><a href="ols-and-lasso.html#cb19-2"></a>ols &lt;-<span class="st"> </span><span class="kw">lm</span>(train_y_reg <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train_x_reg)</span>
-<span id="cb19-3"><a href="ols-and-lasso.html#cb19-3"></a></span>
-<span id="cb19-4"><a href="ols-and-lasso.html#cb19-4"></a><span class="co"># Predict outcome for the test data</span></span>
-<span id="cb19-5"><a href="ols-and-lasso.html#cb19-5"></a>ols_predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(ols, test_x_reg)</span>
-<span id="cb19-6"><a href="ols-and-lasso.html#cb19-6"></a></span>
-<span id="cb19-7"><a href="ols-and-lasso.html#cb19-7"></a><span class="co"># Root mean-squared error</span></span>
-<span id="cb19-8"><a href="ols-and-lasso.html#cb19-8"></a><span class="kw">sqrt</span>(<span class="kw">mean</span>((test_y_reg <span class="op">-</span><span class="st"> </span>ols_predicted )<span class="op">^</span><span class="dv">2</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="ols-and-lasso.html#cb22-1"></a><span class="co"># Fit the regression model; lm() will automatically add a temporary intercept column</span></span>
+<span id="cb22-2"><a href="ols-and-lasso.html#cb22-2"></a>ols &lt;-<span class="st"> </span><span class="kw">lm</span>(train_y_reg <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train_x_reg)</span>
+<span id="cb22-3"><a href="ols-and-lasso.html#cb22-3"></a></span>
+<span id="cb22-4"><a href="ols-and-lasso.html#cb22-4"></a><span class="co"># Predict outcome for the test data</span></span>
+<span id="cb22-5"><a href="ols-and-lasso.html#cb22-5"></a>ols_predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(ols, test_x_reg)</span>
+<span id="cb22-6"><a href="ols-and-lasso.html#cb22-6"></a></span>
+<span id="cb22-7"><a href="ols-and-lasso.html#cb22-7"></a><span class="co"># Root mean-squared error</span></span>
+<span id="cb22-8"><a href="ols-and-lasso.html#cb22-8"></a><span class="kw">sqrt</span>(<span class="kw">mean</span>((test_y_reg <span class="op">-</span><span class="st"> </span>ols_predicted )<span class="op">^</span><span class="dv">2</span>))</span></code></pre></div>
 <pre><code>## [1] 8.074011</code></pre>
 </div>
 <div id="lasso" class="section level4" number="4.4.1.2">
 <h4><span class="header-section-number">4.4.1.2</span> Lasso</h4>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="ols-and-lasso.html#cb21-1"></a><span class="co"># Fit the lasso model </span></span>
-<span id="cb21-2"><a href="ols-and-lasso.html#cb21-2"></a>lasso &lt;-<span class="st"> </span><span class="kw">cv.glmnet</span>(<span class="dt">x =</span> <span class="kw">as.matrix</span>(train_x_reg), </span>
-<span id="cb21-3"><a href="ols-and-lasso.html#cb21-3"></a>                   <span class="dt">y =</span> train_y_reg, </span>
-<span id="cb21-4"><a href="ols-and-lasso.html#cb21-4"></a>                   <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>, </span>
-<span id="cb21-5"><a href="ols-and-lasso.html#cb21-5"></a>                   <span class="dt">alpha =</span> <span class="dv">1</span>)</span>
-<span id="cb21-6"><a href="ols-and-lasso.html#cb21-6"></a></span>
-<span id="cb21-7"><a href="ols-and-lasso.html#cb21-7"></a>lasso<span class="op">$</span>lambda.min</span></code></pre></div>
-<pre><code>## [1] 0.4194076</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="ols-and-lasso.html#cb23-1"></a><span class="co"># Predict outcome for the test data</span></span>
-<span id="cb23-2"><a href="ols-and-lasso.html#cb23-2"></a>lasso_predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(lasso, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(test_x_reg),</span>
-<span id="cb23-3"><a href="ols-and-lasso.html#cb23-3"></a>                      <span class="dt">s =</span> <span class="fl">0.1</span>) <span class="co"># Tuning parameter </span></span>
-<span id="cb23-4"><a href="ols-and-lasso.html#cb23-4"></a></span>
-<span id="cb23-5"><a href="ols-and-lasso.html#cb23-5"></a><span class="co"># Calculate root mean-squared error</span></span>
-<span id="cb23-6"><a href="ols-and-lasso.html#cb23-6"></a><span class="kw">sqrt</span>(<span class="kw">mean</span>((lasso_predicted <span class="op">-</span><span class="st"> </span>test_y_reg)<span class="op">^</span><span class="dv">2</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="ols-and-lasso.html#cb24-1"></a><span class="co"># Fit the lasso model </span></span>
+<span id="cb24-2"><a href="ols-and-lasso.html#cb24-2"></a>lasso &lt;-<span class="st"> </span><span class="kw">cv.glmnet</span>(<span class="dt">x =</span> <span class="kw">as.matrix</span>(train_x_reg), </span>
+<span id="cb24-3"><a href="ols-and-lasso.html#cb24-3"></a>                   <span class="dt">y =</span> train_y_reg, </span>
+<span id="cb24-4"><a href="ols-and-lasso.html#cb24-4"></a>                   <span class="dt">family =</span> <span class="st">&quot;gaussian&quot;</span>, </span>
+<span id="cb24-5"><a href="ols-and-lasso.html#cb24-5"></a>                   <span class="dt">alpha =</span> <span class="dv">1</span>)</span>
+<span id="cb24-6"><a href="ols-and-lasso.html#cb24-6"></a></span>
+<span id="cb24-7"><a href="ols-and-lasso.html#cb24-7"></a>lasso<span class="op">$</span>lambda.min</span></code></pre></div>
+<pre><code>## [1] 0.2400004</code></pre>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="ols-and-lasso.html#cb26-1"></a><span class="co"># Predict outcome for the test data</span></span>
+<span id="cb26-2"><a href="ols-and-lasso.html#cb26-2"></a>lasso_predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(lasso, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(test_x_reg),</span>
+<span id="cb26-3"><a href="ols-and-lasso.html#cb26-3"></a>                      <span class="dt">s =</span> <span class="fl">0.1</span>) <span class="co"># Tuning parameter; An arbitrary number not optimized </span></span>
+<span id="cb26-4"><a href="ols-and-lasso.html#cb26-4"></a></span>
+<span id="cb26-5"><a href="ols-and-lasso.html#cb26-5"></a><span class="co"># Calculate root mean-squared error</span></span>
+<span id="cb26-6"><a href="ols-and-lasso.html#cb26-6"></a><span class="kw">sqrt</span>(<span class="kw">mean</span>((lasso_predicted <span class="op">-</span><span class="st"> </span>test_y_reg)<span class="op">^</span><span class="dv">2</span>))</span></code></pre></div>
 <pre><code>## [1] 7.858063</code></pre>
 </div>
 </div>
@@ -389,19 +399,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li>Build models</li>
 </ul>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="ols-and-lasso.html#cb25-1"></a><span class="co"># OLS spec </span></span>
-<span id="cb25-2"><a href="ols-and-lasso.html#cb25-2"></a>ols_spec &lt;-<span class="st"> </span><span class="kw">linear_reg</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Specify the model </span></span>
-<span id="cb25-3"><a href="ols-and-lasso.html#cb25-3"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;lm&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Specify the engine: lm, glmnet, stan, keras, spark </span></span>
-<span id="cb25-4"><a href="ols-and-lasso.html#cb25-4"></a><span class="st">  </span><span class="kw">set_mode</span>(<span class="st">&quot;regression&quot;</span>) <span class="co"># Declare the mode: regression or classification </span></span>
-<span id="cb25-5"><a href="ols-and-lasso.html#cb25-5"></a></span>
-<span id="cb25-6"><a href="ols-and-lasso.html#cb25-6"></a><span class="co"># Lasso spec </span></span>
-<span id="cb25-7"><a href="ols-and-lasso.html#cb25-7"></a>lasso_spec &lt;-<span class="st"> </span><span class="kw">linear_reg</span>(<span class="dt">penalty =</span> <span class="fl">0.1</span>, <span class="co"># tuning parameter </span></span>
-<span id="cb25-8"><a href="ols-and-lasso.html#cb25-8"></a>                         <span class="dt">mixture =</span> <span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># 1 = lasso, 0 = ridge </span></span>
-<span id="cb25-9"><a href="ols-and-lasso.html#cb25-9"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;glmnet&quot;</span>) <span class="op">%&gt;%</span></span>
-<span id="cb25-10"><a href="ols-and-lasso.html#cb25-10"></a><span class="st">  </span><span class="kw">set_mode</span>(<span class="st">&quot;regression&quot;</span>) </span>
-<span id="cb25-11"><a href="ols-and-lasso.html#cb25-11"></a></span>
-<span id="cb25-12"><a href="ols-and-lasso.html#cb25-12"></a><span class="co"># If you don&#39;t understand parsnip arguments </span></span>
-<span id="cb25-13"><a href="ols-and-lasso.html#cb25-13"></a>lasso_spec <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">translate</span>() <span class="co"># See the documentation </span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="ols-and-lasso.html#cb28-1"></a><span class="co"># OLS spec </span></span>
+<span id="cb28-2"><a href="ols-and-lasso.html#cb28-2"></a>ols_spec &lt;-<span class="st"> </span><span class="kw">linear_reg</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Specify the model </span></span>
+<span id="cb28-3"><a href="ols-and-lasso.html#cb28-3"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;lm&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Specify the engine: lm, glmnet, stan, keras, spark </span></span>
+<span id="cb28-4"><a href="ols-and-lasso.html#cb28-4"></a><span class="st">  </span><span class="kw">set_mode</span>(<span class="st">&quot;regression&quot;</span>) <span class="co"># Declare the mode: regression or classification </span></span>
+<span id="cb28-5"><a href="ols-and-lasso.html#cb28-5"></a></span>
+<span id="cb28-6"><a href="ols-and-lasso.html#cb28-6"></a><span class="co"># Lasso spec </span></span>
+<span id="cb28-7"><a href="ols-and-lasso.html#cb28-7"></a>lasso_spec &lt;-<span class="st"> </span><span class="kw">linear_reg</span>(<span class="dt">penalty =</span> <span class="fl">0.1</span>, <span class="co"># tuning parameter </span></span>
+<span id="cb28-8"><a href="ols-and-lasso.html#cb28-8"></a>                         <span class="dt">mixture =</span> <span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># 1 = lasso, 0 = ridge </span></span>
+<span id="cb28-9"><a href="ols-and-lasso.html#cb28-9"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;glmnet&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb28-10"><a href="ols-and-lasso.html#cb28-10"></a><span class="st">  </span><span class="kw">set_mode</span>(<span class="st">&quot;regression&quot;</span>) </span>
+<span id="cb28-11"><a href="ols-and-lasso.html#cb28-11"></a></span>
+<span id="cb28-12"><a href="ols-and-lasso.html#cb28-12"></a><span class="co"># If you don&#39;t understand parsnip arguments </span></span>
+<span id="cb28-13"><a href="ols-and-lasso.html#cb28-13"></a>lasso_spec <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">translate</span>() <span class="co"># See the documentation </span></span></code></pre></div>
 <pre><code>## Linear Regression Model Specification (regression)
 ## 
 ## Main Arguments:
@@ -416,236 +426,218 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li>Fit models</li>
 </ul>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="ols-and-lasso.html#cb27-1"></a>ols_fit &lt;-<span class="st"> </span>ols_spec <span class="op">%&gt;%</span></span>
-<span id="cb27-2"><a href="ols-and-lasso.html#cb27-2"></a><span class="st">  </span><span class="kw">fit_xy</span>(<span class="dt">x =</span> train_x_reg, <span class="dt">y=</span> train_y_reg) </span>
-<span id="cb27-3"><a href="ols-and-lasso.html#cb27-3"></a>  <span class="co"># fit(train_y_reg ~ ., train_x_reg) # When you data are not preprocessed </span></span>
-<span id="cb27-4"><a href="ols-and-lasso.html#cb27-4"></a></span>
-<span id="cb27-5"><a href="ols-and-lasso.html#cb27-5"></a>lasso_fit &lt;-<span class="st"> </span>lasso_spec <span class="op">%&gt;%</span></span>
-<span id="cb27-6"><a href="ols-and-lasso.html#cb27-6"></a><span class="st">  </span><span class="kw">fit_xy</span>(<span class="dt">x =</span> train_x_reg, <span class="dt">y=</span> train_y_reg) </span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="ols-and-lasso.html#cb30-1"></a>ols_fit &lt;-<span class="st"> </span>ols_spec <span class="op">%&gt;%</span></span>
+<span id="cb30-2"><a href="ols-and-lasso.html#cb30-2"></a><span class="st">  </span><span class="kw">fit_xy</span>(<span class="dt">x =</span> train_x_reg, <span class="dt">y=</span> train_y_reg) </span>
+<span id="cb30-3"><a href="ols-and-lasso.html#cb30-3"></a>  <span class="co"># fit(train_y_reg ~ ., train_x_reg) # When you data are not preprocessed </span></span>
+<span id="cb30-4"><a href="ols-and-lasso.html#cb30-4"></a></span>
+<span id="cb30-5"><a href="ols-and-lasso.html#cb30-5"></a>lasso_fit &lt;-<span class="st"> </span>lasso_spec <span class="op">%&gt;%</span></span>
+<span id="cb30-6"><a href="ols-and-lasso.html#cb30-6"></a><span class="st">  </span><span class="kw">fit_xy</span>(<span class="dt">x =</span> train_x_reg, <span class="dt">y=</span> train_y_reg) </span></code></pre></div>
 </div>
 <div id="yardstick" class="section level4" number="4.4.2.2">
 <h4><span class="header-section-number">4.4.2.2</span> yardstick</h4>
 <ul>
-<li>Evaluate prediction performance</li>
+<li>Visualize model fits</li>
 </ul>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="ols-and-lasso.html#cb28-1"></a><span class="co"># Visualize model fit</span></span>
-<span id="cb28-2"><a href="ols-and-lasso.html#cb28-2"></a>visualize_fit &lt;-<span class="st"> </span><span class="cf">function</span>(model, names){</span>
-<span id="cb28-3"><a href="ols-and-lasso.html#cb28-3"></a>  </span>
-<span id="cb28-4"><a href="ols-and-lasso.html#cb28-4"></a>  <span class="co"># Bind ground truth and predicted values  </span></span>
-<span id="cb28-5"><a href="ols-and-lasso.html#cb28-5"></a>  <span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">truth =</span> test_y_reg), <span class="co"># Ground truth </span></span>
-<span id="cb28-6"><a href="ols-and-lasso.html#cb28-6"></a>            <span class="kw">predict</span>(model, test_x_reg)) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Predicted values </span></span>
-<span id="cb28-7"><a href="ols-and-lasso.html#cb28-7"></a><span class="st">  </span></span>
-<span id="cb28-8"><a href="ols-and-lasso.html#cb28-8"></a><span class="st">  </span><span class="co"># Visualize the residuals </span></span>
-<span id="cb28-9"><a href="ols-and-lasso.html#cb28-9"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> truth, <span class="dt">y =</span> .pred)) <span class="op">+</span></span>
-<span id="cb28-10"><a href="ols-and-lasso.html#cb28-10"></a><span class="st">    </span><span class="co"># Diagonal line </span></span>
-<span id="cb28-11"><a href="ols-and-lasso.html#cb28-11"></a><span class="st">    </span><span class="kw">geom_abline</span>(<span class="dt">lty =</span> <span class="dv">2</span>) <span class="op">+</span></span>
-<span id="cb28-12"><a href="ols-and-lasso.html#cb28-12"></a><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
-<span id="cb28-13"><a href="ols-and-lasso.html#cb28-13"></a><span class="st">    </span><span class="co"># Make X- and Y- scale uniform </span></span>
-<span id="cb28-14"><a href="ols-and-lasso.html#cb28-14"></a><span class="st">    </span><span class="kw">coord_obs_pred</span>() <span class="op">+</span></span>
-<span id="cb28-15"><a href="ols-and-lasso.html#cb28-15"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> glue<span class="op">::</span><span class="kw">glue</span>(<span class="st">&quot;{names}&quot;</span>))</span>
-<span id="cb28-16"><a href="ols-and-lasso.html#cb28-16"></a></span>
-<span id="cb28-17"><a href="ols-and-lasso.html#cb28-17"></a>}</span>
-<span id="cb28-18"><a href="ols-and-lasso.html#cb28-18"></a></span>
-<span id="cb28-19"><a href="ols-and-lasso.html#cb28-19"></a><span class="kw">map2</span>(<span class="kw">list</span>(ols_fit, lasso_fit), <span class="kw">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Lasso&quot;</span>), visualize_fit) </span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="ols-and-lasso.html#cb31-1"></a><span class="co"># Visualize model fit</span></span>
+<span id="cb31-2"><a href="ols-and-lasso.html#cb31-2"></a>visualize_fit &lt;-<span class="st"> </span><span class="cf">function</span>(model, names){</span>
+<span id="cb31-3"><a href="ols-and-lasso.html#cb31-3"></a>  </span>
+<span id="cb31-4"><a href="ols-and-lasso.html#cb31-4"></a>  <span class="co"># Bind ground truth and predicted values  </span></span>
+<span id="cb31-5"><a href="ols-and-lasso.html#cb31-5"></a>  <span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">truth =</span> test_y_reg), <span class="co"># Ground truth </span></span>
+<span id="cb31-6"><a href="ols-and-lasso.html#cb31-6"></a>            <span class="kw">predict</span>(model, test_x_reg)) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Predicted values </span></span>
+<span id="cb31-7"><a href="ols-and-lasso.html#cb31-7"></a><span class="st">  </span></span>
+<span id="cb31-8"><a href="ols-and-lasso.html#cb31-8"></a><span class="st">  </span><span class="co"># Visualize the residuals </span></span>
+<span id="cb31-9"><a href="ols-and-lasso.html#cb31-9"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> truth, <span class="dt">y =</span> .pred)) <span class="op">+</span></span>
+<span id="cb31-10"><a href="ols-and-lasso.html#cb31-10"></a><span class="st">    </span><span class="co"># Diagonal line </span></span>
+<span id="cb31-11"><a href="ols-and-lasso.html#cb31-11"></a><span class="st">    </span><span class="kw">geom_abline</span>(<span class="dt">lty =</span> <span class="dv">2</span>) <span class="op">+</span></span>
+<span id="cb31-12"><a href="ols-and-lasso.html#cb31-12"></a><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.5</span>) <span class="op">+</span></span>
+<span id="cb31-13"><a href="ols-and-lasso.html#cb31-13"></a><span class="st">    </span><span class="co"># Make X- and Y- scale uniform </span></span>
+<span id="cb31-14"><a href="ols-and-lasso.html#cb31-14"></a><span class="st">    </span><span class="kw">coord_obs_pred</span>() <span class="op">+</span></span>
+<span id="cb31-15"><a href="ols-and-lasso.html#cb31-15"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">title =</span> glue<span class="op">::</span><span class="kw">glue</span>(<span class="st">&quot;{names}&quot;</span>))</span>
+<span id="cb31-16"><a href="ols-and-lasso.html#cb31-16"></a></span>
+<span id="cb31-17"><a href="ols-and-lasso.html#cb31-17"></a>}</span>
+<span id="cb31-18"><a href="ols-and-lasso.html#cb31-18"></a></span>
+<span id="cb31-19"><a href="ols-and-lasso.html#cb31-19"></a><span class="kw">map2</span>(<span class="kw">list</span>(ols_fit, lasso_fit), <span class="kw">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Lasso&quot;</span>), visualize_fit) </span></code></pre></div>
 <pre><code>## [[1]]</code></pre>
 <p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <pre><code>## 
 ## [[2]]</code></pre>
 <p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="ols-and-lasso.html#cb31-1"></a><span class="co"># Define performance metrics </span></span>
-<span id="cb31-2"><a href="ols-and-lasso.html#cb31-2"></a>metrics &lt;-<span class="st"> </span>yardstick<span class="op">::</span><span class="kw">metric_set</span>(rmse, rsq, mae)</span>
-<span id="cb31-3"><a href="ols-and-lasso.html#cb31-3"></a></span>
-<span id="cb31-4"><a href="ols-and-lasso.html#cb31-4"></a><span class="co"># Build an evaluation function </span></span>
-<span id="cb31-5"><a href="ols-and-lasso.html#cb31-5"></a>evaluate_model &lt;-<span class="st"> </span><span class="cf">function</span>(model){</span>
-<span id="cb31-6"><a href="ols-and-lasso.html#cb31-6"></a>  </span>
-<span id="cb31-7"><a href="ols-and-lasso.html#cb31-7"></a>  <span class="co"># Bind ground truth and predicted values  </span></span>
-<span id="cb31-8"><a href="ols-and-lasso.html#cb31-8"></a>  <span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">truth =</span> test_y_reg), <span class="co"># Ground truth </span></span>
-<span id="cb31-9"><a href="ols-and-lasso.html#cb31-9"></a>            <span class="kw">predict</span>(model, test_x_reg)) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Predicted values </span></span>
-<span id="cb31-10"><a href="ols-and-lasso.html#cb31-10"></a><span class="st">    </span></span>
-<span id="cb31-11"><a href="ols-and-lasso.html#cb31-11"></a><span class="st">  </span><span class="co"># Calculate root mean-squared error</span></span>
-<span id="cb31-12"><a href="ols-and-lasso.html#cb31-12"></a><span class="st">  </span><span class="kw">metrics</span>(<span class="dt">truth =</span> truth, <span class="dt">estimate =</span> .pred) </span>
-<span id="cb31-13"><a href="ols-and-lasso.html#cb31-13"></a>  }</span>
-<span id="cb31-14"><a href="ols-and-lasso.html#cb31-14"></a></span>
-<span id="cb31-15"><a href="ols-and-lasso.html#cb31-15"></a><span class="co"># Evaluate many models </span></span>
-<span id="cb31-16"><a href="ols-and-lasso.html#cb31-16"></a>evals &lt;-<span class="st"> </span>purrr<span class="op">::</span><span class="kw">map</span>(<span class="kw">list</span>(ols_fit, lasso_fit), evaluate_model) <span class="op">%&gt;%</span></span>
-<span id="cb31-17"><a href="ols-and-lasso.html#cb31-17"></a><span class="st">  </span><span class="kw">reduce</span>(bind_rows) <span class="op">%&gt;%</span></span>
-<span id="cb31-18"><a href="ols-and-lasso.html#cb31-18"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">type =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Lasso&quot;</span>), <span class="dt">each =</span> <span class="dv">3</span>))</span>
-<span id="cb31-19"><a href="ols-and-lasso.html#cb31-19"></a></span>
-<span id="cb31-20"><a href="ols-and-lasso.html#cb31-20"></a><span class="co"># Visualize the test results </span></span>
-<span id="cb31-21"><a href="ols-and-lasso.html#cb31-21"></a>evals <span class="op">%&gt;%</span></span>
-<span id="cb31-22"><a href="ols-and-lasso.html#cb31-22"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">fct_reorder</span>(type, .estimate), <span class="dt">y =</span> .estimate)) <span class="op">+</span></span>
-<span id="cb31-23"><a href="ols-and-lasso.html#cb31-23"></a><span class="st">    </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
-<span id="cb31-24"><a href="ols-and-lasso.html#cb31-24"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Model&quot;</span>,</span>
-<span id="cb31-25"><a href="ols-and-lasso.html#cb31-25"></a>         <span class="dt">y =</span> <span class="st">&quot;Estimate&quot;</span>) <span class="op">+</span></span>
-<span id="cb31-26"><a href="ols-and-lasso.html#cb31-26"></a><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="kw">glue</span>(<span class="st">&quot;{toupper(.metric)}&quot;</span>), <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) </span></code></pre></div>
+<ul>
+<li>Let’s formally test prediction performance.</li>
+</ul>
+<p><strong>Metrics</strong></p>
+<ul>
+<li><p><code>rmse</code>: Root mean squared error (the smaller the better)</p></li>
+<li><p><code>mae</code>: Mean absolute error (the smaller the better)</p></li>
+<li><p><code>rsq</code>: R squared (the larger the better)</p></li>
+<li><p>To learn more about other metrics, check out the yardstick package <a href="https://yardstick.tidymodels.org/reference/index.html">references</a>.</p></li>
+</ul>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="ols-and-lasso.html#cb34-1"></a><span class="co"># Define performance metrics </span></span>
+<span id="cb34-2"><a href="ols-and-lasso.html#cb34-2"></a>metrics &lt;-<span class="st"> </span>yardstick<span class="op">::</span><span class="kw">metric_set</span>(rmse, mae, rsq)</span>
+<span id="cb34-3"><a href="ols-and-lasso.html#cb34-3"></a></span>
+<span id="cb34-4"><a href="ols-and-lasso.html#cb34-4"></a><span class="co"># Build an evaluation function </span></span>
+<span id="cb34-5"><a href="ols-and-lasso.html#cb34-5"></a>evaluate_model &lt;-<span class="st"> </span><span class="cf">function</span>(model){</span>
+<span id="cb34-6"><a href="ols-and-lasso.html#cb34-6"></a>  </span>
+<span id="cb34-7"><a href="ols-and-lasso.html#cb34-7"></a>  <span class="co"># Bind ground truth and predicted values  </span></span>
+<span id="cb34-8"><a href="ols-and-lasso.html#cb34-8"></a>  <span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">truth =</span> test_y_reg), <span class="co"># Ground truth </span></span>
+<span id="cb34-9"><a href="ols-and-lasso.html#cb34-9"></a>            <span class="kw">predict</span>(model, test_x_reg)) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># Predicted values </span></span>
+<span id="cb34-10"><a href="ols-and-lasso.html#cb34-10"></a><span class="st">    </span></span>
+<span id="cb34-11"><a href="ols-and-lasso.html#cb34-11"></a><span class="st">  </span><span class="co"># Calculate root mean-squared error</span></span>
+<span id="cb34-12"><a href="ols-and-lasso.html#cb34-12"></a><span class="st">  </span><span class="kw">metrics</span>(<span class="dt">truth =</span> truth, <span class="dt">estimate =</span> .pred) </span>
+<span id="cb34-13"><a href="ols-and-lasso.html#cb34-13"></a>  }</span>
+<span id="cb34-14"><a href="ols-and-lasso.html#cb34-14"></a></span>
+<span id="cb34-15"><a href="ols-and-lasso.html#cb34-15"></a><span class="co"># Evaluate many models </span></span>
+<span id="cb34-16"><a href="ols-and-lasso.html#cb34-16"></a>evals &lt;-<span class="st"> </span>purrr<span class="op">::</span><span class="kw">map</span>(<span class="kw">list</span>(ols_fit, lasso_fit), evaluate_model) <span class="op">%&gt;%</span></span>
+<span id="cb34-17"><a href="ols-and-lasso.html#cb34-17"></a><span class="st">  </span><span class="kw">reduce</span>(bind_rows) <span class="op">%&gt;%</span></span>
+<span id="cb34-18"><a href="ols-and-lasso.html#cb34-18"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">type =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Lasso&quot;</span>), <span class="dt">each =</span> <span class="dv">3</span>))</span>
+<span id="cb34-19"><a href="ols-and-lasso.html#cb34-19"></a></span>
+<span id="cb34-20"><a href="ols-and-lasso.html#cb34-20"></a><span class="co"># Visualize the test results </span></span>
+<span id="cb34-21"><a href="ols-and-lasso.html#cb34-21"></a>evals <span class="op">%&gt;%</span></span>
+<span id="cb34-22"><a href="ols-and-lasso.html#cb34-22"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">fct_reorder</span>(type, .estimate), <span class="dt">y =</span> .estimate)) <span class="op">+</span></span>
+<span id="cb34-23"><a href="ols-and-lasso.html#cb34-23"></a><span class="st">    </span><span class="kw">geom_point</span>() <span class="op">+</span></span>
+<span id="cb34-24"><a href="ols-and-lasso.html#cb34-24"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Model&quot;</span>,</span>
+<span id="cb34-25"><a href="ols-and-lasso.html#cb34-25"></a>         <span class="dt">y =</span> <span class="st">&quot;Estimate&quot;</span>) <span class="op">+</span></span>
+<span id="cb34-26"><a href="ols-and-lasso.html#cb34-26"></a><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="kw">glue</span>(<span class="st">&quot;{toupper(.metric)}&quot;</span>), <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) </span></code></pre></div>
 <p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<ul>
+<li>For more information, read <a href="https://www.tmwr.org/">Tidy Modeling with R</a> by Max Kuhn and Julia Silge.</li>
+</ul>
 </div>
 </div>
 </div>
-<div id="tuning-parameters" class="section level2" number="4.5">
-<h2><span class="header-section-number">4.5</span> Tuning parameters</h2>
-<p>Visualize the distribution of log(lamba) vs mean-squared error.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="ols-and-lasso.html#cb32-1"></a><span class="kw">plot</span>(lasso) </span></code></pre></div>
-<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="ols-and-lasso.html#cb33-1"></a><span class="co"># Help interpreting this plot: https://stats.stackexchange.com/questions/404795/interpretation-of-cross-validation-plot-for-lasso-regression</span></span>
-<span id="cb33-2"><a href="ols-and-lasso.html#cb33-2"></a></span>
-<span id="cb33-3"><a href="ols-and-lasso.html#cb33-3"></a><span class="co"># Generate our own version, but plot lambda (not on log scale) vs. RMSE.</span></span>
-<span id="cb33-4"><a href="ols-and-lasso.html#cb33-4"></a><span class="kw">qplot</span>(lasso<span class="op">$</span>lambda, <span class="kw">sqrt</span>(lasso<span class="op">$</span>cvm)) </span></code></pre></div>
-<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-8-2.png" width="672" /></p>
-<blockquote>
-<p>NOTE: when log(lamba) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. As log(lambda) becomes increasingly negative, lambda is correspondingly closer to zero and we are approaching the OLS solution.</p>
-</blockquote>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="ols-and-lasso.html#cb34-1"></a><span class="co"># And here is a plot of log(lambda) vs lambda.</span></span>
-<span id="cb34-2"><a href="ols-and-lasso.html#cb34-2"></a><span class="kw">qplot</span>(<span class="kw">log</span>(lasso<span class="op">$</span>lambda), lasso<span class="op">$</span>lambda) </span></code></pre></div>
-<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<p>Show plot of different lambda values:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="ols-and-lasso.html#cb35-1"></a><span class="kw">plot</span>(lasso<span class="op">$</span>glmnet.fit, <span class="dt">xvar =</span> <span class="st">&quot;lambda&quot;</span>, <span class="dt">label =</span> <span class="ot">TRUE</span>)</span></code></pre></div>
+<div id="tuning-lasso-parameters" class="section level2" number="4.5">
+<h2><span class="header-section-number">4.5</span> Tuning lasso parameters</h2>
+<div id="tune-ingredients" class="section level3" number="4.5.1">
+<h3><span class="header-section-number">4.5.1</span> tune ingredients</h3>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="ols-and-lasso.html#cb35-1"></a><span class="co"># tune() = placeholder </span></span>
+<span id="cb35-2"><a href="ols-and-lasso.html#cb35-2"></a></span>
+<span id="cb35-3"><a href="ols-and-lasso.html#cb35-3"></a>tune_spec &lt;-<span class="st"> </span><span class="kw">linear_reg</span>(<span class="dt">penalty =</span> <span class="kw">tune</span>(), <span class="co"># tuning parameter </span></span>
+<span id="cb35-4"><a href="ols-and-lasso.html#cb35-4"></a>                         <span class="dt">mixture =</span> <span class="dv">1</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># 1 = lasso, 0 = ridge </span></span>
+<span id="cb35-5"><a href="ols-and-lasso.html#cb35-5"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;glmnet&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb35-6"><a href="ols-and-lasso.html#cb35-6"></a><span class="st">  </span><span class="kw">set_mode</span>(<span class="st">&quot;regression&quot;</span>) </span>
+<span id="cb35-7"><a href="ols-and-lasso.html#cb35-7"></a></span>
+<span id="cb35-8"><a href="ols-and-lasso.html#cb35-8"></a>tune_spec</span></code></pre></div>
+<pre><code>## Linear Regression Model Specification (regression)
+## 
+## Main Arguments:
+##   penalty = tune()
+##   mixture = 1
+## 
+## Computational engine: glmnet</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="ols-and-lasso.html#cb37-1"></a><span class="co"># penalty() searches 50 possible combinations </span></span>
+<span id="cb37-2"><a href="ols-and-lasso.html#cb37-2"></a></span>
+<span id="cb37-3"><a href="ols-and-lasso.html#cb37-3"></a>lambda_grid &lt;-<span class="st"> </span><span class="kw">grid_regular</span>(<span class="kw">penalty</span>(), <span class="dt">levels =</span> <span class="dv">50</span>)</span>
+<span id="cb37-4"><a href="ols-and-lasso.html#cb37-4"></a></span>
+<span id="cb37-5"><a href="ols-and-lasso.html#cb37-5"></a>lambda_grid</span></code></pre></div>
+<pre><code>## # A tibble: 50 x 1
+##     penalty
+##       &lt;dbl&gt;
+##  1 1.00e-10
+##  2 1.60e-10
+##  3 2.56e-10
+##  4 4.09e-10
+##  5 6.55e-10
+##  6 1.05e- 9
+##  7 1.68e- 9
+##  8 2.68e- 9
+##  9 4.29e- 9
+## 10 6.87e- 9
+## # … with 40 more rows</code></pre>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="ols-and-lasso.html#cb39-1"></a><span class="co"># 10-fold cross-validation</span></span>
+<span id="cb39-2"><a href="ols-and-lasso.html#cb39-2"></a></span>
+<span id="cb39-3"><a href="ols-and-lasso.html#cb39-3"></a><span class="kw">set.seed</span>(<span class="dv">1234</span>) <span class="co"># for reproducibility </span></span>
+<span id="cb39-4"><a href="ols-and-lasso.html#cb39-4"></a></span>
+<span id="cb39-5"><a href="ols-and-lasso.html#cb39-5"></a>rec_folds &lt;-<span class="st"> </span><span class="kw">vfold_cv</span>(train_x_reg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">age =</span> train_y_reg)))</span></code></pre></div>
+</div>
+<div id="add-these-elements-to-a-workflow" class="section level3" number="4.5.2">
+<h3><span class="header-section-number">4.5.2</span> Add these elements to a workflow</h3>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="ols-and-lasso.html#cb40-1"></a><span class="co"># Workflow </span></span>
+<span id="cb40-2"><a href="ols-and-lasso.html#cb40-2"></a>rec_wf &lt;-<span class="st"> </span><span class="kw">workflow</span>() <span class="op">%&gt;%</span></span>
+<span id="cb40-3"><a href="ols-and-lasso.html#cb40-3"></a><span class="st">  </span><span class="kw">add_model</span>(tune_spec) <span class="op">%&gt;%</span></span>
+<span id="cb40-4"><a href="ols-and-lasso.html#cb40-4"></a><span class="st">  </span><span class="kw">add_formula</span>(age<span class="op">~</span>.)</span>
+<span id="cb40-5"><a href="ols-and-lasso.html#cb40-5"></a></span>
+<span id="cb40-6"><a href="ols-and-lasso.html#cb40-6"></a><span class="co"># Tuning results </span></span>
+<span id="cb40-7"><a href="ols-and-lasso.html#cb40-7"></a>rec_res &lt;-<span class="st"> </span>rec_wf <span class="op">%&gt;%</span></span>
+<span id="cb40-8"><a href="ols-and-lasso.html#cb40-8"></a><span class="st">  </span><span class="kw">tune_grid</span>(</span>
+<span id="cb40-9"><a href="ols-and-lasso.html#cb40-9"></a>    <span class="dt">resamples =</span> rec_folds, </span>
+<span id="cb40-10"><a href="ols-and-lasso.html#cb40-10"></a>    <span class="dt">grid =</span> lambda_grid</span>
+<span id="cb40-11"><a href="ols-and-lasso.html#cb40-11"></a>  )</span></code></pre></div>
+</div>
+<div id="visualize" class="section level3" number="4.5.3">
+<h3><span class="header-section-number">4.5.3</span> Visualize</h3>
+<ul>
+<li>The following two visualizations draw on Julia Silge’s <a href="https://juliasilge.com/blog/lasso-the-office/">blog post</a>.</li>
+</ul>
+<div id="rmse-and-rsq" class="section level4" number="4.5.3.1">
+<h4><span class="header-section-number">4.5.3.1</span> RMSE and RSQ</h4>
+<ul>
+<li>Visualize the distribution of log(lamba) vs mean-squared error.</li>
+</ul>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="ols-and-lasso.html#cb41-1"></a><span class="co"># Visualize</span></span>
+<span id="cb41-2"><a href="ols-and-lasso.html#cb41-2"></a></span>
+<span id="cb41-3"><a href="ols-and-lasso.html#cb41-3"></a>rec_res <span class="op">%&gt;%</span></span>
+<span id="cb41-4"><a href="ols-and-lasso.html#cb41-4"></a><span class="st">  </span><span class="kw">collect_metrics</span>() <span class="op">%&gt;%</span></span>
+<span id="cb41-5"><a href="ols-and-lasso.html#cb41-5"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(penalty, mean, <span class="dt">col =</span> .metric)) <span class="op">+</span></span>
+<span id="cb41-6"><a href="ols-and-lasso.html#cb41-6"></a><span class="st">  </span><span class="kw">geom_errorbar</span>(<span class="kw">aes</span>(</span>
+<span id="cb41-7"><a href="ols-and-lasso.html#cb41-7"></a>    <span class="dt">ymin =</span> mean <span class="op">-</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span>std_err,</span>
+<span id="cb41-8"><a href="ols-and-lasso.html#cb41-8"></a>    <span class="dt">ymax =</span> mean <span class="op">+</span><span class="st"> </span><span class="dv">2</span><span class="op">*</span>std_err</span>
+<span id="cb41-9"><a href="ols-and-lasso.html#cb41-9"></a>  ),</span>
+<span id="cb41-10"><a href="ols-and-lasso.html#cb41-10"></a>  <span class="dt">alpha =</span> <span class="fl">0.3</span></span>
+<span id="cb41-11"><a href="ols-and-lasso.html#cb41-11"></a>  ) <span class="op">+</span></span>
+<span id="cb41-12"><a href="ols-and-lasso.html#cb41-12"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></span>
+<span id="cb41-13"><a href="ols-and-lasso.html#cb41-13"></a><span class="st">  </span><span class="kw">scale_x_log10</span>() <span class="op">+</span></span>
+<span id="cb41-14"><a href="ols-and-lasso.html#cb41-14"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;log(lambda)&quot;</span>) <span class="op">+</span></span>
+<span id="cb41-15"><a href="ols-and-lasso.html#cb41-15"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="kw">glue</span>(<span class="st">&quot;{toupper(.metric)}&quot;</span>), </span>
+<span id="cb41-16"><a href="ols-and-lasso.html#cb41-16"></a>             <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>,</span>
+<span id="cb41-17"><a href="ols-and-lasso.html#cb41-17"></a>             <span class="dt">nrow =</span> <span class="dv">2</span>) <span class="op">+</span></span>
+<span id="cb41-18"><a href="ols-and-lasso.html#cb41-18"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span></code></pre></div>
 <p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
-<p>Show the lambda that results in the minimum estimated mean-squared error (MSE):</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="ols-and-lasso.html#cb36-1"></a>lasso<span class="op">$</span>lambda.min</span></code></pre></div>
-<pre><code>## [1] 0.4194076</code></pre>
-<p>Show higher lambda within <a href="https://stats.stackexchange.com/questions/80268/empirical-justification-for-the-one-standard-error-rule-when-using-cross-validat">one standard error</a> of performance of the minimum</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="ols-and-lasso.html#cb38-1"></a>lasso<span class="op">$</span>lambda<span class="fl">.1</span>se</span></code></pre></div>
-<pre><code>## [1] 1.167027</code></pre>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="ols-and-lasso.html#cb40-1"></a><span class="co"># Log scale versions:</span></span>
-<span id="cb40-2"><a href="ols-and-lasso.html#cb40-2"></a><span class="kw">log</span>(<span class="kw">c</span>(<span class="st">&quot;log_min&quot;</span> =<span class="st"> </span>lasso<span class="op">$</span>lambda.min, <span class="st">&quot;log_1se&quot;</span> =<span class="st"> </span>lasso<span class="op">$</span>lambda<span class="fl">.1</span>se))</span></code></pre></div>
-<pre><code>##    log_min    log_1se 
-## -0.8689121  0.1544591</code></pre>
-<p>Look at the coefficients</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="ols-and-lasso.html#cb42-1"></a>(<span class="dt">coef_1se =</span> <span class="kw">coef</span>(lasso, <span class="dt">s =</span> <span class="st">&quot;lambda.1se&quot;</span>))</span></code></pre></div>
-<pre><code>## 22 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
-##                        1
-## (Intercept) 60.296179264
-## trestbps     0.071877196
-## chol         0.006372491
-## fbs          .          
-## restecg      .          
-## thalach     -0.112828872
-## exang        .          
-## oldpeak      .          
-## target       .          
-## sex_X1       .          
-## ca_X1        .          
-## ca_X2        1.669594563
-## ca_X3        .          
-## ca_X4       -0.634474556
-## cp_X1        .          
-## cp_X2        .          
-## cp_X3        .          
-## slope_X1     .          
-## slope_X2     .          
-## thal_X1      .          
-## thal_X2      .          
-## thal_X3      .</code></pre>
-<p>Look at the coefficients for lambda.min</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="ols-and-lasso.html#cb44-1"></a>(<span class="dt">coef_min =</span> <span class="kw">coef</span>(lasso, <span class="dt">s =</span> <span class="st">&quot;lambda.min&quot;</span>))</span></code></pre></div>
-<pre><code>## 22 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
-##                       1
-## (Intercept) 55.66199020
-## trestbps     0.11015680
-## chol         0.01309444
-## fbs          .         
-## restecg     -0.35221266
-## thalach     -0.12678780
-## exang       -0.17134774
-## oldpeak      .         
-## target       .         
-## sex_X1      -0.94868280
-## ca_X1        2.07593388
-## ca_X2        4.41461473
-## ca_X3        3.15152379
-## ca_X4       -4.41342359
-## cp_X1        .         
-## cp_X2        .         
-## cp_X3        .         
-## slope_X1     .         
-## slope_X2     .         
-## thal_X1      .         
-## thal_X2      .         
-## thal_X3      .</code></pre>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="ols-and-lasso.html#cb46-1"></a><span class="co"># Compare side-by-side</span></span>
-<span id="cb46-2"><a href="ols-and-lasso.html#cb46-2"></a><span class="kw">cbind</span>(<span class="kw">as.matrix</span>(coef_1se), <span class="kw">as.matrix</span>(coef_min))</span></code></pre></div>
-<pre><code>##                        1           1
-## (Intercept) 60.296179264 55.66199020
-## trestbps     0.071877196  0.11015680
-## chol         0.006372491  0.01309444
-## fbs          0.000000000  0.00000000
-## restecg      0.000000000 -0.35221266
-## thalach     -0.112828872 -0.12678780
-## exang        0.000000000 -0.17134774
-## oldpeak      0.000000000  0.00000000
-## target       0.000000000  0.00000000
-## sex_X1       0.000000000 -0.94868280
-## ca_X1        0.000000000  2.07593388
-## ca_X2        1.669594563  4.41461473
-## ca_X3        0.000000000  3.15152379
-## ca_X4       -0.634474556 -4.41342359
-## cp_X1        0.000000000  0.00000000
-## cp_X2        0.000000000  0.00000000
-## cp_X3        0.000000000  0.00000000
-## slope_X1     0.000000000  0.00000000
-## slope_X2     0.000000000  0.00000000
-## thal_X1      0.000000000  0.00000000
-## thal_X2      0.000000000  0.00000000
-## thal_X3      0.000000000  0.00000000</code></pre>
-<p>Predict on the test set</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="ols-and-lasso.html#cb48-1"></a>predictions &lt;-<span class="st"> </span><span class="kw">predict</span>(lasso, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(test_x_reg),</span>
-<span id="cb48-2"><a href="ols-and-lasso.html#cb48-2"></a>                      <span class="dt">s =</span> lasso<span class="op">$</span>lambda<span class="fl">.1</span>se)</span>
-<span id="cb48-3"><a href="ols-and-lasso.html#cb48-3"></a></span>
-<span id="cb48-4"><a href="ols-and-lasso.html#cb48-4"></a><span class="co"># How far off were we, based on absolute error?</span></span>
-<span id="cb48-5"><a href="ols-and-lasso.html#cb48-5"></a>rounded_errors &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">abs</span>(test_y_reg <span class="op">-</span><span class="st"> </span>predictions))</span>
-<span id="cb48-6"><a href="ols-and-lasso.html#cb48-6"></a><span class="kw">table</span>(rounded_errors)</span></code></pre></div>
-<pre><code>## rounded_errors
-##  0  1  2  3  4  5  6  7  8  9 10 11 12 14 15 16 17 21 
-##  4  9  5  7  7  5  8  9  9  1  7  5  3  4  1  4  1  1</code></pre>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="ols-and-lasso.html#cb50-1"></a><span class="co"># Group the absolute error into 4 bins.</span></span>
-<span id="cb50-2"><a href="ols-and-lasso.html#cb50-2"></a>grouped_errors &lt;-<span class="st"> </span><span class="kw">round</span>(<span class="kw">abs</span>(test_y_reg <span class="op">-</span><span class="st"> </span>predictions) <span class="op">/</span><span class="st"> </span><span class="dv">5</span>)</span>
-<span id="cb50-3"><a href="ols-and-lasso.html#cb50-3"></a>grouped_errors[grouped_errors <span class="op">&gt;</span><span class="st"> </span><span class="dv">2</span>] =<span class="st"> </span><span class="dv">3</span></span>
-<span id="cb50-4"><a href="ols-and-lasso.html#cb50-4"></a><span class="kw">table</span>(grouped_errors)</span></code></pre></div>
-<pre><code>## grouped_errors
-##  0  1  2  3 
-## 18 36 25 11</code></pre>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="ols-and-lasso.html#cb52-1"></a><span class="co"># 4 categories of accuracy</span></span>
-<span id="cb52-2"><a href="ols-and-lasso.html#cb52-2"></a>how_close &lt;-<span class="st"> </span><span class="kw">factor</span>(grouped_errors, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;very close&quot;</span>, <span class="st">&quot;close&quot;</span>, <span class="st">&quot;meh&quot;</span>, <span class="st">&quot;far&quot;</span>))</span>
-<span id="cb52-3"><a href="ols-and-lasso.html#cb52-3"></a></span>
-<span id="cb52-4"><a href="ols-and-lasso.html#cb52-4"></a><span class="kw">table</span>(rounded_errors, how_close)</span></code></pre></div>
-<pre><code>##               how_close
-## rounded_errors very close close meh far
-##             0           4     0   0   0
-##             1           9     0   0   0
-##             2           5     0   0   0
-##             3           0     7   0   0
-##             4           0     7   0   0
-##             5           0     5   0   0
-##             6           0     8   0   0
-##             7           0     9   0   0
-##             8           0     0   9   0
-##             9           0     0   1   0
-##             10          0     0   7   0
-##             11          0     0   5   0
-##             12          0     0   3   0
-##             14          0     0   0   4
-##             15          0     0   0   1
-##             16          0     0   0   4
-##             17          0     0   0   1
-##             21          0     0   0   1</code></pre>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="ols-and-lasso.html#cb54-1"></a><span class="co"># Scatter plot of actual vs. predicted</span></span>
-<span id="cb54-2"><a href="ols-and-lasso.html#cb54-2"></a><span class="kw">qplot</span>(test_y_reg, predictions, </span>
-<span id="cb54-3"><a href="ols-and-lasso.html#cb54-3"></a>      <span class="dt">color =</span> how_close) <span class="op">+</span></span>
-<span id="cb54-4"><a href="ols-and-lasso.html#cb54-4"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">5</span>, <span class="dt">alpha =</span> <span class="fl">0.7</span>) </span></code></pre></div>
-<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
-<p>Calculate MSE and RMSE:</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="ols-and-lasso.html#cb55-1"></a><span class="co"># Calculate mean-squared error.</span></span>
-<span id="cb55-2"><a href="ols-and-lasso.html#cb55-2"></a><span class="kw">mean</span>((predictions <span class="op">-</span><span class="st"> </span>test_y_reg)<span class="op">^</span><span class="dv">2</span>)</span></code></pre></div>
-<pre><code>## [1] 68.94235</code></pre>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="ols-and-lasso.html#cb57-1"></a><span class="co"># Calculate root mean-squared error.</span></span>
-<span id="cb57-2"><a href="ols-and-lasso.html#cb57-2"></a><span class="kw">sqrt</span>(<span class="kw">mean</span>((predictions <span class="op">-</span><span class="st"> </span>test_y_reg)<span class="op">^</span><span class="dv">2</span>))</span></code></pre></div>
-<pre><code>## [1] 8.303153</code></pre>
+<blockquote>
+<p>NOTE: when log(lambda) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. As log(lambda) becomes increasingly negative, lambda is correspondingly closer to zero and we are approaching the OLS solution.</p>
+</blockquote>
+<ul>
+<li><p>Show the lambda that results in the minimum estimated mean-squared error (MSE):</p>
+<ul>
+<li>The RMSE of the initial model: 7.858063</li>
+<li>The RMSE of the tuned model: 7.760019</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="ols-and-lasso.html#cb42-1"></a>best_rmse &lt;-<span class="st"> </span><span class="kw">show_best</span>(rec_res, <span class="dt">metric =</span> <span class="st">&quot;rmse&quot;</span>)</span>
+<span id="cb42-2"><a href="ols-and-lasso.html#cb42-2"></a></span>
+<span id="cb42-3"><a href="ols-and-lasso.html#cb42-3"></a>lowest_rmse &lt;-<span class="st"> </span><span class="kw">select_best</span>(rec_res, <span class="dt">metric =</span> <span class="st">&quot;rmse&quot;</span>)</span>
+<span id="cb42-4"><a href="ols-and-lasso.html#cb42-4"></a></span>
+<span id="cb42-5"><a href="ols-and-lasso.html#cb42-5"></a>rec_res <span class="op">%&gt;%</span></span>
+<span id="cb42-6"><a href="ols-and-lasso.html#cb42-6"></a><span class="st">  </span><span class="kw">collect_metrics</span>() <span class="op">%&gt;%</span></span>
+<span id="cb42-7"><a href="ols-and-lasso.html#cb42-7"></a><span class="st">  </span><span class="kw">filter</span>(.metric <span class="op">==</span><span class="st"> &quot;rmse&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb42-8"><a href="ols-and-lasso.html#cb42-8"></a><span class="st">  </span><span class="kw">arrange</span>(mean) <span class="op">%&gt;%</span></span>
+<span id="cb42-9"><a href="ols-and-lasso.html#cb42-9"></a><span class="st">  </span><span class="kw">slice</span>(<span class="dv">1</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 7
+##   penalty .metric .estimator  mean     n std_err .config
+##     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;  
+## 1   0.244 rmse    standard    7.71    10   0.351 Model47</code></pre>
 </div>
-<div id="challenge-1" class="section level2" number="4.6">
-<h2><span class="header-section-number">4.6</span> Challenge 1</h2>
-<p>Open Challenge 1 in the “Challenges” folder.</p>
+<div id="important-variables" class="section level4" number="4.5.3.2">
+<h4><span class="header-section-number">4.5.3.2</span> Important variables</h4>
+<ul>
+<li>Visualize important variables.</li>
+</ul>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="ols-and-lasso.html#cb44-1"></a><span class="kw">finalize_workflow</span>(</span>
+<span id="cb44-2"><a href="ols-and-lasso.html#cb44-2"></a>  rec_wf, </span>
+<span id="cb44-3"><a href="ols-and-lasso.html#cb44-3"></a>  lowest_rmse</span>
+<span id="cb44-4"><a href="ols-and-lasso.html#cb44-4"></a>) <span class="op">%&gt;%</span></span>
+<span id="cb44-5"><a href="ols-and-lasso.html#cb44-5"></a><span class="st">  </span><span class="kw">fit</span>(train_x_reg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">age =</span> train_y_reg))) <span class="op">%&gt;%</span></span>
+<span id="cb44-6"><a href="ols-and-lasso.html#cb44-6"></a><span class="st">  </span><span class="kw">pull_workflow_fit</span>() <span class="op">%&gt;%</span></span>
+<span id="cb44-7"><a href="ols-and-lasso.html#cb44-7"></a><span class="st">  </span>vip<span class="op">::</span><span class="kw">vi</span>(<span class="dt">lambda =</span> lowest_rmse<span class="op">$</span>penalty) <span class="op">%&gt;%</span></span>
+<span id="cb44-8"><a href="ols-and-lasso.html#cb44-8"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">abs</span>(Importance), </span>
+<span id="cb44-9"><a href="ols-and-lasso.html#cb44-9"></a>             <span class="dt">y =</span> <span class="kw">fct_reorder</span>(Variable, <span class="kw">abs</span>(Importance)),</span>
+<span id="cb44-10"><a href="ols-and-lasso.html#cb44-10"></a>             <span class="dt">fill =</span> Sign)) <span class="op">+</span></span>
+<span id="cb44-11"><a href="ols-and-lasso.html#cb44-11"></a><span class="st">  </span><span class="kw">geom_col</span>() <span class="op">+</span></span>
+<span id="cb44-12"><a href="ols-and-lasso.html#cb44-12"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Importance&quot;</span>,</span>
+<span id="cb44-13"><a href="ols-and-lasso.html#cb44-13"></a>       <span class="dt">y =</span> <span class="ot">NULL</span>) </span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 
+</div>
+</div>
 </div>
 </div>
             </section>

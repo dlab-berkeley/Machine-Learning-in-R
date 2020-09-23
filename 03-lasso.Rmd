@@ -9,6 +9,7 @@ library(tidyverse) # tidyverse packages
 library(tidymodels) # tidymodels framework 
 library(here) # reproducible way to find files 
 library(glue) # glue strings and objects 
+library(vip) # variable importance 
 
 theme_set(theme_minimal())
 ```
@@ -73,7 +74,7 @@ lasso$lambda.min
 
 # Predict outcome for the test data
 lasso_predicted <- predict(lasso, newx = as.matrix(test_x_reg),
-                      s = 0.1) # Tuning parameter 
+                      s = 0.1) # Tuning parameter; An arbitrary number not optimized 
 
 # Calculate root mean-squared error
 sqrt(mean((lasso_predicted - test_y_reg)^2))
@@ -119,7 +120,7 @@ lasso_fit <- lasso_spec %>%
 
 #### yardstick 
 
-- Evaluate prediction performance 
+- Visualize model fits 
 
 ```{r}
 
@@ -145,10 +146,22 @@ map2(list(ols_fit, lasso_fit), c("OLS", "Lasso"), visualize_fit)
 
 ```
 
+- Let's formally test prediction performance. 
+
+**Metrics**
+
+- `rmse`: Root mean squared error (the smaller the better)
+
+- `mae`: Mean absolute error (the smaller the better)
+
+- `rsq`: R squared (the larger the better)
+
+- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
+
 ```{r}
 
 # Define performance metrics 
-metrics <- yardstick::metric_set(rmse, rsq, mae)
+metrics <- yardstick::metric_set(rmse, mae, rsq)
 
 # Build an evaluation function 
 evaluate_model <- function(model){
@@ -176,99 +189,125 @@ evals %>%
 
 ```
 
-## Tuning parameters
+- For more information, read [Tidy Modeling with R](https://www.tmwr.org/) by Max Kuhn and Julia Silge.
 
-Visualize the distribution of log(lamba) vs mean-squared error.   
+## Tuning lasso parameters
 
-```{r}
-plot(lasso) 
-# Help interpreting this plot: https://stats.stackexchange.com/questions/404795/interpretation-of-cross-validation-plot-for-lasso-regression
-
-# Generate our own version, but plot lambda (not on log scale) vs. RMSE.
-qplot(lasso$lambda, sqrt(lasso$cvm)) 
-
-```
-
-> NOTE: when log(lamba) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. As log(lambda) becomes increasingly negative, lambda is correspondingly closer to zero and we are approaching the OLS solution. 
-
-```{r}
-# And here is a plot of log(lambda) vs lambda.
-qplot(log(lasso$lambda), lasso$lambda) 
-```
-
-Show plot of different lambda values: 
-
-```{r}
-plot(lasso$glmnet.fit, xvar = "lambda", label = TRUE)
-```
-
-Show the lambda that results in the minimum estimated mean-squared error (MSE):
-
-```{r}
-lasso$lambda.min
-```
-
-Show higher lambda within [one standard error](https://stats.stackexchange.com/questions/80268/empirical-justification-for-the-one-standard-error-rule-when-using-cross-validat) of performance of the minimum
-
-```{r}
-lasso$lambda.1se
-
-# Log scale versions:
-log(c("log_min" = lasso$lambda.min, "log_1se" = lasso$lambda.1se))
-```
-
-Look at the coefficients
-```{r}
-(coef_1se = coef(lasso, s = "lambda.1se"))
-```
-
-Look at the coefficients for lambda.min
-
-```{r}
-(coef_min = coef(lasso, s = "lambda.min"))
-
-# Compare side-by-side
-cbind(as.matrix(coef_1se), as.matrix(coef_min))
-```
-
-Predict on the test set
-```{r}
-predictions <- predict(lasso, newx = as.matrix(test_x_reg),
-                      s = lasso$lambda.1se)
-
-# How far off were we, based on absolute error?
-rounded_errors <- round(abs(test_y_reg - predictions))
-table(rounded_errors)
-
-# Group the absolute error into 4 bins.
-grouped_errors <- round(abs(test_y_reg - predictions) / 5)
-grouped_errors[grouped_errors > 2] = 3
-table(grouped_errors)
-
-```
+### tune ingredients 
 
 ```{r}
 
-# 4 categories of accuracy
-how_close <- factor(grouped_errors, labels = c("very close", "close", "meh", "far"))
+# tune() = placeholder 
 
-table(rounded_errors, how_close)
+tune_spec <- linear_reg(penalty = tune(), # tuning parameter 
+                         mixture = 1) %>% # 1 = lasso, 0 = ridge 
+  set_engine("glmnet") %>%
+  set_mode("regression") 
 
-# Scatter plot of actual vs. predicted
-qplot(test_y_reg, predictions, 
-      color = how_close) +
-  geom_point(size = 5, alpha = 0.7) 
+tune_spec
+
+# penalty() searches 50 possible combinations 
+
+lambda_grid <- grid_regular(penalty(), levels = 50)
+
+lambda_grid
+
+# 10-fold cross-validation
+
+set.seed(1234) # for reproducibility 
+
+rec_folds <- vfold_cv(train_x_reg %>% bind_cols(tibble(age = train_y_reg)))
 
 ```
 
-Calculate MSE and RMSE:
+### Add these elements to a workflow 
+
 ```{r}
-# Calculate mean-squared error.
-mean((predictions - test_y_reg)^2)
 
-# Calculate root mean-squared error.
-sqrt(mean((predictions - test_y_reg)^2))
+# Workflow 
+rec_wf <- workflow() %>%
+  add_model(tune_spec) %>%
+  add_formula(age~.)
+
+# Tuning results 
+rec_res <- rec_wf %>%
+  tune_grid(
+    resamples = rec_folds, 
+    grid = lambda_grid
+  )
+
 ```
 
-## Challenge 1
-Open Challenge 1 in the "Challenges" folder. 
+### Visualize 
+
+- The following two visualizations draw on Julia Silge's [blog post](https://juliasilge.com/blog/lasso-the-office/). 
+
+#### RMSE and RSQ 
+
+- Visualize the distribution of log(lamba) vs mean-squared error. 
+
+```{r}
+
+# Visualize
+
+rec_res %>%
+  collect_metrics() %>%
+  ggplot(aes(penalty, mean, col = .metric)) +
+  geom_errorbar(aes(
+    ymin = mean - 2*std_err,
+    ymax = mean + 2*std_err
+  ),
+  alpha = 0.3
+  ) +
+  geom_line(size = 2) +
+  scale_x_log10() +
+  labs(x = "log(lambda)") +
+  facet_wrap(~glue("{toupper(.metric)}"), 
+             scales = "free",
+             nrow = 2) +
+  theme(legend.position = "none")
+
+```
+
+> NOTE: when log(lambda) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. As log(lambda) becomes increasingly negative, lambda is correspondingly closer to zero and we are approaching the OLS solution. 
+
+- Show the lambda that results in the minimum estimated mean-squared error (MSE):
+
+  - The RMSE of the initial model: 7.858063
+  - The RMSE of the tuned model: 7.760019
+  
+```{r}
+
+best_rmse <- show_best(rec_res, metric = "rmse")
+
+lowest_rmse <- select_best(rec_res, metric = "rmse")
+
+rec_res %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  arrange(mean) %>%
+  slice(1)
+
+```
+
+#### Important variables 
+
+- Visualize important variables. 
+
+```{r}
+
+finalize_workflow(
+  rec_wf, 
+  lowest_rmse
+) %>%
+  fit(train_x_reg %>% bind_cols(tibble(age = train_y_reg))) %>%
+  pull_workflow_fit() %>%
+  vip::vi(lambda = lowest_rmse$penalty) %>%
+  ggplot(aes(x = abs(Importance), 
+             y = fct_reorder(Variable, abs(Importance)),
+             fill = Sign)) +
+  geom_col() +
+  labs(x = "Importance",
+       y = NULL) 
+
+```
