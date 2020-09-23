@@ -3,12 +3,14 @@
 ## Load packages
 
 ```{r load_packages}
+
 library(glmnet)
 library(rio) # painless data import and export
 library(tidyverse) # tidyverse packages 
 library(tidymodels) # tidymodels framework 
 library(here) # reproducible way to find files 
 library(glue) # glue strings and objects 
+library(vip) # variable importance 
 
 theme_set(theme_minimal())
 ```
@@ -253,8 +255,8 @@ rec_res %>%
   collect_metrics() %>%
   ggplot(aes(penalty, mean, col = .metric)) +
   geom_errorbar(aes(
-    ymin = mean - 2*std_err,
-    ymax = mean + 2*std_err
+    ymin = mean - std_err,
+    ymax = mean + std_err
   ),
   alpha = 0.3
   ) +
@@ -274,9 +276,9 @@ rec_res %>%
 
 ```{r}
 
-best_rmse <- show_best(rec_res, metric = "rmse")
+top_rmse <- show_best(rec_res, metric = "rmse")
 
-lowest_rmse <- select_best(rec_res, metric = "rmse")
+best_rmse <- select_best(rec_res, metric = "rmse")
 
 glue('The RMSE of the intiail model is 
      {evals %>%
@@ -292,5 +294,19 @@ glue('The RMSE of the tuned model is {rec_res %>%
   select(mean) %>%
   round(2)}')
 
+```
+
+- Finalize your workflow and visualize [variable importance](https://koalaverse.github.io/vip/articles/vip.html)
+
+```{r}
+
+finaliz_lasso <- rec_wf %>%
+  finalize_workflow(best_rmse)
+
+finaliz_lasso %>%
+  fit(train_x_reg %>% bind_cols(tibble(age = train_y_reg))) %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+  
 ```
 

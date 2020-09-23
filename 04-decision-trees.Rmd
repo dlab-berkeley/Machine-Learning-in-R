@@ -89,8 +89,14 @@ tree$variable.importance
 ```{r}
 
 tree_spec <- decision_tree(
-           mode = "classification", 
-           tree_depth = 5) %>% # Tuning parameter; An arbitrary number not optimized 
+  
+           # Mode 
+           mode = "classification",
+           
+           # Tuning parameters; Not optimized yet  
+           tree_depth = 8, 
+           cost_complexity = NULL,
+           min_n = NULL) %>%
   set_engine("rpart") # rpart, c5.0, spark 
   
 ```
@@ -105,6 +111,18 @@ tree_fit <- tree_spec %>%
 ```
 
 ### yardstick 
+
+- Let's formally test prediction performance. 
+
+**Metrics**
+
+- `accuracy`: The proportion of the data predicted correctly 
+
+- `precision`: Mean absolute error (the smaller the better)
+
+- `recall`: R squared (the larger the better)
+
+- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
 
 ### tune 
 
