@@ -390,7 +390,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb24-5"><a href="ols-and-lasso.html#cb24-5"></a>                   <span class="dt">alpha =</span> <span class="dv">1</span>)</span>
 <span id="cb24-6"><a href="ols-and-lasso.html#cb24-6"></a></span>
 <span id="cb24-7"><a href="ols-and-lasso.html#cb24-7"></a>lasso<span class="op">$</span>lambda.min</span></code></pre></div>
-<pre><code>## [1] 0.165423</code></pre>
+<pre><code>## [1] 0.4602993</code></pre>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="ols-and-lasso.html#cb26-1"></a><span class="co"># Predict outcome for the test data</span></span>
 <span id="cb26-2"><a href="ols-and-lasso.html#cb26-2"></a>lasso_predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(lasso, <span class="dt">newx =</span> <span class="kw">as.matrix</span>(test_x_reg),</span>
 <span id="cb26-3"><a href="ols-and-lasso.html#cb26-3"></a>                      <span class="dt">s =</span> <span class="fl">0.1</span>) <span class="co"># Tuning parameter; An arbitrary number not optimized </span></span>
@@ -489,7 +489,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb34-2"><a href="ols-and-lasso.html#cb34-2"></a>metrics &lt;-<span class="st"> </span>yardstick<span class="op">::</span><span class="kw">metric_set</span>(rmse, mae, rsq)</span>
 <span id="cb34-3"><a href="ols-and-lasso.html#cb34-3"></a></span>
 <span id="cb34-4"><a href="ols-and-lasso.html#cb34-4"></a><span class="co"># Build an evaluation function </span></span>
-<span id="cb34-5"><a href="ols-and-lasso.html#cb34-5"></a>evaluate_model &lt;-<span class="st"> </span><span class="cf">function</span>(model){</span>
+<span id="cb34-5"><a href="ols-and-lasso.html#cb34-5"></a>evaluate_reg &lt;-<span class="st"> </span><span class="cf">function</span>(model){</span>
 <span id="cb34-6"><a href="ols-and-lasso.html#cb34-6"></a>  </span>
 <span id="cb34-7"><a href="ols-and-lasso.html#cb34-7"></a>  <span class="co"># Bind ground truth and predicted values  </span></span>
 <span id="cb34-8"><a href="ols-and-lasso.html#cb34-8"></a>  <span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">truth =</span> test_y_reg), <span class="co"># Ground truth </span></span>
@@ -500,7 +500,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb34-13"><a href="ols-and-lasso.html#cb34-13"></a>  }</span>
 <span id="cb34-14"><a href="ols-and-lasso.html#cb34-14"></a></span>
 <span id="cb34-15"><a href="ols-and-lasso.html#cb34-15"></a><span class="co"># Evaluate many models </span></span>
-<span id="cb34-16"><a href="ols-and-lasso.html#cb34-16"></a>evals &lt;-<span class="st"> </span>purrr<span class="op">::</span><span class="kw">map</span>(<span class="kw">list</span>(ols_fit, lasso_fit), evaluate_model) <span class="op">%&gt;%</span></span>
+<span id="cb34-16"><a href="ols-and-lasso.html#cb34-16"></a>evals &lt;-<span class="st"> </span>purrr<span class="op">::</span><span class="kw">map</span>(<span class="kw">list</span>(ols_fit, lasso_fit), evaluate_reg) <span class="op">%&gt;%</span></span>
 <span id="cb34-17"><a href="ols-and-lasso.html#cb34-17"></a><span class="st">  </span><span class="kw">reduce</span>(bind_rows) <span class="op">%&gt;%</span></span>
 <span id="cb34-18"><a href="ols-and-lasso.html#cb34-18"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">type =</span> <span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;OLS&quot;</span>, <span class="st">&quot;Lasso&quot;</span>), <span class="dt">each =</span> <span class="dv">3</span>))</span>
 <span id="cb34-19"><a href="ols-and-lasso.html#cb34-19"></a></span>

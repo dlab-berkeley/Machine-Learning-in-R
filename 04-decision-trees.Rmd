@@ -94,9 +94,7 @@ tree_spec <- decision_tree(
            mode = "classification",
            
            # Tuning parameters; Not optimized yet  
-           tree_depth = 8, 
-           cost_complexity = NULL,
-           min_n = NULL) %>%
+           cost_complexity = NULL) %>%
   set_engine("rpart") # rpart, c5.0, spark 
   
 ```
@@ -118,47 +116,77 @@ tree_fit <- tree_spec %>%
 
 - `accuracy`: The proportion of the data predicted correctly 
 
-- `precision`: Mean absolute error (the smaller the better)
+- `precision`: Positive predictive value
 
-- `recall`: R squared (the larger the better)
+- `recall` (specificity): True positive rate (e.g., healthy people really healthy)
+
+![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
 
 - To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
 
-### tune 
+```{r}
 
-Plot variable importance
+# Define performance metrics 
+metrics <- yardstick::metric_set(accuracy, precision, recall)
+
+# Build an evaluation function 
+evaluate_class <- function(model){
+  
+  # Bind ground truth and predicted values  
+  bind_cols(tibble(truth = test_y_class), # Ground truth 
+            predict(model, test_x_class)) %>% # Predicted values 
+    
+  # Calculate root mean-squared error
+  metrics(truth = truth, estimate = .pred_class) 
+}
+
+```
 
 ```{r}
-# Turn the tree$variable.importance vector into a dataframe
-tree_varimp <- data.frame(tree$variable.importance)
 
-# Add rownames as their own column
-tree_varimp$x <- rownames(tree_varimp) 
+visualize_metrics <- function(model){
+evaluate_class(model) %>%
+  ggplot(aes(x = fct_reorder(.metric, .estimate), y = .estimate)) +
+    geom_point() +
+    labs(x = "Metrics",
+         y = "Estimate")}
 
-# Reorder clumns
-tree_varimp <- tree_varimp[, c(2,1)]
+visualize_metrics(tree_fit)
 
-# Reset row names
-rownames(tree_varimp) <- NULL 
-
-# Rename columns
-names(tree_varimp) <- c("Variable", "Importance") 
-
-tree_varimp
-
-# Plot
-ggplot(tree_varimp, aes(x = reorder(Variable, Importance), 
-                        y = Importance)) + 
-  geom_bar(stat = "identity") + 
-  coord_flip() + 
-  xlab("")
 ```
+- Visualize the confusion matrix. 
+
+  - The following visualization code draws on [Diego Usai's medium post](https://towardsdatascience.com/modelling-with-tidymodels-and-parsnip-bae2c01c131c).
+  
+```{r}
+
+visualize_conf_mat <- function(model){
+  bind_cols(tibble(truth = test_y_class), # Ground truth 
+            predict(model, test_x_class)) %>%
+  conf_mat(truth, .pred_class) %>%
+  pluck(1) %>% # Select index 
+  as_tibble() %>% # Vector -> data.frame 
+  ggplot(aes(Prediction, Truth, alpha = n)) +
+    geom_tile(show.legend = FALSE) +
+    geom_text(aes(label = n), 
+              color = "red", 
+              alpha = 1, 
+              size = 13)
+}
+
+visualize_conf_mat(tree_fit)
+
+```
+
+### tune 
 
 In decision trees the main hyperparameter (configuration setting) is the **complexity parameter** (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.  
 
 `rpart` uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.  
 
 Print the results for various CP settings - we want the one with the lowest "xerror". We can also plot the performance estimates for different CP settings. 
+
+Trees of similar sizes might appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. 
 
 ```{r plotcp_tree}
 # Show estimated error rate at different complexity parameter settings.
@@ -167,23 +195,9 @@ printcp(tree)
 # Plot those estimated error rates.
 plotcp(tree)
 
-# Trees of similar sizes might appear to be tied for lowest "xerror", but a tree with fewer splits might be easier to interpret. 
-
-tree_pruned2 = prune(tree, cp = 0.028986) # 2 splits
-
-tree_pruned6 = prune(tree, cp = 0.010870) # 6 splits
 ```
 
 Print detailed results, variable importance, and summary of splits.
-
-```{r}
-summary(tree_pruned2) 
-rpart.plot(tree_pruned2)
-```
-```{r}
-summary(tree_pruned6) 
-rpart.plot(tree_pruned6)
-```
 
 You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type `?rpart` to learn more.  
 

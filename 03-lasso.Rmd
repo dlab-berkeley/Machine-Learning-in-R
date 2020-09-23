@@ -169,7 +169,7 @@ map2(list(ols_fit, lasso_fit), c("OLS", "Lasso"), visualize_fit)
 metrics <- yardstick::metric_set(rmse, mae, rsq)
 
 # Build an evaluation function 
-evaluate_model <- function(model){
+evaluate_reg <- function(model){
   
   # Bind ground truth and predicted values  
   bind_cols(tibble(truth = test_y_reg), # Ground truth 
@@ -180,7 +180,7 @@ evaluate_model <- function(model){
   }
 
 # Evaluate many models 
-evals <- purrr::map(list(ols_fit, lasso_fit), evaluate_model) %>%
+evals <- purrr::map(list(ols_fit, lasso_fit), evaluate_reg) %>%
   reduce(bind_rows) %>%
   mutate(type = rep(c("OLS", "Lasso"), each = 3))
 
