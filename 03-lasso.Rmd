@@ -2,7 +2,7 @@
 
 ## Load packages
 
-```{r load_packages}
+```{r}
 
 library(glmnet)
 library(rio) # painless data import and export

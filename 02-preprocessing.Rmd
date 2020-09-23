@@ -4,7 +4,7 @@
 
 Explicitly load the packages that we need for this analysis.
 
-```{r packages, message=TRUE, warning=TRUE}
+```{r}
 library(rio) # painless data import and export
 library(tidyverse) # tidyverse packages 
 library(tidymodels) # tidymodels framework 
