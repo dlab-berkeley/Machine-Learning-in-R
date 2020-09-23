@@ -3,8 +3,20 @@
 ## Load packages
 
 ```{r}
+
 library(SuperLearner)
 library(ck37r)
+library(vip)
+library(rio) # painless data import and export
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
+library(glue) # glue strings and objects 
+
+suppressMessages(suppressWarnings(library(glmnet)))
+
+theme_set(theme_minimal())
+
 ```
 
 ## Load data 
@@ -13,7 +25,7 @@ Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variab
 
 ```{r}
 # Objects: task_reg, task_class
-load("data/preprocessed.RData")
+load(here("data" , "preprocessed.RData"))
 ```
 
 ## Overview
@@ -39,10 +51,12 @@ SuperLearner::listWrappers()
 
 ```{r cvsl_fit, cache = TRUE}
 # Compile the algorithm wrappers to be used.
-sl_lib = c("SL.mean", "SL.glm", "SL.glmnet", "SL.rpart", "SL.ranger", "SL.xgboost")
+sl_lib <- c("SL.mean", "SL.glm", "SL.glmnet", "SL.rpart", "SL.ranger", "SL.xgboost")
+
 ```
 
-## Fit Model
+## Non-tidy 
+### Fit model
 
 Fit the ensemble! 
 
@@ -52,13 +66,15 @@ Fit the ensemble!
 set.seed(1, "L'Ecuyer-CMRG") 
 
 # This will take a few minutes to execute - take a look at the .html file to see the output!
-cv_sl =
-  SuperLearner::CV.SuperLearner(Y = train_y_class, X = train_x_class,
-                                verbose = FALSE,
-                                SL.library = sl_lib, family = binomial(),
-                                # For a publication we would do V = 10 or 20
-                                cvControl = list(V = 5L, stratifyCV = TRUE))
-summary(cv_sl)
+cv_sl <- SuperLearner::CV.SuperLearner(
+  Y = as.numeric(as.character(train_y_class)), 
+  X = train_x_class,
+  family = binomial(),
+  # For a real analysis we would use V = 10.
+  cvControl = list(V = 5L, stratifyCV = TRUE),
+  SL.library = sl_lib,
+  verbose = FALSE)
+
 ```
 
 ### Risk
@@ -69,7 +85,7 @@ Risk is a performance estimate - it's the average loss, and loss is how far off 
 
 ```{r cvsl_review}
 # Plot the cross-validated risk estimate.
-plot(cv_sl) + theme_minimal()
+plot(cv_sl)
 ```
 
 ### Compute AUC for all estimators
@@ -92,7 +108,47 @@ print(cvsl_weights(cv_sl), row.names = FALSE)
 
 "Discrete SL" is when the SuperLearner chooses the single algorithm with the lowest risk. "SuperLearner" is a weighted average of multiple algorithms, or an "ensemble". In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.  
 
+- SuperLearner is currently not available in the tidymodels framework. But you'd like to, you can easily build a parsnip model. Here, I just show a snapshot of the whole process. If you are interested in knowing more about it, please take a look at [this vignette](https://www.tidymodels.org/learn/develop/models/) of the tidymodels.
+
+```{r}
+# Set model 
+set_new_model("superlearner")
+
+# Set mode 
+set_model_mode(model = "superlearner", 
+               mode = "classification")
+
+# Set model engine 
+set_model_engine(
+  "superlearner",
+  mode = "classification",
+  eng = "SuperLearner"
+)
+
+# Set dependency 
+set_dependency("superlearner", 
+               eng = "SuperLearner", pkg = "SuperLearner")
+
+# Show model info 
+show_model_info("superlearner")
+
+# Add arguments 
+set_model_arg(
+  model = "superlearner",
+  eng = "SuperLearner",
+  parsnip = "cv_control",
+  original = "cvControl",
+  func = list(pkg = "SuperLearner", 
+              fun = "CV.SuperLearner"),
+  has_submodel = TRUE # Are you making multiple iterations?
+)
+
+show_model_info("superlearner")
+
+```
+
 ## Challenge 5
+
 Open Challenge 5 in the "Challenges" folder. 
 
 A longer tutorial on SuperLearner is available here: (https://github.com/ck37/superlearner-guide)

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 8 Ensembles | Machine Learning in R</title>
+  <meta name="description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 8 Ensembles | Machine Learning in R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="github-repo" content="dlab-berkeley/Machine-Learning-in-R" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 8 Ensembles | Machine Learning in R" />
+  
+  <meta name="twitter:description" content="D-Lab’s Machine Learning in R Workshop" />
+  
+
+
+
+<meta name="date" content="2020-09-23" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="xgboost.html"/>
+<link rel="next" href="principal-component-analysis.html"/>
+<script src="libs/header-attrs-2.3/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Machine Learning in R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#prereqs"><i class="fa fa-check"></i><b>1.1</b> Prereqs</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#package-installation"><i class="fa fa-check"></i><b>2.1</b> Package installation</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="preprocessing.html"><a href="preprocessing.html"><i class="fa fa-check"></i><b>3</b> Preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>3.1</b> Load packages</a></li>
+<li class="chapter" data-level="3.2" data-path="preprocessing.html"><a href="preprocessing.html#load-the-data"><i class="fa fa-check"></i><b>3.2</b> Load the data</a></li>
+<li class="chapter" data-level="3.3" data-path="preprocessing.html"><a href="preprocessing.html#read-background-information-and-variable-descriptions"><i class="fa fa-check"></i><b>3.3</b> Read background information and variable descriptions</a></li>
+<li class="chapter" data-level="3.4" data-path="preprocessing.html"><a href="preprocessing.html#quick-overviews-on-machine-learning"><i class="fa fa-check"></i><b>3.4</b> Quick overviews on machine learning</a></li>
+<li class="chapter" data-level="3.5" data-path="preprocessing.html"><a href="preprocessing.html#machine-learning-workflow"><i class="fa fa-check"></i><b>3.5</b> Machine learning workflow</a></li>
+<li class="chapter" data-level="3.6" data-path="preprocessing.html"><a href="preprocessing.html#why-taking-a-tidyverse-approach-to-machine-learning"><i class="fa fa-check"></i><b>3.6</b> Why taking a tidyverse approach to machine learning?</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="preprocessing.html"><a href="preprocessing.html#benefits"><i class="fa fa-check"></i><b>3.6.1</b> Benefits</a></li>
+<li class="chapter" data-level="3.6.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>3.6.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="preprocessing.html"><a href="preprocessing.html#data-preprocessing"><i class="fa fa-check"></i><b>3.7</b> Data preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="preprocessing.html"><a href="preprocessing.html#task-1-what-is-one-hot-encoding"><i class="fa fa-check"></i><b>3.7.1</b> Task 1: What is one-hot encoding?</a></li>
+<li class="chapter" data-level="3.7.2" data-path="preprocessing.html"><a href="preprocessing.html#task-2-handling-missing-data"><i class="fa fa-check"></i><b>3.7.2</b> Task 2: Handling missing data</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="preprocessing.html"><a href="preprocessing.html#preprocessing-workflow"><i class="fa fa-check"></i><b>3.8</b> Preprocessing workflow</a></li>
+<li class="chapter" data-level="3.9" data-path="preprocessing.html"><a href="preprocessing.html#regressioin-setup"><i class="fa fa-check"></i><b>3.9</b> Regressioin setup</a>
+<ul>
+<li class="chapter" data-level="3.9.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable"><i class="fa fa-check"></i><b>3.9.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.9.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-random-sampling"><i class="fa fa-check"></i><b>3.9.2</b> Data splitting using random sampling</a></li>
+<li class="chapter" data-level="3.9.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe"><i class="fa fa-check"></i><b>3.9.3</b> recipe</a></li>
+</ul></li>
+<li class="chapter" data-level="3.10" data-path="preprocessing.html"><a href="preprocessing.html#classification-setup"><i class="fa fa-check"></i><b>3.10</b> Classification setup</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable-1"><i class="fa fa-check"></i><b>3.10.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.10.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-stratified-random-sampling"><i class="fa fa-check"></i><b>3.10.2</b> Data splitting using stratified random sampling</a></li>
+<li class="chapter" data-level="3.10.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe-1"><i class="fa fa-check"></i><b>3.10.3</b> recipe</a></li>
+<li class="chapter" data-level="3.10.4" data-path="preprocessing.html"><a href="preprocessing.html#save-our-preprocessed-data"><i class="fa fa-check"></i><b>3.10.4</b> Save our preprocessed data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html"><i class="fa fa-check"></i><b>4</b> OLS and lasso</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>4.1</b> Load packages</a></li>
+<li class="chapter" data-level="4.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>4.2</b> Load data</a></li>
+<li class="chapter" data-level="4.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>4.3</b> Overview</a></li>
+<li class="chapter" data-level="4.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#fit-and-evaluate-models"><i class="fa fa-check"></i><b>4.4</b> Fit and evaluate models</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>4.4.1</b> Non-tidy</a></li>
+<li class="chapter" data-level="4.4.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>4.4.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tuning-lasso-parameters"><i class="fa fa-check"></i><b>4.5</b> Tuning lasso parameters</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tune-ingredients"><i class="fa fa-check"></i><b>4.5.1</b> tune ingredients</a></li>
+<li class="chapter" data-level="4.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#add-these-elements-to-a-workflow"><i class="fa fa-check"></i><b>4.5.2</b> Add these elements to a workflow</a></li>
+<li class="chapter" data-level="4.5.3" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#visualize"><i class="fa fa-check"></i><b>4.5.3</b> Visualize</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="decision-trees.html"><a href="decision-trees.html"><i class="fa fa-check"></i><b>5</b> Decision Trees</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>5.1</b> Load packages</a></li>
+<li class="chapter" data-level="5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>5.2</b> Load data</a></li>
+<li class="chapter" data-level="5.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>5.3</b> Overview</a></li>
+<li class="chapter" data-level="5.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>5.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>5.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="5.4.2" data-path="decision-trees.html"><a href="decision-trees.html#investigate"><i class="fa fa-check"></i><b>5.4.2</b> Investigate</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="decision-trees.html"><a href="decision-trees.html#tidy-models"><i class="fa fa-check"></i><b>5.5</b> Tidy models</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>5.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="5.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>5.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="5.5.3" data-path="decision-trees.html"><a href="decision-trees.html#tune"><i class="fa fa-check"></i><b>5.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="random-forests.html"><a href="random-forests.html"><i class="fa fa-check"></i><b>6</b> Random Forests</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>6.1</b> Load packages</a></li>
+<li class="chapter" data-level="6.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>6.2</b> Load data</a></li>
+<li class="chapter" data-level="6.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>6.3</b> Overview</a></li>
+<li class="chapter" data-level="6.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>6.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>6.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="6.4.2" data-path="decision-trees.html"><a href="decision-trees.html#investigate"><i class="fa fa-check"></i><b>6.4.2</b> Investigate</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="decision-trees.html"><a href="decision-trees.html#tidy-models"><i class="fa fa-check"></i><b>6.5</b> Tidy models</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>6.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="6.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>6.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="6.5.3" data-path="decision-trees.html"><a href="decision-trees.html#tune"><i class="fa fa-check"></i><b>6.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="xgboost.html"><a href="xgboost.html"><i class="fa fa-check"></i><b>7</b> XGBoost</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>7.1</b> Load packages</a></li>
+<li class="chapter" data-level="7.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>7.2</b> Load data</a></li>
+<li class="chapter" data-level="7.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>7.3</b> Overview</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="xgboost.html"><a href="xgboost.html#define-cv_control"><i class="fa fa-check"></i><b>7.3.1</b> Define <code>cv_control</code></a></li>
+<li class="chapter" data-level="7.3.2" data-path="xgboost.html"><a href="xgboost.html#define-xgb_grid"><i class="fa fa-check"></i><b>7.3.2</b> Define <code>xgb_grid</code></a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>7.4</b> Fit model</a></li>
+<li class="chapter" data-level="7.5" data-path="xgboost.html"><a href="xgboost.html#investigate-results"><i class="fa fa-check"></i><b>7.5</b> Investigate Results</a></li>
+<li class="chapter" data-level="7.6" data-path="xgboost.html"><a href="xgboost.html#challenge-4"><i class="fa fa-check"></i><b>7.6</b> Challenge 4</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="ensembles.html"><a href="ensembles.html"><i class="fa fa-check"></i><b>8</b> Ensembles</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>8.1</b> Load packages</a></li>
+<li class="chapter" data-level="8.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>8.2</b> Load data</a></li>
+<li class="chapter" data-level="8.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>8.3</b> Overview</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="ensembles.html"><a href="ensembles.html#choose-algorithms"><i class="fa fa-check"></i><b>8.3.1</b> Choose algorithms</a></li>
+</ul></li>
+<li class="chapter" data-level="8.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>8.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="8.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>8.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="8.4.2" data-path="ensembles.html"><a href="ensembles.html#risk"><i class="fa fa-check"></i><b>8.4.2</b> Risk</a></li>
+<li class="chapter" data-level="8.4.3" data-path="ensembles.html"><a href="ensembles.html#plot-the-risk"><i class="fa fa-check"></i><b>8.4.3</b> Plot the risk</a></li>
+<li class="chapter" data-level="8.4.4" data-path="ensembles.html"><a href="ensembles.html#compute-auc-for-all-estimators"><i class="fa fa-check"></i><b>8.4.4</b> Compute AUC for all estimators</a></li>
+<li class="chapter" data-level="8.4.5" data-path="ensembles.html"><a href="ensembles.html#plot-the-roc-curve-for-the-best-estimator"><i class="fa fa-check"></i><b>8.4.5</b> Plot the ROC curve for the best estimator</a></li>
+<li class="chapter" data-level="8.4.6" data-path="ensembles.html"><a href="ensembles.html#review-weight-distribution-for-the-superlearner"><i class="fa fa-check"></i><b>8.4.6</b> Review weight distribution for the SuperLearner</a></li>
+</ul></li>
+<li class="chapter" data-level="8.5" data-path="ensembles.html"><a href="ensembles.html#challenge-5"><i class="fa fa-check"></i><b>8.5</b> Challenge 5</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html"><i class="fa fa-check"></i><b>9</b> Principal Component Analysis</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#unsupervised-approaches"><i class="fa fa-check"></i><b>9.1</b> Unsupervised approaches</a></li>
+<li class="chapter" data-level="9.2" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#reclass-variables"><i class="fa fa-check"></i><b>9.2</b> Reclass variables</a></li>
+<li class="chapter" data-level="9.3" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#scale-numeric-variables"><i class="fa fa-check"></i><b>9.3</b> Scale numeric variables</a></li>
+<li class="chapter" data-level="9.4" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#factorize-categorical-variables"><i class="fa fa-check"></i><b>9.4</b> Factorize categorical variables</a></li>
+<li class="chapter" data-level="9.5" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#screeplot"><i class="fa fa-check"></i><b>9.5</b> Screeplot</a></li>
+<li class="chapter" data-level="9.6" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#ggplot-coordinates"><i class="fa fa-check"></i><b>9.6</b> ggplot coordinates</a></li>
+<li class="chapter" data-level="9.7" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#view-factor-loadings"><i class="fa fa-check"></i><b>9.7</b> View factor loadings</a></li>
+<li class="chapter" data-level="9.8" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#generate-predicted-values-of-pcs-for-test-dataset"><i class="fa fa-check"></i><b>9.8</b> Generate predicted values of PCs for test dataset</a></li>
+<li class="chapter" data-level="9.9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#define-plotting-parameters"><i class="fa fa-check"></i><b>9.9</b> Define plotting parameters</a></li>
+<li class="chapter" data-level="9.10" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#store-the-scores-inside-of-dataframes"><i class="fa fa-check"></i><b>9.10</b> Store the scores inside of dataframes</a></li>
+<li class="chapter" data-level="9.11" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#save-ml_num-for-use-in-09-hclust.rmd"><i class="fa fa-check"></i><b>9.11</b> Save <code>ml_num</code> for use in 09-hclust.Rmd</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html"><i class="fa fa-check"></i><b>10</b> Hierarchical Agglomerative Clustering</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#compare-different-dissimilarity-measures"><i class="fa fa-check"></i><b>10.1</b> Compare different dissimilarity measures</a>
+<ul>
+<li class="chapter" data-level="10.1.1" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#wards-method-minimum-variance-between-clusters"><i class="fa fa-check"></i><b>10.1.1</b> Ward’s method: minimum variance between clusters</a></li>
+<li class="chapter" data-level="10.1.2" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#complete-linkage-largest-intercluster-difference"><i class="fa fa-check"></i><b>10.1.2</b> Complete linkage: largest intercluster difference</a></li>
+<li class="chapter" data-level="10.1.3" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#single-linkage-smallest-intercluster-difference"><i class="fa fa-check"></i><b>10.1.3</b> Single linkage: smallest intercluster difference</a></li>
+<li class="chapter" data-level="10.1.4" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#average-linkage-mean-intercluster-difference"><i class="fa fa-check"></i><b>10.1.4</b> Average linkage: mean intercluster difference</a></li>
+<li class="chapter" data-level="10.1.5" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#view-summaries"><i class="fa fa-check"></i><b>10.1.5</b> View summaries</a></li>
+<li class="chapter" data-level="10.1.6" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#plot-euclidean-distance-linkages"><i class="fa fa-check"></i><b>10.1.6</b> Plot Euclidean distance linkages</a></li>
+<li class="chapter" data-level="10.1.7" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#view-standard-error-plots"><i class="fa fa-check"></i><b>10.1.7</b> View standard error plots:</a></li>
+<li class="chapter" data-level="10.1.8" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#return-best-performing-model"><i class="fa fa-check"></i><b>10.1.8</b> Return best performing model</a></li>
+<li class="chapter" data-level="10.1.9" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#cross-validated-mclust"><i class="fa fa-check"></i><b>10.1.9</b> Cross-validated mclust</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Machine Learning in R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="ensembles" class="section level1" number="8">
+<h1><span class="header-section-number">Chapter 8</span> Ensembles</h1>
+<div id="load-packages" class="section level2" number="8.1">
+<h2><span class="header-section-number">8.1</span> Load packages</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="ensembles.html#cb1-1"></a><span class="kw">library</span>(SuperLearner)</span></code></pre></div>
+<pre><code>## Loading required package: nnls</code></pre>
+<pre><code>## Super Learner</code></pre>
+<pre><code>## Version: 2.0-26</code></pre>
+<pre><code>## Package created on 2019-10-27</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="ensembles.html#cb6-1"></a><span class="kw">library</span>(ck37r)</span></code></pre></div>
+<pre><code>## Registered S3 method overwritten by &#39;pryr&#39;:
+##   method      from
+##   print.bytes Rcpp</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="ensembles.html#cb8-1"></a><span class="kw">library</span>(vip)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;vip&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:utils&#39;:
+## 
+##     vi</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="ensembles.html#cb11-1"></a><span class="kw">library</span>(rio) <span class="co"># painless data import and export</span></span>
+<span id="cb11-2"><a href="ensembles.html#cb11-2"></a><span class="kw">library</span>(tidyverse) <span class="co"># tidyverse packages </span></span></code></pre></div>
+<pre><code>## ── Attaching packages ────────────────────</code></pre>
+<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ──── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="ensembles.html#cb15-1"></a><span class="kw">library</span>(tidymodels) <span class="co"># tidymodels framework </span></span></code></pre></div>
+<pre><code>## ── Attaching packages ────────────────────</code></pre>
+<pre><code>## ✓ broom     0.7.0      ✓ recipes   0.1.13
+## ✓ dials     0.0.9      ✓ rsample   0.0.7 
+## ✓ infer     0.5.3      ✓ tune      0.1.1 
+## ✓ modeldata 0.0.2      ✓ workflows 0.2.0 
+## ✓ parsnip   0.1.3      ✓ yardstick 0.0.7</code></pre>
+<pre><code>## ── Conflicts ─── tidymodels_conflicts() ──
+## x scales::discard() masks purrr::discard()
+## x dplyr::filter()   masks stats::filter()
+## x recipes::fixed()  masks stringr::fixed()
+## x dplyr::lag()      masks stats::lag()
+## x yardstick::spec() masks readr::spec()
+## x recipes::step()   masks stats::step()</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="ensembles.html#cb19-1"></a><span class="kw">library</span>(here) <span class="co"># reproducible way to find files </span></span></code></pre></div>
+<pre><code>## here() starts at /home/jae/Machine-Learning-in-R</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="ensembles.html#cb21-1"></a><span class="kw">library</span>(glue) <span class="co"># glue strings and objects </span></span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;glue&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     collapse</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="ensembles.html#cb24-1"></a><span class="kw">suppressMessages</span>(<span class="kw">suppressWarnings</span>(<span class="kw">library</span>(glmnet)))</span>
+<span id="cb24-2"><a href="ensembles.html#cb24-2"></a></span>
+<span id="cb24-3"><a href="ensembles.html#cb24-3"></a><span class="kw">theme_set</span>(<span class="kw">theme_minimal</span>())</span></code></pre></div>
+</div>
+<div id="load-data" class="section level2" number="8.2">
+<h2><span class="header-section-number">8.2</span> Load data</h2>
+<p>Load <code>train_x_class</code>, <code>train_y_class</code>, <code>test_x_class</code>, and <code>test_y_class</code> variables we defined in 02-preprocessing.Rmd for this <em>classification</em> task.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="ensembles.html#cb25-1"></a><span class="co"># Objects: task_reg, task_class</span></span>
+<span id="cb25-2"><a href="ensembles.html#cb25-2"></a><span class="kw">load</span>(<span class="kw">here</span>(<span class="st">&quot;data&quot;</span> , <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
+</div>
+<div id="overview" class="section level2" number="8.3">
+<h2><span class="header-section-number">8.3</span> Overview</h2>
+<p>In the preprocessing, lasso, decision tree, random forest, and boosted tree notebooks you have learned:
+- Ways to setup your data to plug it into different algorithms<br />
+- Some common moving parts of different algorithms<br />
+- How to define control structures and grid searches and why they are important<br />
+- How to configure hyperparameter settings to improve performance<br />
+- Why comparing more than one algorithm at once is preferred</p>
+<p>The <a href="https://cran.r-project.org/web/packages/SuperLearner/index.html">“SuperLearner” R package</a> is a method that simplifies ensemble learning by allowing you to simultaneously evaluate the cross-validated performance of multiple algorithms and/or a single algorithm with differently tuned hyperparameters. This is a generally advisable approach to machine learning instead of fitting single algorithms.</p>
+<p>Let’s see how the four classification algorithms you learned in this workshop (1-lasso, 2-decision tree, 3-random forest, and 4-gradient boosted trees) compare to each other and also to 5-binary logistic regression (<code>glm</code>) and to the 6-mean of Y as a benchmark algorithm, in terms of their cross-validated error!</p>
+<p>A “wrapper” is a short function that adapts an algorithm for the SuperLearner package. Check out the different algorithm wrappers offered by SuperLearner:</p>
+<div id="choose-algorithms" class="section level3" number="8.3.1">
+<h3><span class="header-section-number">8.3.1</span> Choose algorithms</h3>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="ensembles.html#cb26-1"></a>SuperLearner<span class="op">::</span><span class="kw">listWrappers</span>()</span></code></pre></div>
+<pre><code>## All prediction algorithm wrappers in SuperLearner:</code></pre>
+<pre><code>##  [1] &quot;SL.bartMachine&quot;      &quot;SL.bayesglm&quot;         &quot;SL.biglasso&quot;        
+##  [4] &quot;SL.caret&quot;            &quot;SL.caret.rpart&quot;      &quot;SL.cforest&quot;         
+##  [7] &quot;SL.earth&quot;            &quot;SL.extraTrees&quot;       &quot;SL.gam&quot;             
+## [10] &quot;SL.gbm&quot;              &quot;SL.glm&quot;              &quot;SL.glm.interaction&quot; 
+## [13] &quot;SL.glmnet&quot;           &quot;SL.ipredbagg&quot;        &quot;SL.kernelKnn&quot;       
+## [16] &quot;SL.knn&quot;              &quot;SL.ksvm&quot;             &quot;SL.lda&quot;             
+## [19] &quot;SL.leekasso&quot;         &quot;SL.lm&quot;               &quot;SL.loess&quot;           
+## [22] &quot;SL.logreg&quot;           &quot;SL.mean&quot;             &quot;SL.nnet&quot;            
+## [25] &quot;SL.nnls&quot;             &quot;SL.polymars&quot;         &quot;SL.qda&quot;             
+## [28] &quot;SL.randomForest&quot;     &quot;SL.ranger&quot;           &quot;SL.ridge&quot;           
+## [31] &quot;SL.rpart&quot;            &quot;SL.rpartPrune&quot;       &quot;SL.speedglm&quot;        
+## [34] &quot;SL.speedlm&quot;          &quot;SL.step&quot;             &quot;SL.step.forward&quot;    
+## [37] &quot;SL.step.interaction&quot; &quot;SL.stepAIC&quot;          &quot;SL.svm&quot;             
+## [40] &quot;SL.template&quot;         &quot;SL.xgboost&quot;</code></pre>
+<pre><code>## 
+## All screening algorithm wrappers in SuperLearner:</code></pre>
+<pre><code>## [1] &quot;All&quot;
+## [1] &quot;screen.corP&quot;           &quot;screen.corRank&quot;        &quot;screen.glmnet&quot;        
+## [4] &quot;screen.randomForest&quot;   &quot;screen.SIS&quot;            &quot;screen.template&quot;      
+## [7] &quot;screen.ttest&quot;          &quot;write.screen.template&quot;</code></pre>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="ensembles.html#cb31-1"></a><span class="co"># Compile the algorithm wrappers to be used.</span></span>
+<span id="cb31-2"><a href="ensembles.html#cb31-2"></a>sl_lib &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;SL.mean&quot;</span>, <span class="st">&quot;SL.glm&quot;</span>, <span class="st">&quot;SL.glmnet&quot;</span>, <span class="st">&quot;SL.rpart&quot;</span>, <span class="st">&quot;SL.ranger&quot;</span>, <span class="st">&quot;SL.xgboost&quot;</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="non-tidy" class="section level2" number="8.4">
+<h2><span class="header-section-number">8.4</span> Non-tidy</h2>
+<div id="fit-model" class="section level3" number="8.4.1">
+<h3><span class="header-section-number">8.4.1</span> Fit model</h3>
+<p>Fit the ensemble!</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="ensembles.html#cb32-1"></a><span class="co"># This is a seed that is compatible with multicore parallel processing.</span></span>
+<span id="cb32-2"><a href="ensembles.html#cb32-2"></a><span class="co"># See ?set.seed for more information.</span></span>
+<span id="cb32-3"><a href="ensembles.html#cb32-3"></a><span class="kw">set.seed</span>(<span class="dv">1</span>, <span class="st">&quot;L&#39;Ecuyer-CMRG&quot;</span>) </span>
+<span id="cb32-4"><a href="ensembles.html#cb32-4"></a></span>
+<span id="cb32-5"><a href="ensembles.html#cb32-5"></a><span class="co"># This will take a few minutes to execute - take a look at the .html file to see the output!</span></span>
+<span id="cb32-6"><a href="ensembles.html#cb32-6"></a>cv_sl &lt;-<span class="st"> </span>SuperLearner<span class="op">::</span><span class="kw">CV.SuperLearner</span>(</span>
+<span id="cb32-7"><a href="ensembles.html#cb32-7"></a>  <span class="dt">Y =</span> <span class="kw">as.numeric</span>(<span class="kw">as.character</span>(train_y_class)), </span>
+<span id="cb32-8"><a href="ensembles.html#cb32-8"></a>  <span class="dt">X =</span> train_x_class,</span>
+<span id="cb32-9"><a href="ensembles.html#cb32-9"></a>  <span class="dt">family =</span> <span class="kw">binomial</span>(),</span>
+<span id="cb32-10"><a href="ensembles.html#cb32-10"></a>  <span class="co"># For a real analysis we would use V = 10.</span></span>
+<span id="cb32-11"><a href="ensembles.html#cb32-11"></a>  <span class="dt">cvControl =</span> <span class="kw">list</span>(<span class="dt">V =</span> 5L, <span class="dt">stratifyCV =</span> <span class="ot">TRUE</span>),</span>
+<span id="cb32-12"><a href="ensembles.html#cb32-12"></a>  <span class="dt">SL.library =</span> sl_lib,</span>
+<span id="cb32-13"><a href="ensembles.html#cb32-13"></a>  <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading</code></pre>
+<pre><code>## Loading required namespace: ranger</code></pre>
+<pre><code>## Loading required namespace: xgboost</code></pre>
+<pre><code>## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading
+
+## Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+## prediction from a rank-deficient fit may be misleading</code></pre>
+</div>
+<div id="risk" class="section level3" number="8.4.2">
+<h3><span class="header-section-number">8.4.2</span> Risk</h3>
+<p>Risk is a performance estimate - it’s the average loss, and loss is how far off the prediction was for an individual observation. The lower the risk, the fewer errors the model makes in its prediction. SuperLearner’s default loss metric is squared error <span class="math inline">\((y_{actual} - y_{predicted})^2\)</span>, so the risk is the mean-squared error (just like in ordinary least <em>squares</em> regression). View the summary, plot results, and compute the AUC!</p>
+</div>
+<div id="plot-the-risk" class="section level3" number="8.4.3">
+<h3><span class="header-section-number">8.4.3</span> Plot the risk</h3>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="ensembles.html#cb37-1"></a><span class="co"># Plot the cross-validated risk estimate.</span></span>
+<span id="cb37-2"><a href="ensembles.html#cb37-2"></a><span class="kw">plot</span>(cv_sl)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/cvsl_review-1.png" width="672" /></p>
+</div>
+<div id="compute-auc-for-all-estimators" class="section level3" number="8.4.4">
+<h3><span class="header-section-number">8.4.4</span> Compute AUC for all estimators</h3>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="ensembles.html#cb38-1"></a><span class="kw">auc_table</span>(cv_sl)</span></code></pre></div>
+<pre><code>##                      auc         se  ci_lower  ci_upper      p-value
+## SL.mean_All    0.5000000 0.06879264 0.3651689 0.6348311 2.552338e-09
+## SL.rpart_All   0.7804972 0.04213879 0.6979067 0.8630877 1.966307e-03
+## SL.xgboost_All 0.8389636 0.02915536 0.7818201 0.8961070 1.529895e-02
+## SL.ranger_All  0.8787443 0.02344681 0.8327894 0.9246992 1.605817e-01
+## SuperLearner   0.8934277 0.02198971 0.8503287 0.9365268 3.482441e-01
+## SL.glmnet_All  0.8993125 0.02102393 0.8581064 0.9405187 4.490455e-01
+## DiscreteSL     0.8993125 0.02102393 0.8581064 0.9405187 4.490455e-01
+## SL.glm_All     0.9020051 0.02085217 0.8611356 0.9428747 5.000000e-01</code></pre>
+</div>
+<div id="plot-the-roc-curve-for-the-best-estimator" class="section level3" number="8.4.5">
+<h3><span class="header-section-number">8.4.5</span> Plot the ROC curve for the best estimator</h3>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="ensembles.html#cb40-1"></a><span class="kw">plot_roc</span>(cv_sl)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="review-weight-distribution-for-the-superlearner" class="section level3" number="8.4.6">
+<h3><span class="header-section-number">8.4.6</span> Review weight distribution for the SuperLearner</h3>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="ensembles.html#cb41-1"></a><span class="kw">print</span>(<span class="kw">cvsl_weights</span>(cv_sl), <span class="dt">row.names =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>##  # Learner    Mean      SD     Min     Max
+##  1     glm 0.48741 0.15602 0.26996 0.66418
+##  2  glmnet 0.28295 0.29432 0.00000 0.66948
+##  3  ranger 0.10758 0.15429 0.00000 0.33382
+##  4   rpart 0.06523 0.09437 0.00000 0.23188
+##  5 xgboost 0.04817 0.03899 0.01164 0.09719
+##  6    mean 0.00866 0.00890 0.00000 0.02090</code></pre>
+<p>“Discrete SL” is when the SuperLearner chooses the single algorithm with the lowest risk. “SuperLearner” is a weighted average of multiple algorithms, or an “ensemble”. In theory the weighted-average should have a little better performance, although they often tie. In this case we only have a few algorithms so the difference is minor.</p>
+<ul>
+<li>SuperLearner is currently not available in the tidymodels framework. But you’d like to, you can easily build a parsnip model. Here, I just show a snapshot of the whole process. If you are interested in knowing more about it, please take a look at <a href="https://www.tidymodels.org/learn/develop/models/">this vignette</a> of the tidymodels.</li>
+</ul>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="ensembles.html#cb43-1"></a><span class="co"># Set model </span></span>
+<span id="cb43-2"><a href="ensembles.html#cb43-2"></a><span class="kw">set_new_model</span>(<span class="st">&quot;superlearner&quot;</span>)</span>
+<span id="cb43-3"><a href="ensembles.html#cb43-3"></a></span>
+<span id="cb43-4"><a href="ensembles.html#cb43-4"></a><span class="co"># Set mode </span></span>
+<span id="cb43-5"><a href="ensembles.html#cb43-5"></a><span class="kw">set_model_mode</span>(<span class="dt">model =</span> <span class="st">&quot;superlearner&quot;</span>, </span>
+<span id="cb43-6"><a href="ensembles.html#cb43-6"></a>               <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>)</span>
+<span id="cb43-7"><a href="ensembles.html#cb43-7"></a></span>
+<span id="cb43-8"><a href="ensembles.html#cb43-8"></a><span class="co"># Set model engine </span></span>
+<span id="cb43-9"><a href="ensembles.html#cb43-9"></a><span class="kw">set_model_engine</span>(</span>
+<span id="cb43-10"><a href="ensembles.html#cb43-10"></a>  <span class="st">&quot;superlearner&quot;</span>,</span>
+<span id="cb43-11"><a href="ensembles.html#cb43-11"></a>  <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>,</span>
+<span id="cb43-12"><a href="ensembles.html#cb43-12"></a>  <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span></span>
+<span id="cb43-13"><a href="ensembles.html#cb43-13"></a>)</span>
+<span id="cb43-14"><a href="ensembles.html#cb43-14"></a></span>
+<span id="cb43-15"><a href="ensembles.html#cb43-15"></a><span class="co"># Set dependency </span></span>
+<span id="cb43-16"><a href="ensembles.html#cb43-16"></a><span class="kw">set_dependency</span>(<span class="st">&quot;superlearner&quot;</span>, </span>
+<span id="cb43-17"><a href="ensembles.html#cb43-17"></a>               <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span>, <span class="dt">pkg =</span> <span class="st">&quot;SuperLearner&quot;</span>)</span>
+<span id="cb43-18"><a href="ensembles.html#cb43-18"></a></span>
+<span id="cb43-19"><a href="ensembles.html#cb43-19"></a><span class="co"># Show model info </span></span>
+<span id="cb43-20"><a href="ensembles.html#cb43-20"></a><span class="kw">show_model_info</span>(<span class="st">&quot;superlearner&quot;</span>)</span></code></pre></div>
+<pre><code>## Information for `superlearner`
+##  modes: unknown, classification 
+## 
+##  engines: 
+##    classification: SuperLearner
+## 
+##  no registered arguments.
+## 
+##  no registered fit modules.
+## 
+##  no registered prediction modules.</code></pre>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="ensembles.html#cb45-1"></a><span class="co"># Add arguments </span></span>
+<span id="cb45-2"><a href="ensembles.html#cb45-2"></a><span class="kw">set_model_arg</span>(</span>
+<span id="cb45-3"><a href="ensembles.html#cb45-3"></a>  <span class="dt">model =</span> <span class="st">&quot;superlearner&quot;</span>,</span>
+<span id="cb45-4"><a href="ensembles.html#cb45-4"></a>  <span class="dt">eng =</span> <span class="st">&quot;SuperLearner&quot;</span>,</span>
+<span id="cb45-5"><a href="ensembles.html#cb45-5"></a>  <span class="dt">parsnip =</span> <span class="st">&quot;cv_control&quot;</span>,</span>
+<span id="cb45-6"><a href="ensembles.html#cb45-6"></a>  <span class="dt">original =</span> <span class="st">&quot;cvControl&quot;</span>,</span>
+<span id="cb45-7"><a href="ensembles.html#cb45-7"></a>  <span class="dt">func =</span> <span class="kw">list</span>(<span class="dt">pkg =</span> <span class="st">&quot;SuperLearner&quot;</span>, </span>
+<span id="cb45-8"><a href="ensembles.html#cb45-8"></a>              <span class="dt">fun =</span> <span class="st">&quot;CV.SuperLearner&quot;</span>),</span>
+<span id="cb45-9"><a href="ensembles.html#cb45-9"></a>  <span class="dt">has_submodel =</span> <span class="ot">TRUE</span> <span class="co"># Are you making multiple iterations?</span></span>
+<span id="cb45-10"><a href="ensembles.html#cb45-10"></a>)</span>
+<span id="cb45-11"><a href="ensembles.html#cb45-11"></a></span>
+<span id="cb45-12"><a href="ensembles.html#cb45-12"></a><span class="kw">show_model_info</span>(<span class="st">&quot;superlearner&quot;</span>)</span></code></pre></div>
+<pre><code>## Information for `superlearner`
+##  modes: unknown, classification 
+## 
+##  engines: 
+##    classification: SuperLearner
+## 
+##  arguments: 
+##    SuperLearner: 
+##       cv_control --&gt; cvControl
+## 
+##  no registered fit modules.
+## 
+##  no registered prediction modules.</code></pre>
+</div>
+</div>
+<div id="challenge-5" class="section level2" number="8.5">
+<h2><span class="header-section-number">8.5</span> Challenge 5</h2>
+<p>Open Challenge 5 in the “Challenges” folder.</p>
+<p>A longer tutorial on SuperLearner is available here: (<a href="https://github.com/ck37/superlearner-guide" class="uri">https://github.com/ck37/superlearner-guide</a>)</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="xgboost.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="principal-component-analysis.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/dlab-berkeley/Machine-Learning-in-R/edit/master/07-ensembles.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["machine-learning-in-r.pdf", "machine-learning-in-r.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
