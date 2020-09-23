@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 5 Decision Trees | Machine Learning in R</title>
+  <meta name="description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 5 Decision Trees | Machine Learning in R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="github-repo" content="dlab-berkeley/Machine-Learning-in-R" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 5 Decision Trees | Machine Learning in R" />
+  
+  <meta name="twitter:description" content="D-Lab’s Machine Learning in R Workshop" />
+  
+
+
+
+<meta name="date" content="2020-09-22" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="ols-and-lasso.html"/>
+<link rel="next" href="random-forests.html"/>
+<script src="libs/header-attrs-2.3/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Machine Learning in R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#prereqs"><i class="fa fa-check"></i><b>1.1</b> Prereqs</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#package-installation"><i class="fa fa-check"></i><b>2.1</b> Package installation</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="preprocessing.html"><a href="preprocessing.html"><i class="fa fa-check"></i><b>3</b> Preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>3.1</b> Load packages</a></li>
+<li class="chapter" data-level="3.2" data-path="preprocessing.html"><a href="preprocessing.html#load-the-data"><i class="fa fa-check"></i><b>3.2</b> Load the data</a></li>
+<li class="chapter" data-level="3.3" data-path="preprocessing.html"><a href="preprocessing.html#read-background-information-and-variable-descriptions"><i class="fa fa-check"></i><b>3.3</b> Read background information and variable descriptions</a></li>
+<li class="chapter" data-level="3.4" data-path="preprocessing.html"><a href="preprocessing.html#quick-overviews-on-machine-learning"><i class="fa fa-check"></i><b>3.4</b> Quick overviews on machine learning</a></li>
+<li class="chapter" data-level="3.5" data-path="preprocessing.html"><a href="preprocessing.html#machine-learning-workflow"><i class="fa fa-check"></i><b>3.5</b> Machine learning workflow</a></li>
+<li class="chapter" data-level="3.6" data-path="preprocessing.html"><a href="preprocessing.html#why-taking-a-tidyverse-approach-to-machine-learning"><i class="fa fa-check"></i><b>3.6</b> Why taking a tidyverse approach to machine learning?</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="preprocessing.html"><a href="preprocessing.html#benefits"><i class="fa fa-check"></i><b>3.6.1</b> Benefits</a></li>
+<li class="chapter" data-level="3.6.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>3.6.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="preprocessing.html"><a href="preprocessing.html#data-preprocessing"><i class="fa fa-check"></i><b>3.7</b> Data preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="preprocessing.html"><a href="preprocessing.html#task-1-what-is-one-hot-encoding"><i class="fa fa-check"></i><b>3.7.1</b> Task 1: What is one-hot encoding?</a></li>
+<li class="chapter" data-level="3.7.2" data-path="preprocessing.html"><a href="preprocessing.html#task-2-handling-missing-data"><i class="fa fa-check"></i><b>3.7.2</b> Task 2: Handling missing data</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="preprocessing.html"><a href="preprocessing.html#preprocessing-workflow"><i class="fa fa-check"></i><b>3.8</b> Preprocessing workflow</a></li>
+<li class="chapter" data-level="3.9" data-path="preprocessing.html"><a href="preprocessing.html#regressioin-setup"><i class="fa fa-check"></i><b>3.9</b> Regressioin setup</a>
+<ul>
+<li class="chapter" data-level="3.9.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable"><i class="fa fa-check"></i><b>3.9.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.9.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-random-sampling"><i class="fa fa-check"></i><b>3.9.2</b> Data splitting using random sampling</a></li>
+<li class="chapter" data-level="3.9.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe"><i class="fa fa-check"></i><b>3.9.3</b> recipe</a></li>
+</ul></li>
+<li class="chapter" data-level="3.10" data-path="preprocessing.html"><a href="preprocessing.html#classification-setup"><i class="fa fa-check"></i><b>3.10</b> Classification setup</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable-1"><i class="fa fa-check"></i><b>3.10.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.10.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-stratified-random-sampling"><i class="fa fa-check"></i><b>3.10.2</b> Data splitting using stratified random sampling</a></li>
+<li class="chapter" data-level="3.10.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe-1"><i class="fa fa-check"></i><b>3.10.3</b> recipe</a></li>
+<li class="chapter" data-level="3.10.4" data-path="preprocessing.html"><a href="preprocessing.html#save-our-preprocessed-data"><i class="fa fa-check"></i><b>3.10.4</b> Save our preprocessed data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html"><i class="fa fa-check"></i><b>4</b> OLS and lasso</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>4.1</b> Load packages</a></li>
+<li class="chapter" data-level="4.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>4.2</b> Load data</a></li>
+<li class="chapter" data-level="4.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>4.3</b> Overview</a></li>
+<li class="chapter" data-level="4.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#fit-and-evaluate-models"><i class="fa fa-check"></i><b>4.4</b> Fit and evaluate models</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>4.4.1</b> Non-tidy</a></li>
+<li class="chapter" data-level="4.4.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>4.4.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tuning-lasso-parameters"><i class="fa fa-check"></i><b>4.5</b> Tuning lasso parameters</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tune-ingredients"><i class="fa fa-check"></i><b>4.5.1</b> tune ingredients</a></li>
+<li class="chapter" data-level="4.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#add-these-elements-to-a-workflow"><i class="fa fa-check"></i><b>4.5.2</b> Add these elements to a workflow</a></li>
+<li class="chapter" data-level="4.5.3" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#visualize"><i class="fa fa-check"></i><b>4.5.3</b> Visualize</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="decision-trees.html"><a href="decision-trees.html"><i class="fa fa-check"></i><b>5</b> Decision Trees</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>5.1</b> Load packages</a></li>
+<li class="chapter" data-level="5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>5.2</b> Load data</a></li>
+<li class="chapter" data-level="5.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>5.3</b> Overview</a></li>
+<li class="chapter" data-level="5.4" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>5.4</b> Fit Model</a></li>
+<li class="chapter" data-level="5.5" data-path="decision-trees.html"><a href="decision-trees.html#investigate-results"><i class="fa fa-check"></i><b>5.5</b> Investigate Results</a></li>
+<li class="chapter" data-level="5.6" data-path="decision-trees.html"><a href="decision-trees.html#challenge-2"><i class="fa fa-check"></i><b>5.6</b> Challenge 2</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="random-forests.html"><a href="random-forests.html"><i class="fa fa-check"></i><b>6</b> Random Forests</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>6.1</b> Load packages</a></li>
+<li class="chapter" data-level="6.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>6.2</b> Load data</a></li>
+<li class="chapter" data-level="6.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>6.3</b> Overview</a></li>
+<li class="chapter" data-level="6.4" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>6.4</b> Fit model</a></li>
+<li class="chapter" data-level="6.5" data-path="decision-trees.html"><a href="decision-trees.html#investigate-results"><i class="fa fa-check"></i><b>6.5</b> Investigate Results</a></li>
+<li class="chapter" data-level="6.6" data-path="random-forests.html"><a href="random-forests.html#challenge-3"><i class="fa fa-check"></i><b>6.6</b> Challenge 3</a></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="xgboost.html"><a href="xgboost.html"><i class="fa fa-check"></i><b>7</b> XGBoost</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>7.1</b> Load packages</a></li>
+<li class="chapter" data-level="7.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>7.2</b> Load data</a></li>
+<li class="chapter" data-level="7.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>7.3</b> Overview</a>
+<ul>
+<li class="chapter" data-level="7.3.1" data-path="xgboost.html"><a href="xgboost.html#define-cv_control"><i class="fa fa-check"></i><b>7.3.1</b> Define <code>cv_control</code></a></li>
+<li class="chapter" data-level="7.3.2" data-path="xgboost.html"><a href="xgboost.html#define-xgb_grid"><i class="fa fa-check"></i><b>7.3.2</b> Define <code>xgb_grid</code></a></li>
+</ul></li>
+<li class="chapter" data-level="7.4" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>7.4</b> Fit model</a></li>
+<li class="chapter" data-level="7.5" data-path="decision-trees.html"><a href="decision-trees.html#investigate-results"><i class="fa fa-check"></i><b>7.5</b> Investigate Results</a></li>
+<li class="chapter" data-level="7.6" data-path="xgboost.html"><a href="xgboost.html#challenge-4"><i class="fa fa-check"></i><b>7.6</b> Challenge 4</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="ensembles.html"><a href="ensembles.html"><i class="fa fa-check"></i><b>8</b> Ensembles</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>8.1</b> Load packages</a></li>
+<li class="chapter" data-level="8.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>8.2</b> Load data</a></li>
+<li class="chapter" data-level="8.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>8.3</b> Overview</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="ensembles.html"><a href="ensembles.html#choose-algorithms"><i class="fa fa-check"></i><b>8.3.1</b> Choose algorithms</a></li>
+</ul></li>
+<li class="chapter" data-level="8.4" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>8.4</b> Fit Model</a>
+<ul>
+<li class="chapter" data-level="8.4.1" data-path="ensembles.html"><a href="ensembles.html#risk"><i class="fa fa-check"></i><b>8.4.1</b> Risk</a></li>
+<li class="chapter" data-level="8.4.2" data-path="ensembles.html"><a href="ensembles.html#plot-the-risk"><i class="fa fa-check"></i><b>8.4.2</b> Plot the risk</a></li>
+<li class="chapter" data-level="8.4.3" data-path="ensembles.html"><a href="ensembles.html#compute-auc-for-all-estimators"><i class="fa fa-check"></i><b>8.4.3</b> Compute AUC for all estimators</a></li>
+<li class="chapter" data-level="8.4.4" data-path="ensembles.html"><a href="ensembles.html#plot-the-roc-curve-for-the-best-estimator"><i class="fa fa-check"></i><b>8.4.4</b> Plot the ROC curve for the best estimator</a></li>
+<li class="chapter" data-level="8.4.5" data-path="ensembles.html"><a href="ensembles.html#review-weight-distribution-for-the-superlearner"><i class="fa fa-check"></i><b>8.4.5</b> Review weight distribution for the SuperLearner</a></li>
+</ul></li>
+<li class="chapter" data-level="8.5" data-path="ensembles.html"><a href="ensembles.html#challenge-5"><i class="fa fa-check"></i><b>8.5</b> Challenge 5</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html"><i class="fa fa-check"></i><b>9</b> Principal Component Analysis</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#unsupervised-approaches"><i class="fa fa-check"></i><b>9.1</b> Unsupervised approaches</a></li>
+<li class="chapter" data-level="9.2" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#reclass-variables"><i class="fa fa-check"></i><b>9.2</b> Reclass variables</a></li>
+<li class="chapter" data-level="9.3" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#scale-numeric-variables"><i class="fa fa-check"></i><b>9.3</b> Scale numeric variables</a></li>
+<li class="chapter" data-level="9.4" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#factorize-categorical-variables"><i class="fa fa-check"></i><b>9.4</b> Factorize categorical variables</a></li>
+<li class="chapter" data-level="9.5" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#screeplot"><i class="fa fa-check"></i><b>9.5</b> Screeplot</a></li>
+<li class="chapter" data-level="9.6" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#ggplot-coordinates"><i class="fa fa-check"></i><b>9.6</b> ggplot coordinates</a></li>
+<li class="chapter" data-level="9.7" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#view-factor-loadings"><i class="fa fa-check"></i><b>9.7</b> View factor loadings</a></li>
+<li class="chapter" data-level="9.8" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#generate-predicted-values-of-pcs-for-test-dataset"><i class="fa fa-check"></i><b>9.8</b> Generate predicted values of PCs for test dataset</a></li>
+<li class="chapter" data-level="9.9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#define-plotting-parameters"><i class="fa fa-check"></i><b>9.9</b> Define plotting parameters</a></li>
+<li class="chapter" data-level="9.10" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#store-the-scores-inside-of-dataframes"><i class="fa fa-check"></i><b>9.10</b> Store the scores inside of dataframes</a></li>
+<li class="chapter" data-level="9.11" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#save-ml_num-for-use-in-09-hclust.rmd"><i class="fa fa-check"></i><b>9.11</b> Save <code>ml_num</code> for use in 09-hclust.Rmd</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html"><i class="fa fa-check"></i><b>10</b> Hierarchical Agglomerative Clustering</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#compare-different-dissimilarity-measures"><i class="fa fa-check"></i><b>10.1</b> Compare different dissimilarity measures</a>
+<ul>
+<li class="chapter" data-level="10.1.1" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#wards-method-minimum-variance-between-clusters"><i class="fa fa-check"></i><b>10.1.1</b> Ward’s method: minimum variance between clusters</a></li>
+<li class="chapter" data-level="10.1.2" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#complete-linkage-largest-intercluster-difference"><i class="fa fa-check"></i><b>10.1.2</b> Complete linkage: largest intercluster difference</a></li>
+<li class="chapter" data-level="10.1.3" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#single-linkage-smallest-intercluster-difference"><i class="fa fa-check"></i><b>10.1.3</b> Single linkage: smallest intercluster difference</a></li>
+<li class="chapter" data-level="10.1.4" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#average-linkage-mean-intercluster-difference"><i class="fa fa-check"></i><b>10.1.4</b> Average linkage: mean intercluster difference</a></li>
+<li class="chapter" data-level="10.1.5" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#view-summaries"><i class="fa fa-check"></i><b>10.1.5</b> View summaries</a></li>
+<li class="chapter" data-level="10.1.6" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#plot-euclidean-distance-linkages"><i class="fa fa-check"></i><b>10.1.6</b> Plot Euclidean distance linkages</a></li>
+<li class="chapter" data-level="10.1.7" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#view-standard-error-plots"><i class="fa fa-check"></i><b>10.1.7</b> View standard error plots:</a></li>
+<li class="chapter" data-level="10.1.8" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#return-best-performing-model"><i class="fa fa-check"></i><b>10.1.8</b> Return best performing model</a></li>
+<li class="chapter" data-level="10.1.9" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#cross-validated-mclust"><i class="fa fa-check"></i><b>10.1.9</b> Cross-validated mclust</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Machine Learning in R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="decision-trees" class="section level1" number="5">
+<h1><span class="header-section-number">Chapter 5</span> Decision Trees</h1>
+<div id="load-packages" class="section level2" number="5.1">
+<h2><span class="header-section-number">5.1</span> Load packages</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="decision-trees.html#cb1-1"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="decision-trees.html#cb1-2"></a><span class="kw">library</span>(rpart)</span>
+<span id="cb1-3"><a href="decision-trees.html#cb1-3"></a><span class="kw">library</span>(rpart.plot)</span></code></pre></div>
+</div>
+<div id="load-data" class="section level2" number="5.2">
+<h2><span class="header-section-number">5.2</span> Load data</h2>
+<p>Load <code>train_x_class</code>, <code>train_y_class</code>, <code>test_x_class</code>, and <code>test_y_class</code> variables we defined in 02-preprocessing.Rmd for this <em>classification</em> task.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="decision-trees.html#cb2-1"></a><span class="co"># Objects: task_reg, task_class</span></span>
+<span id="cb2-2"><a href="decision-trees.html#cb2-2"></a><span class="kw">load</span>(<span class="st">&quot;data/preprocessed.RData&quot;</span>)</span></code></pre></div>
+</div>
+<div id="overview" class="section level2" number="5.3">
+<h2><span class="header-section-number">5.3</span> Overview</h2>
+<p>Decision trees are recursive partitioning methods that divide the predictor spaces into simpler regions and can be visualized in a tree-like structure. They attempt to classify data by dividing it into subsets according to a Y output variable and based on some predictors.</p>
+<p>Let’s see how a decision tree classifies if a person suffers from heart disease (<code>target</code> = 1) or not (<code>target</code> = 0).</p>
+</div>
+<div id="fit-model" class="section level2" number="5.4">
+<h2><span class="header-section-number">5.4</span> Fit Model</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="decision-trees.html#cb3-1"></a><span class="kw">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb3-2"><a href="decision-trees.html#cb3-2"></a>tree =<span class="st"> </span>rpart<span class="op">::</span><span class="kw">rpart</span>(train_y_class <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> train_x_class,</span>
+<span id="cb3-3"><a href="decision-trees.html#cb3-3"></a>             <span class="co"># Use method = &quot;anova&quot; for a continuous outcome.</span></span>
+<span id="cb3-4"><a href="decision-trees.html#cb3-4"></a>             <span class="dt">method =</span> <span class="st">&quot;class&quot;</span>,</span>
+<span id="cb3-5"><a href="decision-trees.html#cb3-5"></a>             </span>
+<span id="cb3-6"><a href="decision-trees.html#cb3-6"></a>             <span class="co"># Can use &quot;gini&quot; for gini coefficient.</span></span>
+<span id="cb3-7"><a href="decision-trees.html#cb3-7"></a>             <span class="dt">parms =</span> <span class="kw">list</span>(<span class="dt">split =</span> <span class="st">&quot;information&quot;</span>)) </span>
+<span id="cb3-8"><a href="decision-trees.html#cb3-8"></a></span>
+<span id="cb3-9"><a href="decision-trees.html#cb3-9"></a><span class="co"># https://stackoverflow.com/questions/4553947/decision-tree-on-information-gain</span></span>
+<span id="cb3-10"><a href="decision-trees.html#cb3-10"></a></span>
+<span id="cb3-11"><a href="decision-trees.html#cb3-11"></a><span class="co"># Here is the text-based display of the decision tree. Yikes!  :^( </span></span>
+<span id="cb3-12"><a href="decision-trees.html#cb3-12"></a><span class="kw">print</span>(tree)</span></code></pre></div>
+<pre><code>## n= 213 
+## 
+## node), split, n, loss, yval, (yprob)
+##       * denotes terminal node
+## 
+##  1) root 213 97 1 (0.45539906 0.54460094)  
+##    2) thal_X2&lt; 0.5 100 25 0 (0.75000000 0.25000000)  
+##      4) exang&gt;=0.5 47  3 0 (0.93617021 0.06382979) *
+##      5) exang&lt; 0.5 53 22 0 (0.58490566 0.41509434)  
+##       10) thalach&lt; 130 7  0 0 (1.00000000 0.00000000) *
+##       11) thalach&gt;=130 46 22 0 (0.52173913 0.47826087)  
+##         22) chol&gt;=244 19  5 0 (0.73684211 0.26315789) *
+##         23) chol&lt; 244 27 10 1 (0.37037037 0.62962963)  
+##           46) chol&lt; 230 20  9 1 (0.45000000 0.55000000)  
+##             92) oldpeak&gt;=0.7 8  2 0 (0.75000000 0.25000000) *
+##             93) oldpeak&lt; 0.7 12  3 1 (0.25000000 0.75000000) *
+##           47) chol&gt;=230 7  1 1 (0.14285714 0.85714286) *
+##    3) thal_X2&gt;=0.5 113 22 1 (0.19469027 0.80530973)  
+##      6) thalach&lt; 162.5 62 19 1 (0.30645161 0.69354839)  
+##       12) sex_X1&gt;=0.5 29 14 0 (0.51724138 0.48275862)  
+##         24) thalach&lt; 131.5 8  1 0 (0.87500000 0.12500000) *
+##         25) thalach&gt;=131.5 21  8 1 (0.38095238 0.61904762)  
+##           50) thalach&gt;=156.5 7  2 0 (0.71428571 0.28571429) *
+##           51) thalach&lt; 156.5 14  3 1 (0.21428571 0.78571429) *
+##       13) sex_X1&lt; 0.5 33  4 1 (0.12121212 0.87878788) *
+##      7) thalach&gt;=162.5 51  3 1 (0.05882353 0.94117647) *</code></pre>
+<p>Although interpreting the text can be intimidating, a decision tree’s main strength is its tree-like plot, which is much easier to interpret.</p>
+</div>
+<div id="investigate-results" class="section level2" number="5.5">
+<h2><span class="header-section-number">5.5</span> Investigate Results</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="decision-trees.html#cb5-1"></a>rpart.plot<span class="op">::</span><span class="kw">rpart.plot</span>(tree) </span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/plot_tree-1.png" width="672" /></p>
+<p>We can also look inside of <code>tree</code> to see what we can unpack. “variable.importance” is one we should check out!</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="decision-trees.html#cb6-1"></a><span class="kw">names</span>(tree)</span></code></pre></div>
+<pre><code>##  [1] &quot;frame&quot;               &quot;where&quot;               &quot;call&quot;               
+##  [4] &quot;terms&quot;               &quot;cptable&quot;             &quot;method&quot;             
+##  [7] &quot;parms&quot;               &quot;control&quot;             &quot;functions&quot;          
+## [10] &quot;numresp&quot;             &quot;splits&quot;              &quot;variable.importance&quot;
+## [13] &quot;y&quot;                   &quot;ordered&quot;</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="decision-trees.html#cb8-1"></a>tree<span class="op">$</span>variable.importance</span></code></pre></div>
+<pre><code>##    thal_X2    thalach    thal_X3      exang    oldpeak   slope_X2       chol 
+## 34.8546153 33.5429632 29.6264230 20.1781088 19.8238634 12.8908263  9.4650464 
+##     sex_X1        age      ca_X2   trestbps      cp_X2   slope_X1      ca_X3 
+##  6.4228665  3.4926165  2.1173837  1.9228895  0.9689174  0.8355620  0.5555638</code></pre>
+<p>Plot variable importance</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="decision-trees.html#cb10-1"></a><span class="co"># Turn the tree$variable.importance vector into a dataframe</span></span>
+<span id="cb10-2"><a href="decision-trees.html#cb10-2"></a>tree_varimp =<span class="st"> </span><span class="kw">data.frame</span>(tree<span class="op">$</span>variable.importance)</span>
+<span id="cb10-3"><a href="decision-trees.html#cb10-3"></a></span>
+<span id="cb10-4"><a href="decision-trees.html#cb10-4"></a><span class="co"># Add rownames as their own column</span></span>
+<span id="cb10-5"><a href="decision-trees.html#cb10-5"></a>tree_varimp<span class="op">$</span>x =<span class="st"> </span><span class="kw">rownames</span>(tree_varimp) </span>
+<span id="cb10-6"><a href="decision-trees.html#cb10-6"></a></span>
+<span id="cb10-7"><a href="decision-trees.html#cb10-7"></a><span class="co"># Reorder clumns</span></span>
+<span id="cb10-8"><a href="decision-trees.html#cb10-8"></a>tree_varimp =<span class="st"> </span>tree_varimp[, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">1</span>)]</span>
+<span id="cb10-9"><a href="decision-trees.html#cb10-9"></a></span>
+<span id="cb10-10"><a href="decision-trees.html#cb10-10"></a><span class="co"># Reset row names</span></span>
+<span id="cb10-11"><a href="decision-trees.html#cb10-11"></a><span class="kw">rownames</span>(tree_varimp) =<span class="st"> </span><span class="ot">NULL</span> </span>
+<span id="cb10-12"><a href="decision-trees.html#cb10-12"></a></span>
+<span id="cb10-13"><a href="decision-trees.html#cb10-13"></a><span class="co"># Rename columns</span></span>
+<span id="cb10-14"><a href="decision-trees.html#cb10-14"></a><span class="kw">names</span>(tree_varimp) =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Importance&quot;</span>) </span>
+<span id="cb10-15"><a href="decision-trees.html#cb10-15"></a>tree_varimp</span></code></pre></div>
+<pre><code>##    Variable Importance
+## 1   thal_X2 34.8546153
+## 2   thalach 33.5429632
+## 3   thal_X3 29.6264230
+## 4     exang 20.1781088
+## 5   oldpeak 19.8238634
+## 6  slope_X2 12.8908263
+## 7      chol  9.4650464
+## 8    sex_X1  6.4228665
+## 9       age  3.4926165
+## 10    ca_X2  2.1173837
+## 11 trestbps  1.9228895
+## 12    cp_X2  0.9689174
+## 13 slope_X1  0.8355620
+## 14    ca_X3  0.5555638</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="decision-trees.html#cb12-1"></a><span class="co"># Plot</span></span>
+<span id="cb12-2"><a href="decision-trees.html#cb12-2"></a><span class="kw">ggplot</span>(tree_varimp, <span class="kw">aes</span>(<span class="dt">x =</span> <span class="kw">reorder</span>(Variable, Importance), </span>
+<span id="cb12-3"><a href="decision-trees.html#cb12-3"></a>                        <span class="dt">y =</span> Importance)) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb12-4"><a href="decision-trees.html#cb12-4"></a><span class="st">  </span><span class="kw">geom_bar</span>(<span class="dt">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="op">+</span><span class="st"> </span></span>
+<span id="cb12-5"><a href="decision-trees.html#cb12-5"></a><span class="st">  </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">coord_flip</span>() <span class="op">+</span><span class="st"> </span><span class="kw">xlab</span>(<span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>In decision trees the main hyperparameter (configuration setting) is the <strong>complexity parameter</strong> (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.</p>
+<p><code>rpart</code> uses cross-validation internally to estimate the accuracy at various CP settings. We can review those to see what setting seems best.</p>
+<p>Print the results for various CP settings - we want the one with the lowest “xerror”. We can also plot the performance estimates for different CP settings.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="decision-trees.html#cb13-1"></a><span class="co"># Show estimated error rate at different complexity parameter settings.</span></span>
+<span id="cb13-2"><a href="decision-trees.html#cb13-2"></a><span class="kw">printcp</span>(tree)</span></code></pre></div>
+<pre><code>## 
+## Classification tree:
+## rpart::rpart(formula = train_y_class ~ ., data = train_x_class, 
+##     method = &quot;class&quot;, parms = list(split = &quot;information&quot;))
+## 
+## Variables actually used in tree construction:
+## [1] chol    exang   oldpeak sex_X1  thal_X2 thalach
+## 
+## Root node error: 97/213 = 0.4554
+## 
+## n= 213 
+## 
+##         CP nsplit rel error  xerror     xstd
+## 1 0.515464      0   1.00000 1.00000 0.074930
+## 2 0.024055      1   0.48454 0.48454 0.062394
+## 3 0.020619      4   0.41237 0.54639 0.065048
+## 4 0.010000     10   0.27835 0.52577 0.064207</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="decision-trees.html#cb15-1"></a><span class="co"># Plot those estimated error rates.</span></span>
+<span id="cb15-2"><a href="decision-trees.html#cb15-2"></a><span class="kw">plotcp</span>(tree)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/plotcp_tree-1.png" width="672" /></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="decision-trees.html#cb16-1"></a><span class="co"># Trees of similar sizes might appear to be tied for lowest &quot;xerror&quot;, but a tree with fewer splits might be easier to interpret. </span></span>
+<span id="cb16-2"><a href="decision-trees.html#cb16-2"></a></span>
+<span id="cb16-3"><a href="decision-trees.html#cb16-3"></a>tree_pruned2 =<span class="st"> </span><span class="kw">prune</span>(tree, <span class="dt">cp =</span> <span class="fl">0.028986</span>) <span class="co"># 2 splits</span></span>
+<span id="cb16-4"><a href="decision-trees.html#cb16-4"></a></span>
+<span id="cb16-5"><a href="decision-trees.html#cb16-5"></a>tree_pruned6 =<span class="st"> </span><span class="kw">prune</span>(tree, <span class="dt">cp =</span> <span class="fl">0.010870</span>) <span class="co"># 6 splits</span></span></code></pre></div>
+<p>Print detailed results, variable importance, and summary of splits.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="decision-trees.html#cb17-1"></a><span class="kw">summary</span>(tree_pruned2) </span></code></pre></div>
+<pre><code>## Call:
+## rpart::rpart(formula = train_y_class ~ ., data = train_x_class, 
+##     method = &quot;class&quot;, parms = list(split = &quot;information&quot;))
+##   n= 213 
+## 
+##          CP nsplit rel error    xerror       xstd
+## 1 0.5154639      0 1.0000000 1.0000000 0.07492958
+## 2 0.0289860      1 0.4845361 0.4845361 0.06239380
+## 
+## Variable importance
+##  thal_X2  thal_X3  thalach slope_X2  oldpeak    exang 
+##       31       27       12       10       10        9 
+## 
+## Node number 1: 213 observations,    complexity param=0.5154639
+##   predicted class=1  expected loss=0.4553991  P(node) =1
+##     class counts:    97   116
+##    probabilities: 0.455 0.545 
+##   left son=2 (100 obs) right son=3 (113 obs)
+##   Primary splits:
+##       thal_X2 &lt; 0.5   to the left,  improve=34.85462, (0 missing)
+##       thal_X3 &lt; 0.5   to the right, improve=28.43737, (0 missing)
+##       exang   &lt; 0.5   to the right, improve=24.63531, (0 missing)
+##       thalach &lt; 150.5 to the left,  improve=19.62708, (0 missing)
+##       oldpeak &lt; 0.75  to the right, improve=17.97881, (0 missing)
+##   Surrogate splits:
+##       thal_X3  &lt; 0.5   to the right, agree=0.930, adj=0.85, (0 split)
+##       thalach  &lt; 150.5 to the left,  agree=0.709, adj=0.38, (0 split)
+##       slope_X2 &lt; 0.5   to the left,  agree=0.685, adj=0.33, (0 split)
+##       oldpeak  &lt; 1.55  to the right, agree=0.681, adj=0.32, (0 split)
+##       exang    &lt; 0.5   to the right, agree=0.671, adj=0.30, (0 split)
+## 
+## Node number 2: 100 observations
+##   predicted class=0  expected loss=0.25  P(node) =0.4694836
+##     class counts:    75    25
+##    probabilities: 0.750 0.250 
+## 
+## Node number 3: 113 observations
+##   predicted class=1  expected loss=0.1946903  P(node) =0.5305164
+##     class counts:    22    91
+##    probabilities: 0.195 0.805</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="decision-trees.html#cb19-1"></a><span class="kw">rpart.plot</span>(tree_pruned2)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="decision-trees.html#cb20-1"></a><span class="kw">summary</span>(tree_pruned6) </span></code></pre></div>
+<pre><code>## Call:
+## rpart::rpart(formula = train_y_class ~ ., data = train_x_class, 
+##     method = &quot;class&quot;, parms = list(split = &quot;information&quot;))
+##   n= 213 
+## 
+##           CP nsplit rel error    xerror       xstd
+## 1 0.51546392      0 1.0000000 1.0000000 0.07492958
+## 2 0.02405498      1 0.4845361 0.4845361 0.06239380
+## 3 0.02061856      4 0.4123711 0.5463918 0.06504837
+## 4 0.01000000     10 0.2783505 0.5257732 0.06420680
+## 
+## Variable importance
+##  thal_X2  thalach  thal_X3    exang  oldpeak slope_X2     chol   sex_X1 
+##       20       19       17       11       11        7        5        4 
+##      age    ca_X2 trestbps    cp_X2 
+##        2        1        1        1 
+## 
+## Node number 1: 213 observations,    complexity param=0.5154639
+##   predicted class=1  expected loss=0.4553991  P(node) =1
+##     class counts:    97   116
+##    probabilities: 0.455 0.545 
+##   left son=2 (100 obs) right son=3 (113 obs)
+##   Primary splits:
+##       thal_X2 &lt; 0.5   to the left,  improve=34.85462, (0 missing)
+##       thal_X3 &lt; 0.5   to the right, improve=28.43737, (0 missing)
+##       exang   &lt; 0.5   to the right, improve=24.63531, (0 missing)
+##       thalach &lt; 150.5 to the left,  improve=19.62708, (0 missing)
+##       oldpeak &lt; 0.75  to the right, improve=17.97881, (0 missing)
+##   Surrogate splits:
+##       thal_X3  &lt; 0.5   to the right, agree=0.930, adj=0.85, (0 split)
+##       thalach  &lt; 150.5 to the left,  agree=0.709, adj=0.38, (0 split)
+##       slope_X2 &lt; 0.5   to the left,  agree=0.685, adj=0.33, (0 split)
+##       oldpeak  &lt; 1.55  to the right, agree=0.681, adj=0.32, (0 split)
+##       exang    &lt; 0.5   to the right, agree=0.671, adj=0.30, (0 split)
+## 
+## Node number 2: 100 observations,    complexity param=0.02405498
+##   predicted class=0  expected loss=0.25  P(node) =0.4694836
+##     class counts:    75    25
+##    probabilities: 0.750 0.250 
+##   left son=4 (47 obs) right son=5 (53 obs)
+##   Primary splits:
+##       exang   &lt; 0.5   to the right, improve=9.107824, (0 missing)
+##       oldpeak &lt; 0.55  to the right, improve=7.288376, (0 missing)
+##       ca_X2   &lt; 0.5   to the right, improve=5.808354, (0 missing)
+##       chol    &lt; 241.5 to the right, improve=4.012963, (0 missing)
+##       thalach &lt; 143.5 to the left,  improve=4.012963, (0 missing)
+##   Surrogate splits:
+##       oldpeak &lt; 1.45  to the right, agree=0.69, adj=0.340, (0 split)
+##       thalach &lt; 143.5 to the left,  agree=0.67, adj=0.298, (0 split)
+##       chol    &lt; 209   to the left,  agree=0.59, adj=0.128, (0 split)
+##       ca_X2   &lt; 0.5   to the right, agree=0.59, adj=0.128, (0 split)
+##       cp_X2   &lt; 0.5   to the left,  agree=0.58, adj=0.106, (0 split)
+## 
+## Node number 3: 113 observations,    complexity param=0.02061856
+##   predicted class=1  expected loss=0.1946903  P(node) =0.5305164
+##     class counts:    22    91
+##    probabilities: 0.195 0.805 
+##   left son=6 (62 obs) right son=7 (51 obs)
+##   Primary splits:
+##       thalach &lt; 162.5 to the left,  improve=6.087666, (0 missing)
+##       age     &lt; 43.5  to the right, improve=5.932377, (0 missing)
+##       exang   &lt; 0.5   to the right, improve=4.069956, (0 missing)
+##       sex_X1  &lt; 0.5   to the right, improve=3.864076, (0 missing)
+##       cp_X2   &lt; 0.5   to the left,  improve=2.696136, (0 missing)
+##   Surrogate splits:
+##       age      &lt; 44.5  to the right, agree=0.708, adj=0.353, (0 split)
+##       oldpeak  &lt; 0.05  to the right, agree=0.655, adj=0.235, (0 split)
+##       slope_X2 &lt; 0.5   to the left,  agree=0.628, adj=0.176, (0 split)
+##       chol     &lt; 228   to the right, agree=0.619, adj=0.157, (0 split)
+##       slope_X1 &lt; 0.5   to the right, agree=0.611, adj=0.137, (0 split)
+## 
+## Node number 4: 47 observations
+##   predicted class=0  expected loss=0.06382979  P(node) =0.2206573
+##     class counts:    44     3
+##    probabilities: 0.936 0.064 
+## 
+## Node number 5: 53 observations,    complexity param=0.02405498
+##   predicted class=0  expected loss=0.4150943  P(node) =0.2488263
+##     class counts:    31    22
+##    probabilities: 0.585 0.415 
+##   left son=10 (7 obs) right son=11 (46 obs)
+##   Primary splits:
+##       thalach  &lt; 130   to the left,  improve=4.127656, (0 missing)
+##       chol     &lt; 241.5 to the right, improve=4.019100, (0 missing)
+##       slope_X1 &lt; 0.5   to the right, improve=2.587220, (0 missing)
+##       oldpeak  &lt; 0.55  to the right, improve=2.409715, (0 missing)
+##       ca_X1    &lt; 0.5   to the right, improve=2.155362, (0 missing)
+## 
+## Node number 6: 62 observations,    complexity param=0.02061856
+##   predicted class=1  expected loss=0.3064516  P(node) =0.2910798
+##     class counts:    19    43
+##    probabilities: 0.306 0.694 
+##   left son=12 (29 obs) right son=13 (33 obs)
+##   Primary splits:
+##       sex_X1  &lt; 0.5   to the right, improve=5.934370, (0 missing)
+##       exang   &lt; 0.5   to the right, improve=3.450694, (0 missing)
+##       age     &lt; 45.5  to the right, improve=2.754083, (0 missing)
+##       thalach &lt; 128   to the left,  improve=1.957620, (0 missing)
+##       cp_X2   &lt; 0.5   to the left,  improve=1.312792, (0 missing)
+##   Surrogate splits:
+##       trestbps &lt; 126.5 to the left,  agree=0.597, adj=0.138, (0 split)
+##       thalach  &lt; 111.5 to the left,  agree=0.597, adj=0.138, (0 split)
+##       chol     &lt; 247   to the left,  agree=0.581, adj=0.103, (0 split)
+##       exang    &lt; 0.5   to the right, agree=0.581, adj=0.103, (0 split)
+##       oldpeak  &lt; 1.7   to the right, agree=0.581, adj=0.103, (0 split)
+## 
+## Node number 7: 51 observations
+##   predicted class=1  expected loss=0.05882353  P(node) =0.2394366
+##     class counts:     3    48
+##    probabilities: 0.059 0.941 
+## 
+## Node number 10: 7 observations
+##   predicted class=0  expected loss=0  P(node) =0.03286385
+##     class counts:     7     0
+##    probabilities: 1.000 0.000 
+## 
+## Node number 11: 46 observations,    complexity param=0.02405498
+##   predicted class=0  expected loss=0.4782609  P(node) =0.2159624
+##     class counts:    24    22
+##    probabilities: 0.522 0.478 
+##   left son=22 (19 obs) right son=23 (27 obs)
+##   Primary splits:
+##       chol     &lt; 244   to the right, improve=3.0938120, (0 missing)
+##       slope_X1 &lt; 0.5   to the right, improve=1.1200410, (0 missing)
+##       oldpeak  &lt; 0.55  to the right, improve=1.0801890, (0 missing)
+##       ca_X1    &lt; 0.5   to the right, improve=1.0556600, (0 missing)
+##       fbs      &lt; 0.5   to the left,  improve=0.9420478, (0 missing)
+##   Surrogate splits:
+##       oldpeak  &lt; 2.45  to the right, agree=0.674, adj=0.211, (0 split)
+##       sex_X1   &lt; 0.5   to the left,  agree=0.652, adj=0.158, (0 split)
+##       age      &lt; 66.5  to the right, agree=0.630, adj=0.105, (0 split)
+##       trestbps &lt; 175   to the right, agree=0.630, adj=0.105, (0 split)
+##       ca_X2    &lt; 0.5   to the right, agree=0.630, adj=0.105, (0 split)
+## 
+## Node number 12: 29 observations,    complexity param=0.02061856
+##   predicted class=0  expected loss=0.4827586  P(node) =0.1361502
+##     class counts:    15    14
+##    probabilities: 0.517 0.483 
+##   left son=24 (8 obs) right son=25 (21 obs)
+##   Primary splits:
+##       thalach  &lt; 131.5 to the left,  improve=3.114765, (0 missing)
+##       oldpeak  &lt; 0.7   to the right, improve=1.474869, (0 missing)
+##       exang    &lt; 0.5   to the right, improve=1.244272, (0 missing)
+##       slope_X1 &lt; 0.5   to the right, improve=1.043420, (0 missing)
+##       age      &lt; 48    to the right, improve=1.012565, (0 missing)
+##   Surrogate splits:
+##       trestbps &lt; 158   to the right, agree=0.793, adj=0.250, (0 split)
+##       chol     &lt; 177.5 to the left,  agree=0.793, adj=0.250, (0 split)
+##       age      &lt; 66.5  to the right, agree=0.759, adj=0.125, (0 split)
+##       ca_X3    &lt; 0.5   to the right, agree=0.759, adj=0.125, (0 split)
+## 
+## Node number 13: 33 observations
+##   predicted class=1  expected loss=0.1212121  P(node) =0.1549296
+##     class counts:     4    29
+##    probabilities: 0.121 0.879 
+## 
+## Node number 22: 19 observations
+##   predicted class=0  expected loss=0.2631579  P(node) =0.08920188
+##     class counts:    14     5
+##    probabilities: 0.737 0.263 
+## 
+## Node number 23: 27 observations,    complexity param=0.02061856
+##   predicted class=1  expected loss=0.3703704  P(node) =0.1267606
+##     class counts:    10    17
+##    probabilities: 0.370 0.630 
+##   left son=46 (20 obs) right son=47 (7 obs)
+##   Primary splits:
+##       chol     &lt; 230   to the left,  improve=1.1635270, (0 missing)
+##       oldpeak  &lt; 0.55  to the right, improve=1.0704030, (0 missing)
+##       age      &lt; 51    to the left,  improve=0.7994748, (0 missing)
+##       cp_X2    &lt; 0.5   to the right, improve=0.5670883, (0 missing)
+##       trestbps &lt; 129   to the left,  improve=0.4489296, (0 missing)
+##   Surrogate splits:
+##       ca_X3 &lt; 0.5   to the left,  agree=0.778, adj=0.143, (0 split)
+## 
+## Node number 24: 8 observations
+##   predicted class=0  expected loss=0.125  P(node) =0.03755869
+##     class counts:     7     1
+##    probabilities: 0.875 0.125 
+## 
+## Node number 25: 21 observations,    complexity param=0.02061856
+##   predicted class=1  expected loss=0.3809524  P(node) =0.09859155
+##     class counts:     8    13
+##    probabilities: 0.381 0.619 
+##   left son=50 (7 obs) right son=51 (14 obs)
+##   Primary splits:
+##       thalach  &lt; 156.5 to the right, improve=2.4930920, (0 missing)
+##       trestbps &lt; 126.5 to the left,  improve=0.5781466, (0 missing)
+##       oldpeak  &lt; 0.7   to the right, improve=0.3857768, (0 missing)
+##       age      &lt; 55.5  to the right, improve=0.2673526, (0 missing)
+##       chol     &lt; 230.5 to the right, improve=0.2064966, (0 missing)
+##   Surrogate splits:
+##       chol    &lt; 278.5 to the right, agree=0.810, adj=0.429, (0 split)
+##       oldpeak &lt; 1.4   to the right, agree=0.714, adj=0.143, (0 split)
+## 
+## Node number 46: 20 observations,    complexity param=0.02061856
+##   predicted class=1  expected loss=0.45  P(node) =0.09389671
+##     class counts:     9    11
+##    probabilities: 0.450 0.550 
+##   left son=92 (8 obs) right son=93 (12 obs)
+##   Primary splits:
+##       oldpeak  &lt; 0.7   to the right, improve=2.5160730, (0 missing)
+##       chol     &lt; 211.5 to the right, improve=0.9240166, (0 missing)
+##       thalach  &lt; 161.5 to the left,  improve=0.6024754, (0 missing)
+##       trestbps &lt; 129   to the left,  improve=0.4550471, (0 missing)
+##       slope_X2 &lt; 0.5   to the left,  improve=0.4550471, (0 missing)
+##   Surrogate splits:
+##       thalach  &lt; 139.5 to the left,  agree=0.75, adj=0.375, (0 split)
+##       age      &lt; 65.5  to the right, agree=0.70, adj=0.250, (0 split)
+##       chol     &lt; 211.5 to the right, agree=0.70, adj=0.250, (0 split)
+##       ca_X2    &lt; 0.5   to the right, agree=0.70, adj=0.250, (0 split)
+##       slope_X2 &lt; 0.5   to the left,  agree=0.65, adj=0.125, (0 split)
+## 
+## Node number 47: 7 observations
+##   predicted class=1  expected loss=0.1428571  P(node) =0.03286385
+##     class counts:     1     6
+##    probabilities: 0.143 0.857 
+## 
+## Node number 50: 7 observations
+##   predicted class=0  expected loss=0.2857143  P(node) =0.03286385
+##     class counts:     5     2
+##    probabilities: 0.714 0.286 
+## 
+## Node number 51: 14 observations
+##   predicted class=1  expected loss=0.2142857  P(node) =0.0657277
+##     class counts:     3    11
+##    probabilities: 0.214 0.786 
+## 
+## Node number 92: 8 observations
+##   predicted class=0  expected loss=0.25  P(node) =0.03755869
+##     class counts:     6     2
+##    probabilities: 0.750 0.250 
+## 
+## Node number 93: 12 observations
+##   predicted class=1  expected loss=0.25  P(node) =0.05633803
+##     class counts:     3     9
+##    probabilities: 0.250 0.750</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="decision-trees.html#cb22-1"></a><span class="kw">rpart.plot</span>(tree_pruned6)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>You can also get more fine-grained control by checking out the “control” argument inside the rpart function. Type <code>?rpart</code> to learn more.</p>
+<p>Be sure to check out <a href="https://www.gormanalysis.com/blog/decision-trees-in-r-using-rpart/">gormanalysis</a> excellent overview to help internalize what you learned in this example.</p>
+</div>
+<div id="challenge-2" class="section level2" number="5.6">
+<h2><span class="header-section-number">5.6</span> Challenge 2</h2>
+<p>Open Challenge 2 in the “Challenges” folder.</p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="ols-and-lasso.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="random-forests.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/dlab-berkeley/Machine-Learning-in-R/edit/master/04-decision-trees.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["machine-learning-in-r.pdf", "machine-learning-in-r.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>

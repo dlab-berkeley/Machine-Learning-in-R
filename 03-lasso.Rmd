@@ -9,7 +9,6 @@ library(tidyverse) # tidyverse packages
 library(tidymodels) # tidymodels framework 
 library(here) # reproducible way to find files 
 library(glue) # glue strings and objects 
-library(vip) # variable importance 
 
 theme_set(theme_minimal())
 ```
@@ -87,12 +86,16 @@ sqrt(mean((lasso_predicted - test_y_reg)^2))
 
 - Build models 
 
+1. Specify a model 
+2. Specify an engine 
+3. Specify a mode 
+
 ```{r}
 
 # OLS spec 
-ols_spec <- linear_reg() %>% # Specify the model 
-  set_engine("lm") %>% # Specify the engine: lm, glmnet, stan, keras, spark 
-  set_mode("regression") # Declare the mode: regression or classification 
+ols_spec <- linear_reg() %>% # Specify a model 
+  set_engine("lm") %>% # Specify an engine: lm, glmnet, stan, keras, spark 
+  set_mode("regression") # Declare a mode: regression or classification 
 
 # Lasso spec 
 lasso_spec <- linear_reg(penalty = 0.1, # tuning parameter 

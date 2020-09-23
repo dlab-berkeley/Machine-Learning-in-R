@@ -1,11 +1,20 @@
+
 # Decision Trees
 
 ## Load packages
 
 ```{r load_packages}
-library(ggplot2)
+
 library(rpart)
 library(rpart.plot)
+library(rio) # painless data import and export
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
+library(glue) # glue strings and objects 
+
+theme_set(theme_minimal())
+
 ```
 
 ## Load data 
@@ -14,7 +23,7 @@ Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variab
 
 ```{r setup_data}
 # Objects: task_reg, task_class
-load("data/preprocessed.RData")
+load(here("data", "preprocessed.RData"))
 ```
 
 ## Overview
@@ -23,11 +32,15 @@ Decision trees are recursive partitioning methods that divide the predictor spac
 
 Let's see how a decision tree classifies if a person suffers from heart disease (`target` = 1) or not (`target` = 0).
 
-## Fit Model
+## Non-tidy
+
+### Fit a model 
 
 ```{r}
+
 set.seed(3)
-tree = rpart::rpart(train_y_class ~ ., data = train_x_class,
+
+tree <- rpart::rpart(train_y_class ~ ., data = train_x_class,
              # Use method = "anova" for a continuous outcome.
              method = "class",
              
@@ -36,13 +49,19 @@ tree = rpart::rpart(train_y_class ~ ., data = train_x_class,
 
 # https://stackoverflow.com/questions/4553947/decision-tree-on-information-gain
 
-# Here is the text-based display of the decision tree. Yikes!  :^( 
+```
+
+### Investigate 
+
+- Here is the text-based display of the decision tree. Yikes!  :^( 
+
+```{r}
+
 print(tree)
+
 ```
 
 Although interpreting the text can be intimidating, a decision tree's main strength is its tree-like plot, which is much easier to interpret.
-
-## Investigate Results
 
 ```{r plot_tree}
 rpart.plot::rpart.plot(tree) 
@@ -51,34 +70,70 @@ rpart.plot::rpart.plot(tree)
 We can also look inside of `tree` to see what we can unpack. "variable.importance" is one we should check out! 
 
 ```{r}
+
 names(tree)
+
 tree$variable.importance
+
 ```
+## Tidy models 
+
+### parsnip 
+
+- Build a model 
+
+1. Specify a model 
+2. Specify an engine 
+3. Specify a mode 
+
+```{r}
+
+tree_spec <- decision_tree(
+           mode = "classification", 
+           tree_depth = 5) %>% # Tuning parameter; An arbitrary number not optimized 
+  set_engine("rpart") # rpart, c5.0, spark 
+  
+```
+
+- Fit a model
+
+```{r}
+
+tree_fit <- tree_spec %>%
+  fit_xy(x = train_x_class, y= train_y_class)
+
+```
+
+### yardstick 
+
+### tune 
 
 Plot variable importance
 
 ```{r}
 # Turn the tree$variable.importance vector into a dataframe
-tree_varimp = data.frame(tree$variable.importance)
+tree_varimp <- data.frame(tree$variable.importance)
 
 # Add rownames as their own column
-tree_varimp$x = rownames(tree_varimp) 
+tree_varimp$x <- rownames(tree_varimp) 
 
 # Reorder clumns
-tree_varimp = tree_varimp[, c(2,1)]
+tree_varimp <- tree_varimp[, c(2,1)]
 
 # Reset row names
-rownames(tree_varimp) = NULL 
+rownames(tree_varimp) <- NULL 
 
 # Rename columns
-names(tree_varimp) = c("Variable", "Importance") 
+names(tree_varimp) <- c("Variable", "Importance") 
+
 tree_varimp
 
 # Plot
 ggplot(tree_varimp, aes(x = reorder(Variable, Importance), 
                         y = Importance)) + 
   geom_bar(stat = "identity") + 
-  theme_bw() + coord_flip() + xlab("")
+  coord_flip() + 
+  xlab("")
 ```
 
 In decision trees the main hyperparameter (configuration setting) is the **complexity parameter** (CP), but the name is a little counterintuitive; a high CP results in a simple decision tree with few splits, whereas a low CP results in a larger decision tree with many splits.  
@@ -115,6 +170,3 @@ rpart.plot(tree_pruned6)
 You can also get more fine-grained control by checking out the "control" argument inside the rpart function. Type `?rpart` to learn more.  
 
 Be sure to check out [gormanalysis](https://www.gormanalysis.com/blog/decision-trees-in-r-using-rpart/) excellent overview to help internalize what you learned in this example. 
-
-## Challenge 2
-Open Challenge 2 in the "Challenges" folder. 
