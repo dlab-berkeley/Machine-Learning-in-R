@@ -13,6 +13,8 @@ evaluate_class <- function(model){
   df %>% metrics(truth = truth, estimate = .pred_class) 
 }
 
+# The following visualization code draws on [Diego Usai's medium post](https://towardsdatascience.com/modelling-with-tidymodels-and-parsnip-bae2c01c131c).
+
 visualize_class_eval <- function(model){
   evaluate_class(model) %>%
     ggplot(aes(x = fct_reorder(glue("{toupper(.metric)}"), .estimate), y = .estimate)) +
