@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html lang="" xml:lang="">
   <head>
     <title>Introduction to Machine Learning in R</title>
     <meta charset="utf-8" />
-    <meta name="author" content="D-Lab - Evan Muzzall and Chris Kennedy" />
+    <meta name="author" content="D-Lab - Evan Muzzall, Chris Kennedy, and Jae Yeon Kim" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
     <link rel="stylesheet" href="scrollable.css" type="text/css" />
     <link rel="stylesheet" href="mtheme_max.css" type="text/css" />
     <link rel="stylesheet" href="fonts_mtheme_max.css" type="text/css" />
@@ -20,8 +21,8 @@ class: title-slide
 &lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
 # .font130[Introduction to Machine Learning in R]
 
-### Evan Muzzall and Chris Kennedy  
-### January 31, 2020
+### Evan Muzzall, Chris Kennedy, and Jae Yeon Kim  
+### September 28, 2020
 
 ---
 
@@ -36,6 +37,8 @@ class: center, middle, inverse
 
 * [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals): Introduction to data types/structures, and importing/exporting, visualizing, and testing data.  
 * [Data Wrangling with R](https://github.com/dlab-berkeley/R-wrang): Focus on dplyr and tidyr packages.  
+* [Advanced Data Wrangling Techniques in R](https://github.com/dlab-berkeley/advanced-data-wrangling-in-R): Focus on dplyr 1.1.0
+* [How to Automate Repeated Things in R](https://github.com/dlab-berkeley/R-functional-programming): Functional programming in R
 * [R graphics](https://github.com/dlab-berkeley/R-graphics): Base and ggplot2 visualizations.  
 * [Introduction to Deep Learning](https://github.com/dlab-berkeley/Deep-Learning-in-R): Keras basics for artificial neural networks.  
 * [Machine Learning Working Group](https://github.com/dlab-berkeley/MachineLearningWG): R and Python code for a variety of machine learning algorithms.  
@@ -43,7 +46,16 @@ class: center, middle, inverse
 ---
 
 # Resources
-_An Introduction to Statistical Learning - with Applications in R (2013)_ by Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Springer: New York. [Amazon](https://www.amazon.com/Introduction-Statistical-Learning-Applications-Statistics/dp/1461471370) or [free PDF](http://www-bcf.usc.edu/~gareth/ISL/). We encourage you to support the authors by purchasing their textbook!  
+
+*An Introduction to Statistical Learning - with Applications in R (2013)* by Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani. Springer: New York. [Amazon](https://www.amazon.com/Introduction-Statistical-Learning-Applications-Statistics/dp/1461471370) or [free PDF](http://www-bcf.usc.edu/~gareth/ISL/). 
+
+*Hands-On Machine Learning with R (2020)* by Bradley Boehmke &amp; Brandon Greenwell. [CRC Press](https://www.routledge.com/Hands-On-Machine-Learning-with-R/Boehmke-Greenwell/p/book/9781138495685) or [Amazon](https://www.amazon.com/gp/product/1138495689?pf_rd_p=ab873d20-a0ca-439b-ac45-cd78f07a84d8&amp;pf_rd_r=JBRX0ZJ1WFSR9T3JPTQE)
+
+*Applied Predictive Modeling (2013)* by Max Kuhn and Kjell Johnson. Springer: New York. [Amazon](https://www.amazon.com/Applied-Predictive-Modeling-Max-Kuhn/dp/1461468485?SubscriptionId=0ENGV10E9K9QDNSJ5C82&amp;tag=apm0a-20&amp;linkCode=xm2&amp;camp=2025&amp;creative=165953&amp;creativeASIN=1461468485) 
+
+*Feature Engineering and Selection: A Practical Approach for Predictive Models (2019)* by Kjell Johnson and Max Kuhn. Taylor &amp; Francis. [Amazon](http://www.feat.engineering/) or [free HTML](http://www.feat.engineering/). 
+
+*[Tidy Modeling with R](https://www.tmwr.org/) (2020)* by Max Kuhn and Julia Silge (work-in-progress)
 
 [Also check out the many resources](https://github.com/dlab-berkeley/MachineLearningWG) outlined in D-Lab's Machine Learning Working Group repository. 
 
@@ -51,7 +63,7 @@ _An Introduction to Statistical Learning - with Applications in R (2013)_ by Gar
 
 # Software requirements
 
-[Click here to install R 3.4 or greater](https://cloud.r-project.org/)   
+[Click here to install R 3.6 or greater](https://cloud.r-project.org/)   
 
 [Click here to install RStudio (Open Source License FREE)](https://www.rstudio.com/products/rstudio/download/)  
 
@@ -74,19 +86,19 @@ Or (advanced):
 
 This workshop will utilize a variety of packages to install and organize the code, fit the machine learning algorithms, visualize their outputs, and evaluate their performances. 
 
-* Algorithms: "glmnet", "ranger", "rpart", "xgboost"  
+* Algorithms: "glmnet", "rpart", "ranger", "xgboost"  
 
-* Visualization: "ggplot2", "rpart.plot", "vip"  
+* Visualization: "vip", "ggplot2" 
 
-* Machine learning frameworks: "caret", "SuperLearner"  
+* Machine learning frameworks: "tidymodels" , "caret", "SuperLearner"
 
-* R utility packages: "remotes", "magrittr", "dplyr"  
+* R utility packages: "tidyverse"
 
-* Miscellaneous: "pROC", "rio"  
+* Miscellaneous: "rio", "here", "glue"
 
 * Chris Kennedy's R Toolkit: "ck37r"
 
-### Highlight and run lines 12-27 inside 1-overview.Rmd to install these packages. Then, highlight and run lines 31-51 to import them. 
+### Highlight and run lines 12-28 inside 1-overview.Rmd to install these packages. Then, highlight and run lines 36-54 to import them. 
 
 ---
 
@@ -541,6 +553,32 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     deleted = true;
   });
 })();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
 // adds .remark-code-has-line-highlighted class to <pre> parent elements
 // of code chunks containing highlighted lines with class .remark-code-line-highlighted
 (function(d) {
@@ -558,17 +596,6 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   }
   preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
 })(document);</script>
-
-<script>
-(function() {
-  var links = document.getElementsByTagName('a');
-  for (var i = 0; i < links.length; i++) {
-    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
-      links[i].target = '_blank';
-    }
-  }
-})();
-</script>
 
 <script>
 slideshow._releaseMath = function(el) {

@@ -11,15 +11,16 @@ if (FALSE) {
   # Install packages from CRAN.
   install.packages(c(# Tidymodels framework 
                      "tidymodels",
+                     # Tidyverse packages including dplyr and ggplot2 
+                     "tidyverse",
                      # Algorithms
-                     "glmnet", "ranger", "rpart", "xgboost",
-                     "PCAmixdata", "pvclust", "mclust", 
+                     "glmnet", "ranger", "rpart", "xgboost", "pvclust", "mclust", 
                      # Visualization
-                     "ggplot2", "rpart.plot", "vip", "ape", 
+                     "rpart.plot", "vip", "ape", "corrr", "GGally",
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages
-                     "remotes", "dplyr", "purrr",
+                     "remotes", "here", "glue", "patchwork", "doParallel",
                      # Import/export of any filetype.
                      "rio",
                      # Misc
@@ -34,10 +35,7 @@ suppressMessages(suppressWarnings({
   library(ape)          # Cluster visualizations
   library(caret)        # createDataPartition creates a stratified random split 
   library(ck37r)        # impute_missing_values, standardize, SuperLearner helpers
-  library(dplyr)        # Data cleaning
   library(glmnet)       # Lasso 
-  library(ggplot2)      # Graphics 
-  library(magrittr)     # Pipes %>% for data cleaning, installed by dplyr
   library(mclust)       # Model-based clustering
   library(PCAmixdata)   # PCA
   library(pROC)         # Compute and plot AUC 

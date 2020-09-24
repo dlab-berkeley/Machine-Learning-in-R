@@ -4,10 +4,11 @@
 
 Explicitly load the packages that we need for this analysis.
 
-```{r packages}
-library(rio)
-library(ck37r)
-library(caret)
+```{r}
+library(rio) # painless data import and export
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
 ```
 
 ## Load the data
@@ -16,15 +17,73 @@ Load the heart disease dataset.
 
 ```{r load_data}
 # Load the heart disease dataset using import() from the rio package.
-data_original = import("data-raw/heart.csv")
+data_original <- import(here("data-raw", "heart.csv"))
 
 # Preserve the original copy
-data = data_original
-str(data)
+data <- data_original
+
+# Inspect 
+glimpse(data)
+
+class(data)
 ```
 
 ## Read background information and variable descriptions  
 https://archive.ics.uci.edu/ml/datasets/heart+Disease
+
+## Quick overviews on machine learning 
+
+
+- In this workshop, we will cover classical and ensemble machine learning models. 
+
+
+![Based on https://vas3k.com/blog/machine_learning/](https://i.vas3k.ru/7vz.jpg)
+
+
+- As for the first step, we will focus on supervised machine learning (regression and classification).
+
+
+![Based on https://vas3k.com/blog/machine_learning/](https://i.vas3k.ru/7w1.jpg)
+
+
+## Machine learning workflow 
+
+- Before diving into the specific problem (i.e., preprocessing), let's take a step back and think about the big picture.
+
+![A schematic for the typical modeling process (from Tidy Modeling with R)](https://www.tmwr.org/premade/modeling-process.svg)
+
+
+- Preprocessing happens between the EDA and the initial feature engineering. 
+
+
+![Based on https://vas3k.com/blog/machine_learning/](https://i.vas3k.ru/7r8.jpg)
+
+
+- Data (e.g., text, image, and video) and Features (the dimensions of a numeric vector) are different!
+
+
+## Why taking a tidyverse approach to machine learning?
+
+### Benefits 
+- Readable code (e.g., `dplyr` is quite intuitive even for beginning R users.)
+- Reusable data structures (e.g., `broom` package helps to visualize model outputs, such as p-value, using `ggplot2`)
+- Extendable code (e.g., you can easily build a machine learning pipeline by using the pipe operator (`%>%`) and the `purrr` package)
+
+### tidymodels 
+
+- Like `tidyverse`, `tidymodels` is a collection of packages.
+
+    - [`rsample`](https://rsample.tidymodels.org/): for data splitting 
+    
+    - [`recipes`](https://recipes.tidymodels.org/index.html): for pre-processing
+    
+    - [`parsnip`](https://www.tidyverse.org/blog/2018/11/parsnip-0-0-1/): for model building 
+    
+        - [`tune`](https://github.com/tidymodels/tune): parameter tuning 
+    
+    - [`yardstick`](https://github.com/tidymodels/yardstick): for model evaluations 
+    
+    - [`workflows`](https://github.com/tidymodels/workflows): for bundling a pieplne that bundles together pre-processing, modeling, and post-processing requests 
 
 ## Data preprocessing
 
@@ -32,190 +91,251 @@ Data peprocessing is an integral first step in machine learning workflows. Becau
 
 > NOTE: also, use the `save` function to save your variables of interest. In the remaining walkthroughs, we will use the `load` function to load the relevant variables. 
 
-### What is one-hot encoding?
+The list of the preprocessing steps draws on the vignette of the [`parsnip`](https://www.tidymodels.org/find/parsnip/) package.
+
+- dummy: Also called one-hot encoding
+- zero variance: Removing columns (or features) with a single unique value  
+- impute: Imputing missing values
+- decorrelate: Mitigating correlated predictors (e.g., principal component analysis)
+- normalize: Centering and/or scaling predictors (e.g., log scaling)
+- transform: Making predictors symmetric 
+
+In this workshop, we focus on two preprocessing tasks. 
+
+### Task 1: What is one-hot encoding?
 
 One additional preprocessing aspect to consider: datasets that contain factor (categorical) features should typically be expanded out into numeric indicators (this is often referred to as [one-hot encoding](https://hackernoon.com/what-is-one-hot-encoding-why-and-when-do-you-have-to-use-it-e3c6186d008f). You can do this manually with the `model.matrix` R function. This makes it easier to code a variety of algorithms to a dataset as many algorithms handle factors poorly (decision trees being the main exception). Doing this manually is always good practice. In general however, functions like `lm` will do this for you automatically. 
 
-## Handling missing data
+- Since the "ca", "cp", "slope", and "thal" features are currently integer type, convert them to factors. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
 
-Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). K-nearest neighbor imputation can also be useful but median imputation is demonstrated below.  
+```{r}
+
+# Turn selected numeric variables into factor variables 
+data <- data %>%
+  mutate(across(c("sex", "ca", "cp", "slope", "thal"), as.factor)) 
+
+```
+
+### Task 2: Handling missing data
+
+Missing values need to be handled somehow. Listwise deletion (deleting any row with at least one missing value) is common but this method throws out a lot of useful information. Many advocate for mean imputation, but arithmetic means are sensitive to outliers. Still, others advocate for Chained Equation/Bayesian/Expectation Maximization imputation (e.g., the [mice](https://www.jstatsoft.org/article/view/v045i03/v45i03.pdf) and [Amelia II](https://gking.harvard.edu/amelia) R packages). K-nearest neighbor imputation can also be useful but median imputation is used in this workshop.  
 
 However, you will want to learn about [Generalized Low Rank Models](https://stanford.edu/~boyd/papers/pdf/glrm.pdf) for missing data imputation in your research. See the `impute_missing_values` function from the ck37r package to learn more - you might need to install an h2o dependency.  
 
 First, count the number of missing values across variables in our dataset.  
 
-```{r review_missingness}
+- Using base R 
+
+```{r review_missingness base}
+
+# Using base R; The output is a numeric vector.  
 colSums(is.na(data))
+
+class(colSums(is.na(data)))
+
+```
+
+- Using tidyverse 
+
+```{r review_missingness tidyverse}
+
+# Using tidyverse; The output is a dataframe.
+# Option 1 and Option 2 produce same outputs. 
+
+map_df(data, ~ is.na(.) %>% sum()) # Option 1
+
+map_df(data, 
+       function(x){is.na(x) %>% sum()}) %>% # Option 2 
+  as_tibble()
+
 ```
 
 We have no missing values, so let's introduce a few to the "oldpeak" feature for this example to see how it works: 
 
 ```{r}
+
 # Add five missing values added to oldpeak in row numbers 50, 100, 150, 200, 250
-data$oldpeak[c(50, 100, 150, 200, 250)] = NA
 
-colSums(is.na(data))
-colMeans(is.na(data))
+data$oldpeak[c(50, 100, 150, 200, 250)] <- NA
+
 ```
 
-There are now 5 missing values in the "oldpeak" feature. Now, median impute the missing values! We also want to create missingness indicators to inform us about the location of missing data. These are additional columns we will add to our data frame that represent the _locations_ within each feature that have missing values - 0 means data are present, 1 means there was a missing (and subsequently imputed) value.  
-
-```{r impute_missing_values}
-result = ck37r::impute_missing_values(data, verbose = TRUE, type = "standard")
-names(result)
-
-# Use the imputed dataframe.
-data = result$data
-
-# View new columns. Note that the indicator feature "miss_oldpeak" has been added as the last column of our data frame. 
-str(data)
-
-# No more missing data!
-colSums(is.na(data))
-```
-
-Since the "ca", "cp", "slope", and "thal" features are currently integer type, convert them to factors. The other relevant variables are either continuous or are already indicators (just 1's and 0's). 
+There are now 5 missing values in the "oldpeak" feature.
 
 ```{r}
-data = ck37r::categoricals_to_factors(data,
-              categoricals = c("sex", "ca", "cp", "slope", "thal"),
-              verbose = TRUE)
 
-# Inspect the updated data frame
-str(data)
+# Check the number of missing values 
+data %>%
+  map_df(~is.na(.) %>% sum())
+
+# Check the rate of missing values
+data %>%
+  map_df(~is.na(.) %>% mean())
+
 ```
 
-## Defining *y* outcome vectors and *x* feature dataframes
+## Preprocessing workflow 
 
-### Convert factors to indicators
+![Art by Allison Horst](https://education.rstudio.com/blog/2020/02/conf20-intro-ml/recipes.png)
 
-Now expand "sex", "ca", "cp", "slope", and "thal" features out into indicators. 
+- Step 1: `recipe()` defines target and predictor variables (ingredients).
 
-```{r factors_to_indicators}
-result = ck37r::factors_to_indicators(data, verbose = TRUE)
+- Step 2: `step_*()` defines preprocessing steps to be taken (recipe).
 
-data = result$data
+- Step 3: `prep()` prepares a dataset to base each step on.
 
-str(data)
+- Step 4: `bake()` applies the pre-processing steps to your datasets. 
 
-dim(data)
-```
+**Useful references**
 
-What happened?
+- Alison Hill, ["Introduction Machine Learning with the Tidyverse"](https://education.rstudio.com/blog/2020/02/conf20-intro-ml/)
+- Rebecca Barter, ["Using the recipes package for easy pre-processing"](http://www.rebeccabarter.com/blog/2019-06-06_pre_processing/)
 
-## Regression setup
-
-Now that the data have been imputed and properly converted, we can assign the regression outcome variable (`age`) to its own vector for the lasso **REGRESSION task**. Remember that lasso can also perform classification as well. 
-
-### Set seed for reproducibility
-
-Take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set.
-
-### Random versus stratified random split
+## Regressioin setup 
 
 Splitting data into training and test subsets is a fundamental step in machine learning. Usually, the marjority portion of the original dataset is partitioned to the training set, where the algorithms learn the relationships between the $x$ feature predictors and the $y$ outcome variable. Then, these models are given new data (the test set) to see how well they perform on data they have not yet seen. 
 
-Since age is a continuous variable and will be the outcome for the OLS and lasso regressions, we will not perform a stratified random split like we will for the classification tasks (see below). Instead, [let's randomly assign](https://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function) 70% of the `age` values to the training set and the remaining 30% to the test set.
+Since **age** is a **continuous variable** and will be **the outcome** for the OLS and lasso regressions, we will not perform a stratified random split like we will for the classification tasks (see below). Instead, [let's randomly assign](https://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function) 70% of the `age` values to the training set and the remaining 30% to the test set.
+
+### Outcome variable 
 
 ```{r}
-# Create a list to organize our regression task
-task_reg = list(
-  data = data,
-  outcome = "age"
-)
 
-# All variables can be used as covariates except the outcome ("age")
-(task_reg$covariates = setdiff(names(data), task_reg$outcome))
+# Continuous variable 
+data$age %>% unique()
 
-names(task_reg)
+```
+### Data splitting using random sampling 
 
-# Define the sizes of training (70%) and test (30%) sets.
-(training_size = floor(0.70 * nrow(task_reg$data)))
+Take the simple approach to data splitting and divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set.
 
-# Set seed for reproducibility.
-set.seed(1)
+```{r}
 
-# Partition the rows to be included in the training set.
-training_rows = sample(nrow(task_reg$data), size = training_size)
+# for reproducibility 
+set.seed(1234) 
 
-task_reg$train_rows = training_rows
-head(task_reg$train_rows)
+# split 
+split_reg <- initial_split(data, prop = 0.7)
 
-# View our regresion task list
-names(task_reg)
+# training set 
+raw_train_x_reg <- training(split_reg)
+
+# test set 
+raw_test_x_reg <- testing(split_reg)
+
 ```
 
-## Classification setup
+### recipe 
+
+```{r}
+
+# Regression recipe 
+rec_reg <- raw_train_x_reg %>%
+  # Define the outcome variable 
+  recipe(age ~ .) %>%
+  # Median impute oldpeak column 
+  step_medianimpute(oldpeak) %>%
+  # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators). 
+  step_dummy(c("sex", "ca", "cp", "slope", "thal"))
+
+# Prepare a dataset to base each step on
+prep_reg <- rec_reg %>% prep(retain = TRUE) 
+
+```
+
+```{r}
+
+# x features 
+train_x_reg <- juice(prep_reg, all_predictors()) 
+test_x_reg <- bake(prep_reg, raw_test_x_reg, all_predictors())
+
+# y variables 
+train_y_reg <- juice(prep_reg, all_outcomes())$age %>% as.numeric()
+test_y_reg <- bake(prep_reg, raw_test_x_reg, all_outcomes())$age %>% as.numeric()
+
+# Checks
+names(train_x_reg) # Make sure there's no age variable!
+class(train_y_reg) # Make sure this is a continuous variable!
+
+```
+
+- Note that other imputation methods are also available. Fancier methods tend to take longer time than simpler ones such as mean, median, or mode imputation. 
+
+```{r}
+grep("impute", ls("package:recipes"), value = TRUE)
+```
+
+- You can also create your own `step_` functions. For more information, see [tidymodels.org](https://www.tidymodels.org/learn/develop/recipes/).
+
+- Now that the data have been imputed and properly converted, we can assign the regression outcome variable (`age`) to its own vector for the lasso **REGRESSION task**. Remember that lasso can also perform classification as well. 
+
+## Classification setup 
 
 Assign the outcome variable to its own vector for the decision tree, random forest, gradient boosted tree, and SuperLearner ensemble **CLASSIFICATION tasks**. However, keep in mind that these algorithms can also perform regression!  
 
-This time however, "target" will by our y outcome variable (1 = person has heart disease, 0 = person does not have heart disease) - the others will be our x features. 
+This time however, **"target"** will by our y **outcome variable** (1 = person has heart disease, 0 = person does not have heart disease) - the others will be our x features. 
+
+### Outcome variable 
 
 ```{r}
-# Store everything in a list like we did for the regression task
-task_class = list(
-  data = data,
-  outcome = "target"
-)
 
-(task_class$covariates = setdiff(names(task_class$data), task_class$outcome))
+## Categorical variable 
+data$target %>% unique()
 
-# See the names of the list elements
-names(task_class)
 ```
-           
-Our factors have still been converted to indicators from the regression setup! :) 
-
-### Stratified random split
+### Data splitting using stratified random sampling
 
 For classification, we then use [stratified random sampling](https://stats.stackexchange.com/questions/250273/benefits-of-stratified-vs-random-sampling-for-generating-training-data-in-classi) to divide our data into training and test sets; 70% of the data will be assigned to the training set and the remaining 30% will be assigned to the holdout, or test, set. 
 
 ```{r}
-# Set seed for reproducibility.
-set.seed(2) 
 
-# Create a stratified random split.
-training_rows =
-  caret::createDataPartition(task_class$data[[task_class$outcome]],
-                             p = 0.70, list = FALSE) 
+# split 
+split_class <- initial_split(data %>%
+                               mutate(target = as.factor(target)), 
+                             prop = 0.7, 
+                             strata = target)
 
-# Partition training dataset
-task_class$train_rows = training_rows
+# training set 
+raw_train_x_class <- training(split_class)
 
-mean(task_class$data[training_rows, "target"])
-table(task_class$data[training_rows, "target"])
+# testing set 
+raw_test_x_class <- testing(split_class)
 
-mean(task_class$data[-training_rows, "target"])
-table(task_class$data[-training_rows, "target"])
 ```
 
-## Define training and test x and y variables for regression and classification
-
-### Regression variables
+### recipe 
 
 ```{r}
-# Pull out regression preprocessed data for easier analysis
-train_x_reg = task_reg$data[task_reg$train_rows, task_reg$covariates]
-train_y_reg = task_reg$data[task_reg$train_rows, task_reg$outcome]
 
-test_x_reg = task_reg$data[-task_reg$train_rows, task_reg$covariates]
-test_y_reg = task_reg$data[-task_reg$train_rows, task_reg$outcome]
+# Classification recipe 
+rec_class <- raw_train_x_class %>% 
+  # Define the outcome variable 
+  recipe(target ~ .) %>%
+  # Median impute oldpeak column 
+  step_medianimpute(oldpeak) %>%
+  # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators).
+  step_normalize(age) %>%
+  step_dummy(c("sex", "ca", "cp", "slope", "thal")) 
 
-# Look at ages of first 20 individuals
-head(train_y_reg, n = 20)
+# Prepare a dataset to base each step on
+prep_class <- rec_class %>%prep(retain = TRUE) 
 
-# Look at features for the corresponding first 6 individuals
-head(train_x_reg)
 ```
 
-### Classification variables
-
 ```{r}
-train_x_class = task_class$data[task_class$train_rows, task_class$covariates]
-train_y_class = task_class$data[task_class$train_rows, task_class$outcome]
 
-test_x_class = task_class$data[-task_class$train_rows, task_class$covariates]
-test_y_class = task_class$data[-task_class$train_rows, task_class$outcome]
+# x features 
+train_x_class <- juice(prep_class, all_predictors()) 
+test_x_class <- bake(prep_class, raw_test_x_class, all_predictors())
+
+# y variables 
+train_y_class <- juice(prep_class, all_outcomes())$target %>% as.factor()
+test_y_class <- bake(prep_class, raw_test_x_class, all_outcomes())$target %>% as.factor()
+
+# Checks 
+names(train_x_class) # Make sure there's no target variable!
+class(train_y_class) # Make sure this is a factor variable!
+
 ```
 
 ### Save our preprocessed data
@@ -223,9 +343,13 @@ test_y_class = task_class$data[-task_class$train_rows, task_class$outcome]
 We save our preprocessed data into an RData file so that we can easily load it the later files.
 
 ```{r save_data}
-save(data, data_original, 
-     task_reg, task_class,
-     train_x_reg, train_y_reg, test_x_reg, test_y_reg,
-     train_x_class, train_y_class, test_x_class, test_y_class,
-     file = "data/preprocessed.RData")
+save(data, data_original, # data 
+     split_reg, split_class, # splits 
+     rec_reg, rec_class, # recipes 
+     prep_reg, prep_class, # preps 
+     train_x_reg, train_y_reg, # train sets 
+     test_x_reg, test_y_reg, # test sets 
+     train_x_class, train_y_class, # train sets 
+     test_x_class, test_y_class, # test
+     file = here("data", "preprocessed.RData"))
 ```

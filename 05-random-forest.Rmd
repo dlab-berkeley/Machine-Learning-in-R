@@ -2,19 +2,30 @@
 
 ## Load packages
 
-```{r load_packages}
+```{r}
+
 library(ranger)
 library(vip)
-library(ggplot2)
+library(rio) # painless data import and export
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
+library(glue) # glue strings and objects 
+library(patchwork) # arrange ggplots 
+library(doParallel) # parallel processing 
+
+source(here("functions", "utils.R"))
+
+theme_set(theme_minimal())
 ```
 
 ## Load data 
 
 Load `train_x_class`, `train_y_class`, `test_x_class`, and `test_y_class` variables we defined in 02-preprocessing.Rmd for this *classification* task. 
 
-```{r setup_data}
+```{r}
 # Objects: task_reg, task_class
-load("data/preprocessed.RData")
+load(here("data", "preprocessed.RData"))
 ```
 
 ## Overview
@@ -23,13 +34,16 @@ The random forest algorithm seeks to improve on the performance of a single deci
 
 Random forests are an extension of **bagging**, in which multiple samples of the original data are drawn with replacement (aka "bootstrap samples"). An algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used by any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.
 
-## Fit model
+## Non-tidy 
+### Fit model
 
 Fit a random forest model that predicts the number of people with heart disease using the other variables as our X predictors. If our Y variable is a factor, `ranger` will by default perform classification; if it is numeric/integer regression will be performed and if it is omitted it will run an unsupervised analysis.
 
 ```{r rf_fit}
-set.seed(1)
-(rf1 = ranger::ranger(train_y_class ~ ., 
+
+set.seed(1234)
+
+(rf1 <- ranger::ranger(train_y_class ~ ., 
                    data = train_x_class, 
                    # Number of trees
                    num.trees = 500, 
@@ -39,16 +53,18 @@ set.seed(1)
                    probability = TRUE,
                    # We want the importance of predictors to be assessed.
                    importance = "permutation"))
+
+
 ```
 
 The "OOB estimate of error rate" shows us how accurate our model is. $accuracy = 1 - error rate$. OOB stands for "out of bag" - and bag is short for "bootstrap aggregation". So OOB estimates performance by comparing the predicted outcome value to the actual value across all trees using only the observations that were not part of the training data for that tree.
 
-We can examine the relative variable importance in table and graph form, but without all the hard coding that we did in 04-decision-trees.Rmd. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.
+We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model's accuracy drops when that variable's values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate's value and the outcome. If a variable is important then the model's accuracy will suffer a large drop when it is randomly shuffled. But if the model's accuracy doesn't change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.
 
-## Investigate Results
+### Investigate
 
 ```{r rf_varimp_plot}
-vip::vip(rf1) + theme_bw()
+vip::vip(rf1) 
 
 # Raw data
 vip::vi(rf1)
@@ -57,39 +73,219 @@ vip::vi(rf1)
 # View(vip::vi(rf1))
 ```
 
-Read up on the [gini coefficient](https://en.wikipedia.org/wiki/Gini_coefficient) here. It's basically a measure of diversity or dispersion - a higher gini means the model is classifying better. The gini version does not randomly shuffle the variable values.  
+## Tidy models 
 
-Now, the goal is to see how the model performs on the test dataset:
+### parsnip 
+
+- Build a model 
+
+1. Specify a model 
+2. Specify an engine 
+3. Specify a mode 
 
 ```{r}
-# This will predict the outcome class.
-predicted_label = as.integer(predict(rf1, data = test_x_class)$predictions[, 1] > 0.5)
 
-str(predicted_label)
+# workflow 
+rand_wf <- workflow() %>% add_formula(target~.)
 
-table(predicted_label, test_y_class)
+# spec 
+rand_spec <- rand_forest(
+  
+           # Mode 
+           mode = "classification",
+           
+           # Tuning parameters
+           mtry = NULL, # The number of predictors to available for splitting at each node  
+           min_n = NULL, # The minimum number of data points needed to keep splitting nodes
+           trees = 500) %>% # The number of trees
+  set_engine("ranger", 
+             # We want the importance of predictors to be assessed.
+             seed = 1234, 
+             importance = "permutation") 
+
+rand_wf <- rand_wf %>% add_model(rand_spec)
+
 ```
 
-Check the accuracy of the test set:
-```{r prob_hist}
+- Fit a model
 
-mean(predicted_label == test_y_class) 
+```{r}
 
-# We can also generated probability predictions, which are more granular.
-predicted_prob = as.data.frame(predict(rf1, data = test_x_class)$predictions)
+rand_fit <- rand_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
 
-colnames(predicted_prob) = c("no", "yes")
-
-summary(predicted_prob)
-
-ggplot(predicted_prob, aes(x = yes)) + 
-  geom_histogram() + 
-  theme_minimal()
-
-# TODO: add terminal node count in for ranger.
 ```
 
-How did it do? Are the accuracies for the training and test sets similar?  
+### yardstick 
 
-## Challenge 3
-Open Challenge 3 in the "Challenges" folder. 
+- Let's formally test prediction performance. 
+
+**Metrics**
+
+- `accuracy`: The proportion of the data predicted correctly 
+
+- `precision`: Positive predictive value
+
+- `recall` (specificity): True positive rate (e.g., healthy people really healthy)
+
+![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
+
+- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
+
+```{r}
+
+# Define performance metrics 
+metrics <- yardstick::metric_set(accuracy, precision, recall)
+
+rand_fit_viz_metr <- visualize_class_eval(rand_fit)
+
+rand_fit_viz_metr
+
+```
+
+- Visualize the confusion matrix. 
+  
+```{r}
+
+rand_fit_viz_mat <- visualize_class_conf(rand_fit)
+
+rand_fit_viz_mat
+
+```
+
+### tune 
+
+#### tune ingredients 
+
+We focus on the following two parameters:
+
+- `mtry`: The number of predictors to available for splitting at each node.
+
+- `min_n`: The minimum number of data points needed to keep splitting nodes. 
+
+```{r}
+
+tune_spec <- 
+  rand_forest(
+           mode = "classification",
+           
+           # Tuning parameters
+           mtry = tune(), 
+           min_n = tune()) %>%
+  set_engine("ranger",
+             seed = 1234, 
+             importance = "permutation")
+
+rand_grid <- grid_regular(mtry(range = c(1, 10)),
+                          min_n(range = c(2, 10)),
+                          levels = 5)
+
+rand_grid %>%
+  count(min_n)
+
+# 10-fold cross-validation
+
+set.seed(1234) # for reproducibility 
+
+rand_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)),
+                       strata = target)
+
+
+```
+
+#### Add these elements to a workflow 
+
+```{r}
+
+# Update workflow 
+rand_wf <- rand_wf %>% update_model(tune_spec)
+
+cl <- makeCluster(4)
+registerDoParallel(cl)
+
+# Tuning results 
+rand_res <- rand_wf %>%
+  tune_grid(
+    resamples = rand_folds, 
+    grid = rand_grid,
+    metrics = metrics
+  )
+
+```
+
+#### Visualize 
+
+- The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
+
+```{r}
+
+rand_res %>%
+  collect_metrics() %>%
+  mutate(min_n = factor(min_n)) %>%
+  ggplot(aes(mtry, mean, color = min_n)) +
+  # Line + Point plot 
+  geom_line(size = 1.5, alpha = 0.6) +
+  geom_point(size = 2) +
+  # Subplots 
+  facet_wrap(~ .metric, 
+             scales = "free", 
+             nrow = 2) +
+  # Log scale x 
+  scale_x_log10(labels = scales::label_number()) +
+  # Discrete color scale 
+  scale_color_viridis_d(option = "plasma", begin = .9, end = 0) +
+  labs(x = "The number of predictors to be sampled",
+       col = "The minimum number of data points needed for splitting",
+       y = NULL) +
+  theme(legend.position="bottom")
+
+```
+```{r}
+
+# Optimal parameter
+best_tree <- select_best(rand_res, "accuracy")
+
+best_tree
+
+# Add the parameter to the workflow 
+finalize_tree <- rand_wf %>%
+  finalize_workflow(best_tree)
+
+```
+
+```{r}
+
+rand_fit_tuned <- finalize_tree %>% 
+  fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+# Metrics 
+(rand_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_class_eval(rand_fit_tuned) + labs(title = "Tuned"))
+
+# Confusion matrix 
+(rand_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_class_conf(rand_fit_tuned) + labs(title = "Tuned"))
+
+```
+
+- Visualize variable importance 
+
+```{r}
+
+rand_fit_tuned %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+
+```
+
+#### Test fit
+
+- Apply the tuned model to the test dataset 
+
+```{r}
+
+test_fit <- finalize_tree %>%
+  fit(test_x_class %>% bind_cols(tibble(target = test_y_class)))
+
+evaluate_class(test_fit)
+
+```
+
+TBD: Challenge 3 

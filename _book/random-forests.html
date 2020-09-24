@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 6 Random Forests | Machine Learning in R</title>
+  <meta name="description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 6 Random Forests | Machine Learning in R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="github-repo" content="dlab-berkeley/Machine-Learning-in-R" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 6 Random Forests | Machine Learning in R" />
+  
+  <meta name="twitter:description" content="D-Lab’s Machine Learning in R Workshop" />
+  
+
+
+
+<meta name="date" content="2020-09-24" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="decision-trees.html"/>
+<link rel="next" href="xgboost.html"/>
+<script src="libs/header-attrs-2.3/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Machine Learning in R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#prereqs"><i class="fa fa-check"></i><b>1.1</b> Prereqs</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#package-installation"><i class="fa fa-check"></i><b>2.1</b> Package installation</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="preprocessing.html"><a href="preprocessing.html"><i class="fa fa-check"></i><b>3</b> Preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>3.1</b> Load packages</a></li>
+<li class="chapter" data-level="3.2" data-path="preprocessing.html"><a href="preprocessing.html#load-the-data"><i class="fa fa-check"></i><b>3.2</b> Load the data</a></li>
+<li class="chapter" data-level="3.3" data-path="preprocessing.html"><a href="preprocessing.html#read-background-information-and-variable-descriptions"><i class="fa fa-check"></i><b>3.3</b> Read background information and variable descriptions</a></li>
+<li class="chapter" data-level="3.4" data-path="preprocessing.html"><a href="preprocessing.html#quick-overviews-on-machine-learning"><i class="fa fa-check"></i><b>3.4</b> Quick overviews on machine learning</a></li>
+<li class="chapter" data-level="3.5" data-path="preprocessing.html"><a href="preprocessing.html#machine-learning-workflow"><i class="fa fa-check"></i><b>3.5</b> Machine learning workflow</a></li>
+<li class="chapter" data-level="3.6" data-path="preprocessing.html"><a href="preprocessing.html#why-taking-a-tidyverse-approach-to-machine-learning"><i class="fa fa-check"></i><b>3.6</b> Why taking a tidyverse approach to machine learning?</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="preprocessing.html"><a href="preprocessing.html#benefits"><i class="fa fa-check"></i><b>3.6.1</b> Benefits</a></li>
+<li class="chapter" data-level="3.6.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>3.6.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="preprocessing.html"><a href="preprocessing.html#data-preprocessing"><i class="fa fa-check"></i><b>3.7</b> Data preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="preprocessing.html"><a href="preprocessing.html#task-1-what-is-one-hot-encoding"><i class="fa fa-check"></i><b>3.7.1</b> Task 1: What is one-hot encoding?</a></li>
+<li class="chapter" data-level="3.7.2" data-path="preprocessing.html"><a href="preprocessing.html#task-2-handling-missing-data"><i class="fa fa-check"></i><b>3.7.2</b> Task 2: Handling missing data</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="preprocessing.html"><a href="preprocessing.html#preprocessing-workflow"><i class="fa fa-check"></i><b>3.8</b> Preprocessing workflow</a></li>
+<li class="chapter" data-level="3.9" data-path="preprocessing.html"><a href="preprocessing.html#regressioin-setup"><i class="fa fa-check"></i><b>3.9</b> Regressioin setup</a>
+<ul>
+<li class="chapter" data-level="3.9.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable"><i class="fa fa-check"></i><b>3.9.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.9.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-random-sampling"><i class="fa fa-check"></i><b>3.9.2</b> Data splitting using random sampling</a></li>
+<li class="chapter" data-level="3.9.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe"><i class="fa fa-check"></i><b>3.9.3</b> recipe</a></li>
+</ul></li>
+<li class="chapter" data-level="3.10" data-path="preprocessing.html"><a href="preprocessing.html#classification-setup"><i class="fa fa-check"></i><b>3.10</b> Classification setup</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable-1"><i class="fa fa-check"></i><b>3.10.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.10.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-stratified-random-sampling"><i class="fa fa-check"></i><b>3.10.2</b> Data splitting using stratified random sampling</a></li>
+<li class="chapter" data-level="3.10.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe-1"><i class="fa fa-check"></i><b>3.10.3</b> recipe</a></li>
+<li class="chapter" data-level="3.10.4" data-path="preprocessing.html"><a href="preprocessing.html#save-our-preprocessed-data"><i class="fa fa-check"></i><b>3.10.4</b> Save our preprocessed data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html"><i class="fa fa-check"></i><b>4</b> OLS and lasso</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>4.1</b> Load packages</a></li>
+<li class="chapter" data-level="4.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>4.2</b> Load data</a></li>
+<li class="chapter" data-level="4.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>4.3</b> Overview</a></li>
+<li class="chapter" data-level="4.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#fit-and-evaluate-models"><i class="fa fa-check"></i><b>4.4</b> Fit and evaluate models</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>4.4.1</b> Non-tidy</a></li>
+<li class="chapter" data-level="4.4.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>4.4.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tuning-lasso-parameters"><i class="fa fa-check"></i><b>4.5</b> Tuning lasso parameters</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tune-ingredients"><i class="fa fa-check"></i><b>4.5.1</b> tune ingredients</a></li>
+<li class="chapter" data-level="4.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#add-these-elements-to-a-workflow"><i class="fa fa-check"></i><b>4.5.2</b> Add these elements to a workflow</a></li>
+<li class="chapter" data-level="4.5.3" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#visualize"><i class="fa fa-check"></i><b>4.5.3</b> Visualize</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="decision-trees.html"><a href="decision-trees.html"><i class="fa fa-check"></i><b>5</b> Decision Trees</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>5.1</b> Load packages</a></li>
+<li class="chapter" data-level="5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>5.2</b> Load data</a></li>
+<li class="chapter" data-level="5.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>5.3</b> Overview</a></li>
+<li class="chapter" data-level="5.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>5.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>5.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="5.4.2" data-path="decision-trees.html"><a href="decision-trees.html#investigate"><i class="fa fa-check"></i><b>5.4.2</b> Investigate</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="decision-trees.html"><a href="decision-trees.html#tidy-models"><i class="fa fa-check"></i><b>5.5</b> Tidy models</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>5.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="5.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>5.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="5.5.3" data-path="decision-trees.html"><a href="decision-trees.html#tune"><i class="fa fa-check"></i><b>5.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="random-forests.html"><a href="random-forests.html"><i class="fa fa-check"></i><b>6</b> Random Forests</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>6.1</b> Load packages</a></li>
+<li class="chapter" data-level="6.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>6.2</b> Load data</a></li>
+<li class="chapter" data-level="6.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>6.3</b> Overview</a></li>
+<li class="chapter" data-level="6.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>6.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>6.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="6.4.2" data-path="decision-trees.html"><a href="decision-trees.html#investigate"><i class="fa fa-check"></i><b>6.4.2</b> Investigate</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="decision-trees.html"><a href="decision-trees.html#tidy-models"><i class="fa fa-check"></i><b>6.5</b> Tidy models</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>6.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="6.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>6.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="6.5.3" data-path="decision-trees.html"><a href="decision-trees.html#tune"><i class="fa fa-check"></i><b>6.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="xgboost.html"><a href="xgboost.html"><i class="fa fa-check"></i><b>7</b> XGBoost</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>7.1</b> Load packages</a></li>
+<li class="chapter" data-level="7.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>7.2</b> Load data</a></li>
+<li class="chapter" data-level="7.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>7.3</b> Overview</a></li>
+<li class="chapter" data-level="7.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>7.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="xgboost.html"><a href="xgboost.html#define-cv_control"><i class="fa fa-check"></i><b>7.4.1</b> Define <code>cv_control</code></a></li>
+<li class="chapter" data-level="7.4.2" data-path="xgboost.html"><a href="xgboost.html#define-xgb_grid"><i class="fa fa-check"></i><b>7.4.2</b> Define <code>xgb_grid</code></a></li>
+<li class="chapter" data-level="7.4.3" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>7.4.3</b> Fit model</a></li>
+<li class="chapter" data-level="7.4.4" data-path="xgboost.html"><a href="xgboost.html#investigate-results"><i class="fa fa-check"></i><b>7.4.4</b> Investigate Results</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>7.5</b> Tidymodels</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>7.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="7.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>7.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="7.5.3" data-path="decision-trees.html"><a href="decision-trees.html#tune"><i class="fa fa-check"></i><b>7.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="ensembles.html"><a href="ensembles.html"><i class="fa fa-check"></i><b>8</b> Ensembles</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>8.1</b> Load packages</a></li>
+<li class="chapter" data-level="8.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>8.2</b> Load data</a></li>
+<li class="chapter" data-level="8.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>8.3</b> Overview</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="ensembles.html"><a href="ensembles.html#choose-algorithms"><i class="fa fa-check"></i><b>8.3.1</b> Choose algorithms</a></li>
+</ul></li>
+<li class="chapter" data-level="8.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>8.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="8.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>8.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="8.4.2" data-path="ensembles.html"><a href="ensembles.html#risk"><i class="fa fa-check"></i><b>8.4.2</b> Risk</a></li>
+<li class="chapter" data-level="8.4.3" data-path="ensembles.html"><a href="ensembles.html#plot-the-risk"><i class="fa fa-check"></i><b>8.4.3</b> Plot the risk</a></li>
+<li class="chapter" data-level="8.4.4" data-path="ensembles.html"><a href="ensembles.html#compute-auc-for-all-estimators"><i class="fa fa-check"></i><b>8.4.4</b> Compute AUC for all estimators</a></li>
+<li class="chapter" data-level="8.4.5" data-path="ensembles.html"><a href="ensembles.html#plot-the-roc-curve-for-the-best-estimator"><i class="fa fa-check"></i><b>8.4.5</b> Plot the ROC curve for the best estimator</a></li>
+<li class="chapter" data-level="8.4.6" data-path="ensembles.html"><a href="ensembles.html#review-weight-distribution-for-the-superlearner"><i class="fa fa-check"></i><b>8.4.6</b> Review weight distribution for the SuperLearner</a></li>
+</ul></li>
+<li class="chapter" data-level="8.5" data-path="ensembles.html"><a href="ensembles.html#challenge-5"><i class="fa fa-check"></i><b>8.5</b> Challenge 5</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html"><i class="fa fa-check"></i><b>9</b> Principal Component Analysis</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#unsupervised-approaches"><i class="fa fa-check"></i><b>9.1</b> Unsupervised approaches</a></li>
+<li class="chapter" data-level="9.2" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#reclass-variables"><i class="fa fa-check"></i><b>9.2</b> Reclass variables</a></li>
+<li class="chapter" data-level="9.3" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#scale-numeric-variables"><i class="fa fa-check"></i><b>9.3</b> Scale numeric variables</a></li>
+<li class="chapter" data-level="9.4" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#factorize-categorical-variables"><i class="fa fa-check"></i><b>9.4</b> Factorize categorical variables</a></li>
+<li class="chapter" data-level="9.5" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#screeplot"><i class="fa fa-check"></i><b>9.5</b> Screeplot</a></li>
+<li class="chapter" data-level="9.6" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#ggplot-coordinates"><i class="fa fa-check"></i><b>9.6</b> ggplot coordinates</a></li>
+<li class="chapter" data-level="9.7" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#view-factor-loadings"><i class="fa fa-check"></i><b>9.7</b> View factor loadings</a></li>
+<li class="chapter" data-level="9.8" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#generate-predicted-values-of-pcs-for-test-dataset"><i class="fa fa-check"></i><b>9.8</b> Generate predicted values of PCs for test dataset</a></li>
+<li class="chapter" data-level="9.9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#define-plotting-parameters"><i class="fa fa-check"></i><b>9.9</b> Define plotting parameters</a></li>
+<li class="chapter" data-level="9.10" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#store-the-scores-inside-of-dataframes"><i class="fa fa-check"></i><b>9.10</b> Store the scores inside of dataframes</a></li>
+<li class="chapter" data-level="9.11" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#save-ml_num-for-use-in-09-hclust.rmd"><i class="fa fa-check"></i><b>9.11</b> Save <code>ml_num</code> for use in 09-hclust.Rmd</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html"><i class="fa fa-check"></i><b>10</b> Hierarchical Agglomerative Clustering</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#compare-different-dissimilarity-measures"><i class="fa fa-check"></i><b>10.1</b> Compare different dissimilarity measures</a>
+<ul>
+<li class="chapter" data-level="10.1.1" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#wards-method-minimum-variance-between-clusters"><i class="fa fa-check"></i><b>10.1.1</b> Ward’s method: minimum variance between clusters</a></li>
+<li class="chapter" data-level="10.1.2" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#complete-linkage-largest-intercluster-difference"><i class="fa fa-check"></i><b>10.1.2</b> Complete linkage: largest intercluster difference</a></li>
+<li class="chapter" data-level="10.1.3" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#single-linkage-smallest-intercluster-difference"><i class="fa fa-check"></i><b>10.1.3</b> Single linkage: smallest intercluster difference</a></li>
+<li class="chapter" data-level="10.1.4" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#average-linkage-mean-intercluster-difference"><i class="fa fa-check"></i><b>10.1.4</b> Average linkage: mean intercluster difference</a></li>
+<li class="chapter" data-level="10.1.5" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#view-summaries"><i class="fa fa-check"></i><b>10.1.5</b> View summaries</a></li>
+<li class="chapter" data-level="10.1.6" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#plot-euclidean-distance-linkages"><i class="fa fa-check"></i><b>10.1.6</b> Plot Euclidean distance linkages</a></li>
+<li class="chapter" data-level="10.1.7" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#view-standard-error-plots"><i class="fa fa-check"></i><b>10.1.7</b> View standard error plots:</a></li>
+<li class="chapter" data-level="10.1.8" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#return-best-performing-model"><i class="fa fa-check"></i><b>10.1.8</b> Return best performing model</a></li>
+<li class="chapter" data-level="10.1.9" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#cross-validated-mclust"><i class="fa fa-check"></i><b>10.1.9</b> Cross-validated mclust</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Machine Learning in R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="random-forests" class="section level1" number="6">
+<h1><span class="header-section-number">Chapter 6</span> Random Forests</h1>
+<div id="load-packages" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> Load packages</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="random-forests.html#cb1-1"></a><span class="kw">library</span>(ranger)</span>
+<span id="cb1-2"><a href="random-forests.html#cb1-2"></a><span class="kw">library</span>(vip)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;vip&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:utils&#39;:
+## 
+##     vi</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="random-forests.html#cb4-1"></a><span class="kw">library</span>(rio) <span class="co"># painless data import and export</span></span>
+<span id="cb4-2"><a href="random-forests.html#cb4-2"></a><span class="kw">library</span>(tidyverse) <span class="co"># tidyverse packages </span></span></code></pre></div>
+<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.2     ✓ purrr   0.3.4
+## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="random-forests.html#cb8-1"></a><span class="kw">library</span>(tidymodels) <span class="co"># tidymodels framework </span></span></code></pre></div>
+<pre><code>## ── Attaching packages ────────────────────────────────────── tidymodels 0.1.1 ──</code></pre>
+<pre><code>## ✓ broom     0.7.0      ✓ recipes   0.1.13
+## ✓ dials     0.0.9      ✓ rsample   0.0.8 
+## ✓ infer     0.5.3      ✓ tune      0.1.1 
+## ✓ modeldata 0.0.2      ✓ workflows 0.2.0 
+## ✓ parsnip   0.1.3      ✓ yardstick 0.0.7</code></pre>
+<pre><code>## ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+## x scales::discard() masks purrr::discard()
+## x dplyr::filter()   masks stats::filter()
+## x recipes::fixed()  masks stringr::fixed()
+## x dplyr::lag()      masks stats::lag()
+## x yardstick::spec() masks readr::spec()
+## x recipes::step()   masks stats::step()</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="random-forests.html#cb12-1"></a><span class="kw">library</span>(here) <span class="co"># reproducible way to find files </span></span></code></pre></div>
+<pre><code>## here() starts at /home/jae/Machine-Learning-in-R</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="random-forests.html#cb14-1"></a><span class="kw">library</span>(glue) <span class="co"># glue strings and objects </span></span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;glue&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     collapse</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="random-forests.html#cb17-1"></a><span class="kw">library</span>(patchwork) <span class="co"># arrange ggplots </span></span>
+<span id="cb17-2"><a href="random-forests.html#cb17-2"></a><span class="kw">library</span>(doParallel) <span class="co"># parallel processing </span></span></code></pre></div>
+<pre><code>## Loading required package: foreach</code></pre>
+<pre><code>## 
+## Attaching package: &#39;foreach&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:purrr&#39;:
+## 
+##     accumulate, when</code></pre>
+<pre><code>## Loading required package: iterators</code></pre>
+<pre><code>## Loading required package: parallel</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="random-forests.html#cb23-1"></a><span class="kw">source</span>(<span class="kw">here</span>(<span class="st">&quot;functions&quot;</span>, <span class="st">&quot;utils.R&quot;</span>))</span>
+<span id="cb23-2"><a href="random-forests.html#cb23-2"></a></span>
+<span id="cb23-3"><a href="random-forests.html#cb23-3"></a><span class="kw">theme_set</span>(<span class="kw">theme_minimal</span>())</span></code></pre></div>
+</div>
+<div id="load-data" class="section level2" number="6.2">
+<h2><span class="header-section-number">6.2</span> Load data</h2>
+<p>Load <code>train_x_class</code>, <code>train_y_class</code>, <code>test_x_class</code>, and <code>test_y_class</code> variables we defined in 02-preprocessing.Rmd for this <em>classification</em> task.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="random-forests.html#cb24-1"></a><span class="co"># Objects: task_reg, task_class</span></span>
+<span id="cb24-2"><a href="random-forests.html#cb24-2"></a><span class="kw">load</span>(<span class="kw">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
+</div>
+<div id="overview" class="section level2" number="6.3">
+<h2><span class="header-section-number">6.3</span> Overview</h2>
+<p>The random forest algorithm seeks to improve on the performance of a single decision tree by taking the average of many trees. Thus, a random forest can be viewed as an <strong>ensemble</strong> method, or model averaging approach. The algorithm was invented by UC Berkeley’s own Leo Breiman in 2001, who was also a co-creator of decision trees (see his <a href="https://www.amazon.com/Classification-Regression-Wadsworth-Statistics-Probability/dp/0412048418">1984 CART book</a>).</p>
+<p>Random forests are an extension of <strong>bagging</strong>, in which multiple samples of the original data are drawn with replacement (aka “bootstrap samples”). An algorithm is fit separately to each sample, then the average of those estimates is used for prediction. While bagging can be used by any algorithm, random forest uses decision trees as its base learner. Random forests add another level of randomness by also randomly sampling the features (or covariates) at each split in each decision tree. This makes the decision trees use different covariates and therefore be more unique. As a result, the average of these trees tends to be more accurate overall.</p>
+</div>
+<div id="non-tidy" class="section level2" number="6.4">
+<h2><span class="header-section-number">6.4</span> Non-tidy</h2>
+<div id="fit-model" class="section level3" number="6.4.1">
+<h3><span class="header-section-number">6.4.1</span> Fit model</h3>
+<p>Fit a random forest model that predicts the number of people with heart disease using the other variables as our X predictors. If our Y variable is a factor, <code>ranger</code> will by default perform classification; if it is numeric/integer regression will be performed and if it is omitted it will run an unsupervised analysis.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="random-forests.html#cb25-1"></a><span class="kw">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb25-2"><a href="random-forests.html#cb25-2"></a></span>
+<span id="cb25-3"><a href="random-forests.html#cb25-3"></a>(rf1 &lt;-<span class="st"> </span>ranger<span class="op">::</span><span class="kw">ranger</span>(train_y_class <span class="op">~</span><span class="st"> </span>., </span>
+<span id="cb25-4"><a href="random-forests.html#cb25-4"></a>                   <span class="dt">data =</span> train_x_class, </span>
+<span id="cb25-5"><a href="random-forests.html#cb25-5"></a>                   <span class="co"># Number of trees</span></span>
+<span id="cb25-6"><a href="random-forests.html#cb25-6"></a>                   <span class="dt">num.trees =</span> <span class="dv">500</span>, </span>
+<span id="cb25-7"><a href="random-forests.html#cb25-7"></a>                   <span class="co"># Number of variables randomly sampled as candidates at each split.</span></span>
+<span id="cb25-8"><a href="random-forests.html#cb25-8"></a>                   <span class="dt">mtry =</span> <span class="dv">5</span>, </span>
+<span id="cb25-9"><a href="random-forests.html#cb25-9"></a>                   <span class="co"># Grow a probability forest?</span></span>
+<span id="cb25-10"><a href="random-forests.html#cb25-10"></a>                   <span class="dt">probability =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb25-11"><a href="random-forests.html#cb25-11"></a>                   <span class="co"># We want the importance of predictors to be assessed.</span></span>
+<span id="cb25-12"><a href="random-forests.html#cb25-12"></a>                   <span class="dt">importance =</span> <span class="st">&quot;permutation&quot;</span>))</span></code></pre></div>
+<pre><code>## Ranger result
+## 
+## Call:
+##  ranger::ranger(train_y_class ~ ., data = train_x_class, num.trees = 500,      mtry = 5, probability = TRUE, importance = &quot;permutation&quot;) 
+## 
+## Type:                             Probability estimation 
+## Number of trees:                  500 
+## Sample size:                      213 
+## Number of independent variables:  21 
+## Mtry:                             5 
+## Target node size:                 10 
+## Variable importance mode:         permutation 
+## Splitrule:                        gini 
+## OOB prediction error (Brier s.):  0.148256</code></pre>
+<p>The “OOB estimate of error rate” shows us how accurate our model is. <span class="math inline">\(accuracy = 1 - error rate\)</span>. OOB stands for “out of bag” - and bag is short for “bootstrap aggregation”. So OOB estimates performance by comparing the predicted outcome value to the actual value across all trees using only the observations that were not part of the training data for that tree.</p>
+<p>We can examine the relative variable importance in table and graph form. Random Forest estimates variable importance by separately examining each variable and estimating how much the model’s accuracy drops when that variable’s values are randomly shuffled (permuted). The shuffling temporarily removes any relationship between that covariate’s value and the outcome. If a variable is important then the model’s accuracy will suffer a large drop when it is randomly shuffled. But if the model’s accuracy doesn’t change it means the variable is not important to the model - e.g. maybe it was never even chosen as a split in any of the decision trees.</p>
+</div>
+<div id="investigate" class="section level3" number="6.4.2">
+<h3><span class="header-section-number">6.4.2</span> Investigate</h3>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="random-forests.html#cb27-1"></a>vip<span class="op">::</span><span class="kw">vip</span>(rf1) </span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/rf_varimp_plot-1.png" width="672" /></p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="random-forests.html#cb28-1"></a><span class="co"># Raw data</span></span>
+<span id="cb28-2"><a href="random-forests.html#cb28-2"></a>vip<span class="op">::</span><span class="kw">vi</span>(rf1)</span></code></pre></div>
+<pre><code>## # A tibble: 21 x 2
+##    Variable Importance
+##    &lt;chr&gt;         &lt;dbl&gt;
+##  1 thal_X2     0.0364 
+##  2 thal_X3     0.0258 
+##  3 thalach     0.0155 
+##  4 oldpeak     0.0150 
+##  5 exang       0.0146 
+##  6 sex_X1      0.0107 
+##  7 ca_X1       0.00977
+##  8 ca_X2       0.00479
+##  9 slope_X2    0.00436
+## 10 cp_X2       0.00323
+## # … with 11 more rows</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="random-forests.html#cb30-1"></a><span class="co"># Unhashtag to see all variables - tibbles are silly!</span></span>
+<span id="cb30-2"><a href="random-forests.html#cb30-2"></a><span class="co"># View(vip::vi(rf1))</span></span></code></pre></div>
+</div>
+</div>
+<div id="tidy-models" class="section level2" number="6.5">
+<h2><span class="header-section-number">6.5</span> Tidy models</h2>
+<div id="parsnip" class="section level3" number="6.5.1">
+<h3><span class="header-section-number">6.5.1</span> parsnip</h3>
+<ul>
+<li>Build a model</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>Specify a model</li>
+<li>Specify an engine</li>
+<li>Specify a mode</li>
+</ol>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="random-forests.html#cb31-1"></a><span class="co"># workflow </span></span>
+<span id="cb31-2"><a href="random-forests.html#cb31-2"></a>rand_wf &lt;-<span class="st"> </span><span class="kw">workflow</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_formula</span>(target<span class="op">~</span>.)</span>
+<span id="cb31-3"><a href="random-forests.html#cb31-3"></a></span>
+<span id="cb31-4"><a href="random-forests.html#cb31-4"></a><span class="co"># spec </span></span>
+<span id="cb31-5"><a href="random-forests.html#cb31-5"></a>rand_spec &lt;-<span class="st"> </span><span class="kw">rand_forest</span>(</span>
+<span id="cb31-6"><a href="random-forests.html#cb31-6"></a>  </span>
+<span id="cb31-7"><a href="random-forests.html#cb31-7"></a>           <span class="co"># Mode </span></span>
+<span id="cb31-8"><a href="random-forests.html#cb31-8"></a>           <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>,</span>
+<span id="cb31-9"><a href="random-forests.html#cb31-9"></a>           </span>
+<span id="cb31-10"><a href="random-forests.html#cb31-10"></a>           <span class="co"># Tuning parameters</span></span>
+<span id="cb31-11"><a href="random-forests.html#cb31-11"></a>           <span class="dt">mtry =</span> <span class="ot">NULL</span>, <span class="co"># The number of predictors to available for splitting at each node  </span></span>
+<span id="cb31-12"><a href="random-forests.html#cb31-12"></a>           <span class="dt">min_n =</span> <span class="ot">NULL</span>, <span class="co"># The minimum number of data points needed to keep splitting nodes</span></span>
+<span id="cb31-13"><a href="random-forests.html#cb31-13"></a>           <span class="dt">trees =</span> <span class="dv">500</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="co"># The number of trees</span></span>
+<span id="cb31-14"><a href="random-forests.html#cb31-14"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;ranger&quot;</span>, </span>
+<span id="cb31-15"><a href="random-forests.html#cb31-15"></a>             <span class="co"># We want the importance of predictors to be assessed.</span></span>
+<span id="cb31-16"><a href="random-forests.html#cb31-16"></a>             <span class="dt">seed =</span> <span class="dv">1234</span>, </span>
+<span id="cb31-17"><a href="random-forests.html#cb31-17"></a>             <span class="dt">importance =</span> <span class="st">&quot;permutation&quot;</span>) </span>
+<span id="cb31-18"><a href="random-forests.html#cb31-18"></a></span>
+<span id="cb31-19"><a href="random-forests.html#cb31-19"></a>rand_wf &lt;-<span class="st"> </span>rand_wf <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_model</span>(rand_spec)</span></code></pre></div>
+<ul>
+<li>Fit a model</li>
+</ul>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="random-forests.html#cb32-1"></a>rand_fit &lt;-<span class="st"> </span>rand_wf <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">fit</span>(train_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">target =</span> train_y_class)))</span></code></pre></div>
+</div>
+<div id="yardstick" class="section level3" number="6.5.2">
+<h3><span class="header-section-number">6.5.2</span> yardstick</h3>
+<ul>
+<li>Let’s formally test prediction performance.</li>
+</ul>
+<p><strong>Metrics</strong></p>
+<ul>
+<li><p><code>accuracy</code>: The proportion of the data predicted correctly</p></li>
+<li><p><code>precision</code>: Positive predictive value</p></li>
+<li><p><code>recall</code> (specificity): True positive rate (e.g., healthy people really healthy)</p></li>
+</ul>
+<div class="figure">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png" alt="" />
+<p class="caption">From wikipedia</p>
+</div>
+<ul>
+<li>To learn more about other metrics, check out the yardstick package <a href="https://yardstick.tidymodels.org/reference/index.html">references</a>.</li>
+</ul>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="random-forests.html#cb33-1"></a><span class="co"># Define performance metrics </span></span>
+<span id="cb33-2"><a href="random-forests.html#cb33-2"></a>metrics &lt;-<span class="st"> </span>yardstick<span class="op">::</span><span class="kw">metric_set</span>(accuracy, precision, recall)</span>
+<span id="cb33-3"><a href="random-forests.html#cb33-3"></a></span>
+<span id="cb33-4"><a href="random-forests.html#cb33-4"></a>rand_fit_viz_metr &lt;-<span class="st"> </span><span class="kw">visualize_class_eval</span>(rand_fit)</span>
+<span id="cb33-5"><a href="random-forests.html#cb33-5"></a></span>
+<span id="cb33-6"><a href="random-forests.html#cb33-6"></a>rand_fit_viz_metr</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<ul>
+<li>Visualize the confusion matrix.</li>
+</ul>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="random-forests.html#cb34-1"></a>rand_fit_viz_mat &lt;-<span class="st"> </span><span class="kw">visualize_class_conf</span>(rand_fit)</span>
+<span id="cb34-2"><a href="random-forests.html#cb34-2"></a></span>
+<span id="cb34-3"><a href="random-forests.html#cb34-3"></a>rand_fit_viz_mat</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+</div>
+<div id="tune" class="section level3" number="6.5.3">
+<h3><span class="header-section-number">6.5.3</span> tune</h3>
+<div id="tune-ingredients" class="section level4" number="6.5.3.1">
+<h4><span class="header-section-number">6.5.3.1</span> tune ingredients</h4>
+<p>We focus on the following two parameters:</p>
+<ul>
+<li><p><code>mtry</code>: The number of predictors to available for splitting at each node.</p></li>
+<li><p><code>min_n</code>: The minimum number of data points needed to keep splitting nodes.</p></li>
+</ul>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="random-forests.html#cb35-1"></a>tune_spec &lt;-<span class="st"> </span></span>
+<span id="cb35-2"><a href="random-forests.html#cb35-2"></a><span class="st">  </span><span class="kw">rand_forest</span>(</span>
+<span id="cb35-3"><a href="random-forests.html#cb35-3"></a>           <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>,</span>
+<span id="cb35-4"><a href="random-forests.html#cb35-4"></a>           </span>
+<span id="cb35-5"><a href="random-forests.html#cb35-5"></a>           <span class="co"># Tuning parameters</span></span>
+<span id="cb35-6"><a href="random-forests.html#cb35-6"></a>           <span class="dt">mtry =</span> <span class="kw">tune</span>(), </span>
+<span id="cb35-7"><a href="random-forests.html#cb35-7"></a>           <span class="dt">min_n =</span> <span class="kw">tune</span>()) <span class="op">%&gt;%</span></span>
+<span id="cb35-8"><a href="random-forests.html#cb35-8"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;ranger&quot;</span>,</span>
+<span id="cb35-9"><a href="random-forests.html#cb35-9"></a>             <span class="dt">seed =</span> <span class="dv">1234</span>, </span>
+<span id="cb35-10"><a href="random-forests.html#cb35-10"></a>             <span class="dt">importance =</span> <span class="st">&quot;permutation&quot;</span>)</span>
+<span id="cb35-11"><a href="random-forests.html#cb35-11"></a></span>
+<span id="cb35-12"><a href="random-forests.html#cb35-12"></a>rand_grid &lt;-<span class="st"> </span><span class="kw">grid_regular</span>(<span class="kw">mtry</span>(<span class="dt">range =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">10</span>)),</span>
+<span id="cb35-13"><a href="random-forests.html#cb35-13"></a>                          <span class="kw">min_n</span>(<span class="dt">range =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">10</span>)),</span>
+<span id="cb35-14"><a href="random-forests.html#cb35-14"></a>                          <span class="dt">levels =</span> <span class="dv">5</span>)</span>
+<span id="cb35-15"><a href="random-forests.html#cb35-15"></a></span>
+<span id="cb35-16"><a href="random-forests.html#cb35-16"></a>rand_grid <span class="op">%&gt;%</span></span>
+<span id="cb35-17"><a href="random-forests.html#cb35-17"></a><span class="st">  </span><span class="kw">count</span>(min_n)</span></code></pre></div>
+<pre><code>## # A tibble: 5 x 2
+##   min_n     n
+##   &lt;int&gt; &lt;int&gt;
+## 1     2     5
+## 2     4     5
+## 3     6     5
+## 4     8     5
+## 5    10     5</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="random-forests.html#cb37-1"></a><span class="co"># 10-fold cross-validation</span></span>
+<span id="cb37-2"><a href="random-forests.html#cb37-2"></a></span>
+<span id="cb37-3"><a href="random-forests.html#cb37-3"></a><span class="kw">set.seed</span>(<span class="dv">1234</span>) <span class="co"># for reproducibility </span></span>
+<span id="cb37-4"><a href="random-forests.html#cb37-4"></a></span>
+<span id="cb37-5"><a href="random-forests.html#cb37-5"></a>rand_folds &lt;-<span class="st"> </span><span class="kw">vfold_cv</span>(train_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">target =</span> train_y_class)),</span>
+<span id="cb37-6"><a href="random-forests.html#cb37-6"></a>                       <span class="dt">strata =</span> target)</span></code></pre></div>
+</div>
+<div id="add-these-elements-to-a-workflow" class="section level4" number="6.5.3.2">
+<h4><span class="header-section-number">6.5.3.2</span> Add these elements to a workflow</h4>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="random-forests.html#cb38-1"></a><span class="co"># Update workflow </span></span>
+<span id="cb38-2"><a href="random-forests.html#cb38-2"></a>rand_wf &lt;-<span class="st"> </span>rand_wf <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">update_model</span>(tune_spec)</span>
+<span id="cb38-3"><a href="random-forests.html#cb38-3"></a></span>
+<span id="cb38-4"><a href="random-forests.html#cb38-4"></a>cl &lt;-<span class="st"> </span><span class="kw">makeCluster</span>(<span class="dv">4</span>)</span>
+<span id="cb38-5"><a href="random-forests.html#cb38-5"></a><span class="kw">registerDoParallel</span>(cl)</span>
+<span id="cb38-6"><a href="random-forests.html#cb38-6"></a></span>
+<span id="cb38-7"><a href="random-forests.html#cb38-7"></a><span class="co"># Tuning results </span></span>
+<span id="cb38-8"><a href="random-forests.html#cb38-8"></a>rand_res &lt;-<span class="st"> </span>rand_wf <span class="op">%&gt;%</span></span>
+<span id="cb38-9"><a href="random-forests.html#cb38-9"></a><span class="st">  </span><span class="kw">tune_grid</span>(</span>
+<span id="cb38-10"><a href="random-forests.html#cb38-10"></a>    <span class="dt">resamples =</span> rand_folds, </span>
+<span id="cb38-11"><a href="random-forests.html#cb38-11"></a>    <span class="dt">grid =</span> rand_grid,</span>
+<span id="cb38-12"><a href="random-forests.html#cb38-12"></a>    <span class="dt">metrics =</span> metrics</span>
+<span id="cb38-13"><a href="random-forests.html#cb38-13"></a>  )</span></code></pre></div>
+</div>
+<div id="visualize" class="section level4" number="6.5.3.3">
+<h4><span class="header-section-number">6.5.3.3</span> Visualize</h4>
+<ul>
+<li>The following plot draws on the <a href="https://www.tidymodels.org/start/tuning/">vignette</a> of the tidymodels package.</li>
+</ul>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="random-forests.html#cb39-1"></a>rand_res <span class="op">%&gt;%</span></span>
+<span id="cb39-2"><a href="random-forests.html#cb39-2"></a><span class="st">  </span><span class="kw">collect_metrics</span>() <span class="op">%&gt;%</span></span>
+<span id="cb39-3"><a href="random-forests.html#cb39-3"></a><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">min_n =</span> <span class="kw">factor</span>(min_n)) <span class="op">%&gt;%</span></span>
+<span id="cb39-4"><a href="random-forests.html#cb39-4"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(mtry, mean, <span class="dt">color =</span> min_n)) <span class="op">+</span></span>
+<span id="cb39-5"><a href="random-forests.html#cb39-5"></a><span class="st">  </span><span class="co"># Line + Point plot </span></span>
+<span id="cb39-6"><a href="random-forests.html#cb39-6"></a><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">size =</span> <span class="fl">1.5</span>, <span class="dt">alpha =</span> <span class="fl">0.6</span>) <span class="op">+</span></span>
+<span id="cb39-7"><a href="random-forests.html#cb39-7"></a><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size =</span> <span class="dv">2</span>) <span class="op">+</span></span>
+<span id="cb39-8"><a href="random-forests.html#cb39-8"></a><span class="st">  </span><span class="co"># Subplots </span></span>
+<span id="cb39-9"><a href="random-forests.html#cb39-9"></a><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span><span class="st"> </span>.metric, </span>
+<span id="cb39-10"><a href="random-forests.html#cb39-10"></a>             <span class="dt">scales =</span> <span class="st">&quot;free&quot;</span>, </span>
+<span id="cb39-11"><a href="random-forests.html#cb39-11"></a>             <span class="dt">nrow =</span> <span class="dv">2</span>) <span class="op">+</span></span>
+<span id="cb39-12"><a href="random-forests.html#cb39-12"></a><span class="st">  </span><span class="co"># Log scale x </span></span>
+<span id="cb39-13"><a href="random-forests.html#cb39-13"></a><span class="st">  </span><span class="kw">scale_x_log10</span>(<span class="dt">labels =</span> scales<span class="op">::</span><span class="kw">label_number</span>()) <span class="op">+</span></span>
+<span id="cb39-14"><a href="random-forests.html#cb39-14"></a><span class="st">  </span><span class="co"># Discrete color scale </span></span>
+<span id="cb39-15"><a href="random-forests.html#cb39-15"></a><span class="st">  </span><span class="kw">scale_color_viridis_d</span>(<span class="dt">option =</span> <span class="st">&quot;plasma&quot;</span>, <span class="dt">begin =</span> <span class="fl">.9</span>, <span class="dt">end =</span> <span class="dv">0</span>) <span class="op">+</span></span>
+<span id="cb39-16"><a href="random-forests.html#cb39-16"></a><span class="st">  </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;The number of predictors to be sampled&quot;</span>,</span>
+<span id="cb39-17"><a href="random-forests.html#cb39-17"></a>       <span class="dt">col =</span> <span class="st">&quot;The minimum number of data points needed for splitting&quot;</span>,</span>
+<span id="cb39-18"><a href="random-forests.html#cb39-18"></a>       <span class="dt">y =</span> <span class="ot">NULL</span>) <span class="op">+</span></span>
+<span id="cb39-19"><a href="random-forests.html#cb39-19"></a><span class="st">  </span><span class="kw">theme</span>(<span class="dt">legend.position=</span><span class="st">&quot;bottom&quot;</span>)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="random-forests.html#cb40-1"></a><span class="co"># Optimal parameter</span></span>
+<span id="cb40-2"><a href="random-forests.html#cb40-2"></a>best_tree &lt;-<span class="st"> </span><span class="kw">select_best</span>(rand_res, <span class="st">&quot;accuracy&quot;</span>)</span>
+<span id="cb40-3"><a href="random-forests.html#cb40-3"></a></span>
+<span id="cb40-4"><a href="random-forests.html#cb40-4"></a>best_tree</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 3
+##    mtry min_n .config
+##   &lt;int&gt; &lt;int&gt; &lt;chr&gt;  
+## 1     1     2 Model01</code></pre>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="random-forests.html#cb42-1"></a><span class="co"># Add the parameter to the workflow </span></span>
+<span id="cb42-2"><a href="random-forests.html#cb42-2"></a>finalize_tree &lt;-<span class="st"> </span>rand_wf <span class="op">%&gt;%</span></span>
+<span id="cb42-3"><a href="random-forests.html#cb42-3"></a><span class="st">  </span><span class="kw">finalize_workflow</span>(best_tree)</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="random-forests.html#cb43-1"></a>rand_fit_tuned &lt;-<span class="st"> </span>finalize_tree <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb43-2"><a href="random-forests.html#cb43-2"></a><span class="st">  </span><span class="kw">fit</span>(train_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">target =</span> train_y_class)))</span>
+<span id="cb43-3"><a href="random-forests.html#cb43-3"></a></span>
+<span id="cb43-4"><a href="random-forests.html#cb43-4"></a><span class="co"># Metrics </span></span>
+<span id="cb43-5"><a href="random-forests.html#cb43-5"></a>(rand_fit_viz_metr <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Non-tuned&quot;</span>)) <span class="op">/</span><span class="st"> </span>(<span class="kw">visualize_class_eval</span>(rand_fit_tuned) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Tuned&quot;</span>))</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="random-forests.html#cb44-1"></a><span class="co"># Confusion matrix </span></span>
+<span id="cb44-2"><a href="random-forests.html#cb44-2"></a>(rand_fit_viz_mat <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Non-tuned&quot;</span>)) <span class="op">/</span><span class="st"> </span>(<span class="kw">visualize_class_conf</span>(rand_fit_tuned) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Tuned&quot;</span>))</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-11-2.png" width="672" /></p>
+<ul>
+<li>Visualize variable importance</li>
+</ul>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="random-forests.html#cb45-1"></a>rand_fit_tuned <span class="op">%&gt;%</span></span>
+<span id="cb45-2"><a href="random-forests.html#cb45-2"></a><span class="st">  </span><span class="kw">pull_workflow_fit</span>() <span class="op">%&gt;%</span></span>
+<span id="cb45-3"><a href="random-forests.html#cb45-3"></a><span class="st">  </span>vip<span class="op">::</span><span class="kw">vip</span>()</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div id="last-fit" class="section level4" number="6.5.3.4">
+<h4><span class="header-section-number">6.5.3.4</span> Last fit</h4>
+<ul>
+<li>Apply the tuned model to the test dataset</li>
+</ul>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="random-forests.html#cb46-1"></a>test_fit &lt;-<span class="st"> </span>finalize_tree <span class="op">%&gt;%</span></span>
+<span id="cb46-2"><a href="random-forests.html#cb46-2"></a><span class="st">  </span><span class="kw">fit</span>(test_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">target =</span> test_y_class)))</span>
+<span id="cb46-3"><a href="random-forests.html#cb46-3"></a></span>
+<span id="cb46-4"><a href="random-forests.html#cb46-4"></a><span class="kw">evaluate_class</span>(test_fit)</span></code></pre></div>
+<pre><code>## # A tibble: 3 x 3
+##   .metric   .estimator .estimate
+##   &lt;chr&gt;     &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy  binary         0.933
+## 2 precision binary         0.973
+## 3 recall    binary         0.878</code></pre>
+<p>TBD: Challenge 3</p>
+
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="decision-trees.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="xgboost.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/dlab-berkeley/Machine-Learning-in-R/edit/master/05-random-forest.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["machine-learning-in-r.pdf", "machine-learning-in-r.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

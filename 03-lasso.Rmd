@@ -2,9 +2,19 @@
 
 ## Load packages
 
-```{r load_packages}
+```{r}
+
 library(glmnet)
-library(ggplot2)
+library(rio) # painless data import and export
+library(tidyverse) # tidyverse packages 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
+library(glue) # glue strings and objects 
+library(vip) # variable importance 
+
+source(here("functions", "utils.R"))
+
+theme_set(theme_minimal())
 ```
 
 ## Load data 
@@ -13,139 +23,274 @@ Load `train_x_reg`, `train_y_reg`, `test_x_reg`, and `test_y_reg` variables we d
 
 ```{r}
 # Objects: task_reg, task_class
-load("data/preprocessed.RData")
+load(here("data", "preprocessed.RData"))
+
 ```
 
 ## Overview
 
-* LASSO = sets Beta coefficients of unrelated (to Y) predcitors to zero
+* LASSO = sets Beta coefficients of unrelated (to Y) predictors to zero
 
-* RIDGE = sets Beta coefficients of unrealted (to Y) predictors NEAR ZERO but does not remove them
+* RIDGE = sets Beta coefficients of unrelated (to Y) predictors NEAR ZERO but does not remove them
 
 * ELASTICNET = a combination of LASSO and RIDGE
-
-Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors.  
-
-```{r}
-# Fit the regression model; lm() will automatically add a temporary intercept column
-fit = lm(train_y_reg ~ ., data = train_x_reg)
-
-# View the output
-summary(fit) 
-
-# Predict outcome for the test data
-predicted = predict(fit, test_x_reg)
-
-# 8. Calculate mean-squared error
-(mse_reg = mean((test_y_reg - predicted)^2))
-
-# Root mean-squared error
-# We are off ~7.54 years for predicting age
-sqrt(mse_reg)
-```
 
 Review "Challenge 0" in the Challenges folder for a useful review of how OLS regression works and [see the yhat blog](http://blog.yhat.com/posts/r-lm-summary.html) for help interpreting its output. 
 
 Linear regression is a useful introduction to machine learning, but in your research you might be faced with warning messages after `predict()` about the [rank of your matrix](https://stats.stackexchange.com/questions/35071/what-is-rank-deficiency-and-how-to-deal-with-it).
 
-The lasso is useful to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. 
+The lasso is useful to try and remove some of the non-associated features from the model. Because glmnet expects a matrix of predictors, use `as.matrix` to convert it from a data frame to a matrix. (You don't need to worry about this, if you use `tidymodels`.) 
 
 Be sure to [read the glmnet vignette](https://web.stanford.edu/~hastie/Papers/Glmnet_Vignette.pdf)
 
-## Fit model
+## Non-tidy 
 
+### OLS 
+
+Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors.  
 ```{r}
-lasso = cv.glmnet(as.matrix(train_x_reg), train_y_reg, family = "gaussian", alpha = 1)
+
+# Fit the regression model; lm() will automatically add a temporary intercept column
+ols <- lm(train_y_reg ~ ., data = train_x_reg)
+
+# Predict outcome for the test data
+ols_predicted <- predict(ols, test_x_reg)
+
+# Root mean-squared error
+sqrt(mean((test_y_reg - ols_predicted )^2))
+
 ```
 
-## Investigate Results
-
-Visualize the distribution of log(lamba) vs mean-squared error.   
+### Lasso
 
 ```{r}
-plot(lasso) 
-# Help interpreting this plot: https://stats.stackexchange.com/questions/404795/interpretation-of-cross-validation-plot-for-lasso-regression
 
-# Generate our own version, but plot lambda (not on log scale) vs. RMSE.
-qplot(lasso$lambda, sqrt(lasso$cvm)) + theme_minimal()
+# Fit the lasso model 
+lasso <- cv.glmnet(x = as.matrix(train_x_reg), 
+                   y = train_y_reg, 
+                   family = "gaussian", 
+                   alpha = 1)
 
-```
-
-> NOTE: when log(lamba) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. As log(lambda) becomes increasingly negative, lambda is correspondingly closer to zero and we are approaching the OLS solution. 
-
-```{r}
-# And here is a plot of log(lambda) vs lambda.
-qplot(log(lasso$lambda), lasso$lambda) + theme_minimal()
-```
-
-Show plot of different lambda values: 
-
-```{r}
-plot(lasso$glmnet.fit, xvar = "lambda", label = TRUE)
-```
-
-Show the lambda that results in the minimum estimated mean-squared error (MSE):
-
-```{r}
 lasso$lambda.min
+
+# Predict outcome for the test data
+lasso_predicted <- predict(lasso, newx = as.matrix(test_x_reg),
+                      s = 0.1) # Tuning parameter; An arbitrary number not optimized 
+
+# Calculate root mean-squared error
+sqrt(mean((lasso_predicted - test_y_reg)^2))
+
 ```
 
-Show higher lambda within [one standard error](https://stats.stackexchange.com/questions/80268/empirical-justification-for-the-one-standard-error-rule-when-using-cross-validat) of performance of the minimum
+## tidymodels 
+
+#### parsnip 
+
+- Build models 
+
+1. Specify a model 
+2. Specify an engine 
+3. Specify a mode 
 
 ```{r}
-lasso$lambda.1se
 
-# Log scale versions:
-log(c("log_min" = lasso$lambda.min, "log_1se" = lasso$lambda.1se))
+# OLS spec 
+ols_spec <- linear_reg() %>% # Specify a model 
+  set_engine("lm") %>% # Specify an engine: lm, glmnet, stan, keras, spark 
+  set_mode("regression") # Declare a mode: regression or classification 
+
+# Lasso spec 
+lasso_spec <- linear_reg(penalty = 0.1, # tuning parameter 
+                         mixture = 1) %>% # 1 = lasso, 0 = ridge 
+  set_engine("glmnet") %>%
+  set_mode("regression") 
+
+# If you don't understand parsnip arguments 
+lasso_spec %>% translate() # See the documentation 
+
 ```
 
-Look at the coefficients
+- Fit models 
+
 ```{r}
-(coef_1se = coef(lasso, s = "lambda.1se"))
+
+ols_fit <- ols_spec %>%
+  fit_xy(x = train_x_reg, y= train_y_reg) 
+  # fit(train_y_reg ~ ., train_x_reg) # When you data are not preprocessed 
+
+lasso_fit <- lasso_spec %>%
+  fit_xy(x = train_x_reg, y= train_y_reg) 
+
 ```
 
-Look at the coefficients for lambda.min
+#### yardstick 
+
+- Visualize model fits 
 
 ```{r}
-(coef_min = coef(lasso, s = "lambda.min"))
 
-# Compare side-by-side
-cbind(as.matrix(coef_1se), as.matrix(coef_min))
+map2(list(ols_fit, lasso_fit), c("OLS", "Lasso"), visualize_fit) 
+
 ```
 
-Predict on the test set
+- Let's formally test prediction performance. 
+
+**Metrics**
+
+- `rmse`: Root mean squared error (the smaller the better)
+
+- `mae`: Mean absolute error (the smaller the better)
+
+- `rsq`: R squared (the larger the better)
+
+- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
+
 ```{r}
-predictions = predict(lasso, newx = as.matrix(test_x_reg),
-                      s = lasso$lambda.1se)
 
-# How far off were we, based on absolute error?
-rounded_errors = round(abs(test_y_reg - predictions))
-table(rounded_errors)
+# Define performance metrics 
+metrics <- yardstick::metric_set(rmse, mae, rsq)
 
-# Group the absolute error into 4 bins.
-grouped_errors = round(abs(test_y_reg - predictions) / 5)
-grouped_errors[grouped_errors > 2] = 3
-table(grouped_errors)
+# Evaluate many models 
+evals <- purrr::map(list(ols_fit, lasso_fit), evaluate_reg) %>%
+  reduce(bind_rows) %>%
+  mutate(type = rep(c("OLS", "Lasso"), each = 3))
 
-# 4 categories of accuracy
-how_close = factor(grouped_errors, labels = c("very close", "close", "meh", "far"))
-table(rounded_errors, how_close)
+# Visualize the test results 
+evals %>%
+  ggplot(aes(x = fct_reorder(type, .estimate), y = .estimate)) +
+    geom_point() +
+    labs(x = "Model",
+         y = "Estimate") +
+    facet_wrap(~glue("{toupper(.metric)}"), scales = "free_y") 
 
-# Scatter plot of actual vs. predicted
-qplot(test_y_reg, predictions, 
-      color = how_close) +
-  geom_point(size = 5, alpha = 0.7) + 
-  theme_minimal()
 ```
 
-Calculate MSE and RMSE:
+- For more information, read [Tidy Modeling with R](https://www.tmwr.org/) by Max Kuhn and Julia Silge.
+
+#### tune 
+
+##### tune ingredients 
+
 ```{r}
-# Calculate mean-squared error.
-mean((predictions - test_y_reg)^2)
 
-# Calculate root mean-squared error.
-sqrt(mean((predictions - test_y_reg)^2))
+# tune() = placeholder 
+
+tune_spec <- linear_reg(penalty = tune(), # tuning parameter 
+                         mixture = 1) %>% # 1 = lasso, 0 = ridge 
+  set_engine("glmnet") %>%
+  set_mode("regression") 
+
+tune_spec
+
+# penalty() searches 50 possible combinations 
+
+lambda_grid <- grid_regular(penalty(), levels = 50)
+
+# 10-fold cross-validation
+
+set.seed(1234) # for reproducibility 
+
+rec_folds <- vfold_cv(train_x_reg %>% bind_cols(tibble(age = train_y_reg)))
+
 ```
 
-## Challenge 1
-Open Challenge 1 in the "Challenges" folder. 
+##### Add these elements to a workflow 
+
+```{r}
+
+# Workflow 
+rec_wf <- workflow() %>%
+  add_model(tune_spec) %>%
+  add_formula(age~.)
+
+# Tuning results 
+rec_res <- rec_wf %>%
+  tune_grid(
+    resamples = rec_folds, 
+    grid = lambda_grid
+  )
+
+```
+
+##### Visualize 
+
+- Visualize the distribution of log(lambda) vs mean-squared error. 
+
+```{r}
+
+# Visualize
+
+rec_res %>%
+  collect_metrics() %>%
+  ggplot(aes(penalty, mean, col = .metric)) +
+  geom_errorbar(aes(
+    ymin = mean - std_err,
+    ymax = mean + std_err
+  ),
+  alpha = 0.3
+  ) +
+  geom_line(size = 2) +
+  scale_x_log10() +
+  labs(x = "log(lambda)") +
+  facet_wrap(~glue("{toupper(.metric)}"), 
+             scales = "free",
+             nrow = 2) +
+  theme(legend.position = "none")
+
+```
+
+> NOTE: when log(lambda) is equal to 0 that means lambda is equal to 1. In this graph, the far right side is overpenalized, as the model is emphasizing the beta coefficients being small. As log(lambda) becomes increasingly negative, lambda is correspondingly closer to zero and we are approaching the OLS solution. 
+
+- Show the lambda that results in the minimum estimated mean-squared error (MSE):
+
+```{r}
+
+top_rmse <- show_best(rec_res, metric = "rmse")
+
+best_rmse <- select_best(rec_res, metric = "rmse")
+
+best_rmse 
+
+glue('The RMSE of the intiail model is 
+     {evals %>%
+  filter(type == "Lasso", .metric == "rmse") %>%
+  select(.estimate) %>%
+  round(2)}')
+
+glue('The RMSE of the tuned model is {rec_res %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  arrange(mean) %>%
+  dplyr::slice(1) %>%
+  select(mean) %>%
+  round(2)}')
+
+```
+
+- Finalize your workflow and visualize [variable importance](https://koalaverse.github.io/vip/articles/vip.html)
+
+```{r}
+
+finalize_lasso <- rec_wf %>%
+  finalize_workflow(best_rmse)
+
+finalize_lasso %>%
+  fit(train_x_reg %>% bind_cols(tibble(age = train_y_reg))) %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+  
+```
+##### Test fit 
+
+- Apply the tuned model to the test dataset 
+
+```{r}
+
+test_fit <- finalize_lasso %>% 
+  fit(test_x_reg %>% bind_cols(tibble(age = test_y_reg)))
+
+evaluate_reg(test_fit)
+
+```
+
+TBD: Challenge 1
