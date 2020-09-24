@@ -290,7 +290,10 @@ For classification, we then use [stratified random sampling](https://stats.stack
 ```{r}
 
 # split 
-split_class <- initial_split(data, prop = 0.7, strata = target)
+split_class <- initial_split(data %>%
+                               mutate(target = as.factor(target)), 
+                             prop = 0.7, 
+                             strata = target)
 
 # training set 
 raw_train_x_class <- training(split_class)
@@ -341,6 +344,7 @@ We save our preprocessed data into an RData file so that we can easily load it t
 
 ```{r save_data}
 save(data, data_original, # data 
+     split_reg, split_class, # splits 
      rec_reg, rec_class, # recipes 
      prep_reg, prep_class, # preps 
      train_x_reg, train_y_reg, # train sets 
