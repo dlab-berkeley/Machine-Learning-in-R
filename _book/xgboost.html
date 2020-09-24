@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Chapter 7 XGBoost | Machine Learning in R</title>
+  <meta name="description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="generator" content="bookdown 0.20 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Chapter 7 XGBoost | Machine Learning in R" />
+  <meta property="og:type" content="book" />
+  
+  
+  <meta property="og:description" content="D-Lab’s Machine Learning in R Workshop" />
+  <meta name="github-repo" content="dlab-berkeley/Machine-Learning-in-R" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Chapter 7 XGBoost | Machine Learning in R" />
+  
+  <meta name="twitter:description" content="D-Lab’s Machine Learning in R Workshop" />
+  
+
+
+
+<meta name="date" content="2020-09-24" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="random-forests.html"/>
+<link rel="next" href="ensembles.html"/>
+<script src="libs/header-attrs-2.3/header-attrs.js"></script>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Machine Learning in R</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preface</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#prereqs"><i class="fa fa-check"></i><b>1.1</b> Prereqs</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="overview.html"><a href="overview.html"><i class="fa fa-check"></i><b>2</b> Overview</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="overview.html"><a href="overview.html#package-installation"><i class="fa fa-check"></i><b>2.1</b> Package installation</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="preprocessing.html"><a href="preprocessing.html"><i class="fa fa-check"></i><b>3</b> Preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>3.1</b> Load packages</a></li>
+<li class="chapter" data-level="3.2" data-path="preprocessing.html"><a href="preprocessing.html#load-the-data"><i class="fa fa-check"></i><b>3.2</b> Load the data</a></li>
+<li class="chapter" data-level="3.3" data-path="preprocessing.html"><a href="preprocessing.html#read-background-information-and-variable-descriptions"><i class="fa fa-check"></i><b>3.3</b> Read background information and variable descriptions</a></li>
+<li class="chapter" data-level="3.4" data-path="preprocessing.html"><a href="preprocessing.html#quick-overviews-on-machine-learning"><i class="fa fa-check"></i><b>3.4</b> Quick overviews on machine learning</a></li>
+<li class="chapter" data-level="3.5" data-path="preprocessing.html"><a href="preprocessing.html#machine-learning-workflow"><i class="fa fa-check"></i><b>3.5</b> Machine learning workflow</a></li>
+<li class="chapter" data-level="3.6" data-path="preprocessing.html"><a href="preprocessing.html#why-taking-a-tidyverse-approach-to-machine-learning"><i class="fa fa-check"></i><b>3.6</b> Why taking a tidyverse approach to machine learning?</a>
+<ul>
+<li class="chapter" data-level="3.6.1" data-path="preprocessing.html"><a href="preprocessing.html#benefits"><i class="fa fa-check"></i><b>3.6.1</b> Benefits</a></li>
+<li class="chapter" data-level="3.6.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>3.6.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="3.7" data-path="preprocessing.html"><a href="preprocessing.html#data-preprocessing"><i class="fa fa-check"></i><b>3.7</b> Data preprocessing</a>
+<ul>
+<li class="chapter" data-level="3.7.1" data-path="preprocessing.html"><a href="preprocessing.html#task-1-what-is-one-hot-encoding"><i class="fa fa-check"></i><b>3.7.1</b> Task 1: What is one-hot encoding?</a></li>
+<li class="chapter" data-level="3.7.2" data-path="preprocessing.html"><a href="preprocessing.html#task-2-handling-missing-data"><i class="fa fa-check"></i><b>3.7.2</b> Task 2: Handling missing data</a></li>
+</ul></li>
+<li class="chapter" data-level="3.8" data-path="preprocessing.html"><a href="preprocessing.html#preprocessing-workflow"><i class="fa fa-check"></i><b>3.8</b> Preprocessing workflow</a></li>
+<li class="chapter" data-level="3.9" data-path="preprocessing.html"><a href="preprocessing.html#regressioin-setup"><i class="fa fa-check"></i><b>3.9</b> Regressioin setup</a>
+<ul>
+<li class="chapter" data-level="3.9.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable"><i class="fa fa-check"></i><b>3.9.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.9.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-random-sampling"><i class="fa fa-check"></i><b>3.9.2</b> Data splitting using random sampling</a></li>
+<li class="chapter" data-level="3.9.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe"><i class="fa fa-check"></i><b>3.9.3</b> recipe</a></li>
+</ul></li>
+<li class="chapter" data-level="3.10" data-path="preprocessing.html"><a href="preprocessing.html#classification-setup"><i class="fa fa-check"></i><b>3.10</b> Classification setup</a>
+<ul>
+<li class="chapter" data-level="3.10.1" data-path="preprocessing.html"><a href="preprocessing.html#outcome-variable-1"><i class="fa fa-check"></i><b>3.10.1</b> Outcome variable</a></li>
+<li class="chapter" data-level="3.10.2" data-path="preprocessing.html"><a href="preprocessing.html#data-splitting-using-stratified-random-sampling"><i class="fa fa-check"></i><b>3.10.2</b> Data splitting using stratified random sampling</a></li>
+<li class="chapter" data-level="3.10.3" data-path="preprocessing.html"><a href="preprocessing.html#recipe-1"><i class="fa fa-check"></i><b>3.10.3</b> recipe</a></li>
+<li class="chapter" data-level="3.10.4" data-path="preprocessing.html"><a href="preprocessing.html#save-our-preprocessed-data"><i class="fa fa-check"></i><b>3.10.4</b> Save our preprocessed data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html"><i class="fa fa-check"></i><b>4</b> OLS and lasso</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>4.1</b> Load packages</a></li>
+<li class="chapter" data-level="4.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>4.2</b> Load data</a></li>
+<li class="chapter" data-level="4.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>4.3</b> Overview</a></li>
+<li class="chapter" data-level="4.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#fit-and-evaluate-models"><i class="fa fa-check"></i><b>4.4</b> Fit and evaluate models</a>
+<ul>
+<li class="chapter" data-level="4.4.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>4.4.1</b> Non-tidy</a></li>
+<li class="chapter" data-level="4.4.2" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>4.4.2</b> tidymodels</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tuning-lasso-parameters"><i class="fa fa-check"></i><b>4.5</b> Tuning lasso parameters</a>
+<ul>
+<li class="chapter" data-level="4.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#tune-ingredients"><i class="fa fa-check"></i><b>4.5.1</b> tune ingredients</a></li>
+<li class="chapter" data-level="4.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#add-these-elements-to-a-workflow"><i class="fa fa-check"></i><b>4.5.2</b> Add these elements to a workflow</a></li>
+<li class="chapter" data-level="4.5.3" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#visualize"><i class="fa fa-check"></i><b>4.5.3</b> Visualize</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="decision-trees.html"><a href="decision-trees.html"><i class="fa fa-check"></i><b>5</b> Decision Trees</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>5.1</b> Load packages</a></li>
+<li class="chapter" data-level="5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>5.2</b> Load data</a></li>
+<li class="chapter" data-level="5.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>5.3</b> Overview</a></li>
+<li class="chapter" data-level="5.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>5.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="5.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>5.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="5.4.2" data-path="decision-trees.html"><a href="decision-trees.html#investigate"><i class="fa fa-check"></i><b>5.4.2</b> Investigate</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="decision-trees.html"><a href="decision-trees.html#tidy-models"><i class="fa fa-check"></i><b>5.5</b> Tidy models</a>
+<ul>
+<li class="chapter" data-level="5.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>5.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="5.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>5.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="5.5.3" data-path="decision-trees.html"><a href="decision-trees.html#tune"><i class="fa fa-check"></i><b>5.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="random-forests.html"><a href="random-forests.html"><i class="fa fa-check"></i><b>6</b> Random Forests</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>6.1</b> Load packages</a></li>
+<li class="chapter" data-level="6.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>6.2</b> Load data</a></li>
+<li class="chapter" data-level="6.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>6.3</b> Overview</a></li>
+<li class="chapter" data-level="6.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>6.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>6.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="6.4.2" data-path="decision-trees.html"><a href="decision-trees.html#investigate"><i class="fa fa-check"></i><b>6.4.2</b> Investigate</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="decision-trees.html"><a href="decision-trees.html#tidy-models"><i class="fa fa-check"></i><b>6.5</b> Tidy models</a>
+<ul>
+<li class="chapter" data-level="6.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>6.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="6.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>6.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="6.5.3" data-path="decision-trees.html"><a href="decision-trees.html#tune"><i class="fa fa-check"></i><b>6.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="xgboost.html"><a href="xgboost.html"><i class="fa fa-check"></i><b>7</b> XGBoost</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>7.1</b> Load packages</a></li>
+<li class="chapter" data-level="7.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>7.2</b> Load data</a></li>
+<li class="chapter" data-level="7.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>7.3</b> Overview</a></li>
+<li class="chapter" data-level="7.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>7.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="7.4.1" data-path="xgboost.html"><a href="xgboost.html#define-cv_control"><i class="fa fa-check"></i><b>7.4.1</b> Define <code>cv_control</code></a></li>
+<li class="chapter" data-level="7.4.2" data-path="xgboost.html"><a href="xgboost.html#define-xgb_grid"><i class="fa fa-check"></i><b>7.4.2</b> Define <code>xgb_grid</code></a></li>
+<li class="chapter" data-level="7.4.3" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>7.4.3</b> Fit model</a></li>
+<li class="chapter" data-level="7.4.4" data-path="xgboost.html"><a href="xgboost.html#investigate-results"><i class="fa fa-check"></i><b>7.4.4</b> Investigate Results</a></li>
+</ul></li>
+<li class="chapter" data-level="7.5" data-path="preprocessing.html"><a href="preprocessing.html#tidymodels"><i class="fa fa-check"></i><b>7.5</b> Tidymodels</a>
+<ul>
+<li class="chapter" data-level="7.5.1" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#parsnip"><i class="fa fa-check"></i><b>7.5.1</b> parsnip</a></li>
+<li class="chapter" data-level="7.5.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#yardstick"><i class="fa fa-check"></i><b>7.5.2</b> yardstick</a></li>
+<li class="chapter" data-level="7.5.3" data-path="decision-trees.html"><a href="decision-trees.html#tune"><i class="fa fa-check"></i><b>7.5.3</b> tune</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="ensembles.html"><a href="ensembles.html"><i class="fa fa-check"></i><b>8</b> Ensembles</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="preprocessing.html"><a href="preprocessing.html#load-packages"><i class="fa fa-check"></i><b>8.1</b> Load packages</a></li>
+<li class="chapter" data-level="8.2" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#load-data"><i class="fa fa-check"></i><b>8.2</b> Load data</a></li>
+<li class="chapter" data-level="8.3" data-path="overview.html"><a href="overview.html#overview"><i class="fa fa-check"></i><b>8.3</b> Overview</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="ensembles.html"><a href="ensembles.html#choose-algorithms"><i class="fa fa-check"></i><b>8.3.1</b> Choose algorithms</a></li>
+</ul></li>
+<li class="chapter" data-level="8.4" data-path="ols-and-lasso.html"><a href="ols-and-lasso.html#non-tidy"><i class="fa fa-check"></i><b>8.4</b> Non-tidy</a>
+<ul>
+<li class="chapter" data-level="8.4.1" data-path="decision-trees.html"><a href="decision-trees.html#fit-model"><i class="fa fa-check"></i><b>8.4.1</b> Fit model</a></li>
+<li class="chapter" data-level="8.4.2" data-path="ensembles.html"><a href="ensembles.html#risk"><i class="fa fa-check"></i><b>8.4.2</b> Risk</a></li>
+<li class="chapter" data-level="8.4.3" data-path="ensembles.html"><a href="ensembles.html#plot-the-risk"><i class="fa fa-check"></i><b>8.4.3</b> Plot the risk</a></li>
+<li class="chapter" data-level="8.4.4" data-path="ensembles.html"><a href="ensembles.html#compute-auc-for-all-estimators"><i class="fa fa-check"></i><b>8.4.4</b> Compute AUC for all estimators</a></li>
+<li class="chapter" data-level="8.4.5" data-path="ensembles.html"><a href="ensembles.html#plot-the-roc-curve-for-the-best-estimator"><i class="fa fa-check"></i><b>8.4.5</b> Plot the ROC curve for the best estimator</a></li>
+<li class="chapter" data-level="8.4.6" data-path="ensembles.html"><a href="ensembles.html#review-weight-distribution-for-the-superlearner"><i class="fa fa-check"></i><b>8.4.6</b> Review weight distribution for the SuperLearner</a></li>
+</ul></li>
+<li class="chapter" data-level="8.5" data-path="ensembles.html"><a href="ensembles.html#challenge-5"><i class="fa fa-check"></i><b>8.5</b> Challenge 5</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html"><i class="fa fa-check"></i><b>9</b> Principal Component Analysis</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#unsupervised-approaches"><i class="fa fa-check"></i><b>9.1</b> Unsupervised approaches</a></li>
+<li class="chapter" data-level="9.2" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#reclass-variables"><i class="fa fa-check"></i><b>9.2</b> Reclass variables</a></li>
+<li class="chapter" data-level="9.3" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#scale-numeric-variables"><i class="fa fa-check"></i><b>9.3</b> Scale numeric variables</a></li>
+<li class="chapter" data-level="9.4" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#factorize-categorical-variables"><i class="fa fa-check"></i><b>9.4</b> Factorize categorical variables</a></li>
+<li class="chapter" data-level="9.5" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#screeplot"><i class="fa fa-check"></i><b>9.5</b> Screeplot</a></li>
+<li class="chapter" data-level="9.6" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#ggplot-coordinates"><i class="fa fa-check"></i><b>9.6</b> ggplot coordinates</a></li>
+<li class="chapter" data-level="9.7" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#view-factor-loadings"><i class="fa fa-check"></i><b>9.7</b> View factor loadings</a></li>
+<li class="chapter" data-level="9.8" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#generate-predicted-values-of-pcs-for-test-dataset"><i class="fa fa-check"></i><b>9.8</b> Generate predicted values of PCs for test dataset</a></li>
+<li class="chapter" data-level="9.9" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#define-plotting-parameters"><i class="fa fa-check"></i><b>9.9</b> Define plotting parameters</a></li>
+<li class="chapter" data-level="9.10" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#store-the-scores-inside-of-dataframes"><i class="fa fa-check"></i><b>9.10</b> Store the scores inside of dataframes</a></li>
+<li class="chapter" data-level="9.11" data-path="principal-component-analysis.html"><a href="principal-component-analysis.html#save-ml_num-for-use-in-09-hclust.rmd"><i class="fa fa-check"></i><b>9.11</b> Save <code>ml_num</code> for use in 09-hclust.Rmd</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html"><i class="fa fa-check"></i><b>10</b> Hierarchical Agglomerative Clustering</a>
+<ul>
+<li class="chapter" data-level="10.1" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#compare-different-dissimilarity-measures"><i class="fa fa-check"></i><b>10.1</b> Compare different dissimilarity measures</a>
+<ul>
+<li class="chapter" data-level="10.1.1" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#wards-method-minimum-variance-between-clusters"><i class="fa fa-check"></i><b>10.1.1</b> Ward’s method: minimum variance between clusters</a></li>
+<li class="chapter" data-level="10.1.2" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#complete-linkage-largest-intercluster-difference"><i class="fa fa-check"></i><b>10.1.2</b> Complete linkage: largest intercluster difference</a></li>
+<li class="chapter" data-level="10.1.3" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#single-linkage-smallest-intercluster-difference"><i class="fa fa-check"></i><b>10.1.3</b> Single linkage: smallest intercluster difference</a></li>
+<li class="chapter" data-level="10.1.4" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#average-linkage-mean-intercluster-difference"><i class="fa fa-check"></i><b>10.1.4</b> Average linkage: mean intercluster difference</a></li>
+<li class="chapter" data-level="10.1.5" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#view-summaries"><i class="fa fa-check"></i><b>10.1.5</b> View summaries</a></li>
+<li class="chapter" data-level="10.1.6" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#plot-euclidean-distance-linkages"><i class="fa fa-check"></i><b>10.1.6</b> Plot Euclidean distance linkages</a></li>
+<li class="chapter" data-level="10.1.7" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#view-standard-error-plots"><i class="fa fa-check"></i><b>10.1.7</b> View standard error plots:</a></li>
+<li class="chapter" data-level="10.1.8" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#return-best-performing-model"><i class="fa fa-check"></i><b>10.1.8</b> Return best performing model</a></li>
+<li class="chapter" data-level="10.1.9" data-path="hierarchical-agglomerative-clustering.html"><a href="hierarchical-agglomerative-clustering.html#cross-validated-mclust"><i class="fa fa-check"></i><b>10.1.9</b> Cross-validated mclust</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Machine Learning in R</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="xgboost" class="section level1" number="7">
+<h1><span class="header-section-number">Chapter 7</span> XGBoost</h1>
+<div id="load-packages" class="section level2" number="7.1">
+<h2><span class="header-section-number">7.1</span> Load packages</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="xgboost.html#cb1-1"></a><span class="kw">library</span>(caret)</span></code></pre></div>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="xgboost.html#cb4-1"></a><span class="kw">library</span>(pROC)</span></code></pre></div>
+<pre><code>## Type &#39;citation(&quot;pROC&quot;)&#39; for a citation.</code></pre>
+<pre><code>## 
+## Attaching package: &#39;pROC&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     cov, smooth, var</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="xgboost.html#cb8-1"></a><span class="kw">library</span>(xgboost)</span>
+<span id="cb8-2"><a href="xgboost.html#cb8-2"></a><span class="kw">library</span>(vip)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;vip&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:utils&#39;:
+## 
+##     vi</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="xgboost.html#cb11-1"></a><span class="kw">library</span>(rio) <span class="co"># painless data import and export</span></span>
+<span id="cb11-2"><a href="xgboost.html#cb11-2"></a><span class="kw">library</span>(tidyverse) <span class="co"># tidyverse packages </span></span></code></pre></div>
+<pre><code>## ── Attaching packages ─────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ tibble  3.0.3     ✓ dplyr   1.0.2
+## ✓ tidyr   1.1.2     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.5.0
+## ✓ purrr   0.3.4</code></pre>
+<pre><code>## ── Conflicts ────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+## x purrr::lift()   masks caret::lift()
+## x dplyr::slice()  masks xgboost::slice()</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="xgboost.html#cb15-1"></a><span class="kw">library</span>(tidymodels) <span class="co"># tidymodels framework </span></span></code></pre></div>
+<pre><code>## ── Attaching packages ────────────────────── tidymodels 0.1.1 ──</code></pre>
+<pre><code>## ✓ broom     0.7.0      ✓ recipes   0.1.13
+## ✓ dials     0.0.9      ✓ rsample   0.0.8 
+## ✓ infer     0.5.3      ✓ tune      0.1.1 
+## ✓ modeldata 0.0.2      ✓ workflows 0.2.0 
+## ✓ parsnip   0.1.3      ✓ yardstick 0.0.7</code></pre>
+<pre><code>## ── Conflicts ───────────────────────── tidymodels_conflicts() ──
+## x scales::discard()        masks purrr::discard()
+## x dplyr::filter()          masks stats::filter()
+## x recipes::fixed()         masks stringr::fixed()
+## x dplyr::lag()             masks stats::lag()
+## x purrr::lift()            masks caret::lift()
+## x yardstick::precision()   masks caret::precision()
+## x yardstick::recall()      masks caret::recall()
+## x yardstick::sensitivity() masks caret::sensitivity()
+## x dplyr::slice()           masks xgboost::slice()
+## x yardstick::spec()        masks readr::spec()
+## x yardstick::specificity() masks caret::specificity()
+## x recipes::step()          masks stats::step()</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="xgboost.html#cb19-1"></a><span class="kw">library</span>(here) <span class="co"># reproducible way to find files </span></span></code></pre></div>
+<pre><code>## here() starts at /home/jae/Machine-Learning-in-R</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="xgboost.html#cb21-1"></a><span class="kw">library</span>(glue) <span class="co"># glue strings and objects </span></span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;glue&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     collapse</code></pre>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="xgboost.html#cb24-1"></a><span class="kw">library</span>(patchwork) <span class="co"># arrange ggplots </span></span>
+<span id="cb24-2"><a href="xgboost.html#cb24-2"></a><span class="kw">library</span>(doParallel) <span class="co"># parallel processing </span></span></code></pre></div>
+<pre><code>## Loading required package: foreach</code></pre>
+<pre><code>## 
+## Attaching package: &#39;foreach&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:purrr&#39;:
+## 
+##     accumulate, when</code></pre>
+<pre><code>## Loading required package: iterators</code></pre>
+<pre><code>## Loading required package: parallel</code></pre>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="xgboost.html#cb30-1"></a><span class="kw">source</span>(<span class="kw">here</span>(<span class="st">&quot;functions&quot;</span>, <span class="st">&quot;utils.R&quot;</span>))</span>
+<span id="cb30-2"><a href="xgboost.html#cb30-2"></a></span>
+<span id="cb30-3"><a href="xgboost.html#cb30-3"></a><span class="kw">theme_set</span>(<span class="kw">theme_minimal</span>())</span></code></pre></div>
+</div>
+<div id="load-data" class="section level2" number="7.2">
+<h2><span class="header-section-number">7.2</span> Load data</h2>
+<p>Load <code>train_x_class</code>, <code>train_y_class</code>, <code>test_x_class</code>, and <code>test_y_class</code> variables we defined in 02-preprocessing.Rmd for this <em>classification</em> task.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="xgboost.html#cb31-1"></a><span class="co"># Objects: task_reg, task_class</span></span>
+<span id="cb31-2"><a href="xgboost.html#cb31-2"></a><span class="kw">load</span>(<span class="kw">here</span>(<span class="st">&quot;data&quot;</span>, <span class="st">&quot;preprocessed.RData&quot;</span>))</span></code></pre></div>
+</div>
+<div id="overview" class="section level2" number="7.3">
+<h2><span class="header-section-number">7.3</span> Overview</h2>
+<p>From <a href="https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf">Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780</a>:<br />
+“Boosting is a general method for improving the accuracy of any given learning algorithm” and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of “weak” trees that are just slightly more accurate than random guessing. These are then “boosted” into “strong” learners. That is, the models don’t have to be accurate over the entire feature space."</p>
+<p>The model first tries to predict each value in a dataset - the cases that can be predicted easily are <em>downweighted</em> so that the algorithm does not try as hard to predict them.</p>
+<p>However, the cases that the model has difficulty predicting are <em>upweighted</em> so that the model more assertively tries to predict them. This continues for multiple “boosting iterations”, with a training-based performance measure produced at each iteration. This method can drive down generalization error (p. 5).</p>
+<p>Rather than testing only a single model at a time, it is useful to tune the parameters of that single model against multiple versions. Bootstrap is the default, but we want cross-validation.<br />
+Create two objects - <code>cv_control</code> and <code>xgb_grid</code>. <code>cv_control</code> will allow us to customize the cross-validation settings, while <code>xgb_grid</code> lets us evaluate the model with different settings:</p>
+</div>
+<div id="non-tidy" class="section level2" number="7.4">
+<h2><span class="header-section-number">7.4</span> Non-tidy</h2>
+<div id="define-cv_control" class="section level3" number="7.4.1">
+<h3><span class="header-section-number">7.4.1</span> Define <code>cv_control</code></h3>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="xgboost.html#cb32-1"></a><span class="co"># Use 5-fold cross-validation with 2 repeats as our evaluation procedure (instead of the default &quot;bootstrap&quot;)</span></span>
+<span id="cb32-2"><a href="xgboost.html#cb32-2"></a>cv_control &lt;-<span class="st"> </span>caret<span class="op">::</span><span class="kw">trainControl</span>(</span>
+<span id="cb32-3"><a href="xgboost.html#cb32-3"></a>  <span class="dt">method =</span> <span class="st">&quot;repeatedcv&quot;</span>,</span>
+<span id="cb32-4"><a href="xgboost.html#cb32-4"></a>  <span class="co"># Number of folds</span></span>
+<span id="cb32-5"><a href="xgboost.html#cb32-5"></a>  <span class="dt">number =</span> 5L,</span>
+<span id="cb32-6"><a href="xgboost.html#cb32-6"></a>  <span class="co"># Number of complete sets of folds to compute</span></span>
+<span id="cb32-7"><a href="xgboost.html#cb32-7"></a>  <span class="dt">repeats =</span> 2L,</span>
+<span id="cb32-8"><a href="xgboost.html#cb32-8"></a>  <span class="co"># Calculate class probabilities?</span></span>
+<span id="cb32-9"><a href="xgboost.html#cb32-9"></a>  <span class="dt">classProbs =</span> <span class="ot">TRUE</span>,</span>
+<span id="cb32-10"><a href="xgboost.html#cb32-10"></a>  <span class="co"># Indicate that our response variable is binary</span></span>
+<span id="cb32-11"><a href="xgboost.html#cb32-11"></a>  <span class="dt">summaryFunction =</span> twoClassSummary) </span></code></pre></div>
+</div>
+<div id="define-xgb_grid" class="section level3" number="7.4.2">
+<h3><span class="header-section-number">7.4.2</span> Define <code>xgb_grid</code></h3>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="xgboost.html#cb33-1"></a><span class="co"># Ask caret what hyperparameters can be tuned for the xgbTree algorithm.</span></span>
+<span id="cb33-2"><a href="xgboost.html#cb33-2"></a><span class="kw">modelLookup</span>(<span class="st">&quot;xgbTree&quot;</span>)</span></code></pre></div>
+<pre><code>##     model        parameter                          label forReg forClass
+## 1 xgbTree          nrounds          # Boosting Iterations   TRUE     TRUE
+## 2 xgbTree        max_depth                 Max Tree Depth   TRUE     TRUE
+## 3 xgbTree              eta                      Shrinkage   TRUE     TRUE
+## 4 xgbTree            gamma         Minimum Loss Reduction   TRUE     TRUE
+## 5 xgbTree colsample_bytree     Subsample Ratio of Columns   TRUE     TRUE
+## 6 xgbTree min_child_weight Minimum Sum of Instance Weight   TRUE     TRUE
+## 7 xgbTree        subsample           Subsample Percentage   TRUE     TRUE
+##   probModel
+## 1      TRUE
+## 2      TRUE
+## 3      TRUE
+## 4      TRUE
+## 5      TRUE
+## 6      TRUE
+## 7      TRUE</code></pre>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="xgboost.html#cb35-1"></a><span class="co"># turn off scientific notation</span></span>
+<span id="cb35-2"><a href="xgboost.html#cb35-2"></a><span class="kw">options</span>(<span class="dt">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb35-3"><a href="xgboost.html#cb35-3"></a></span>
+<span id="cb35-4"><a href="xgboost.html#cb35-4"></a><span class="co"># More details at https://xgboost.readthedocs.io/en/latest/parameter.html</span></span>
+<span id="cb35-5"><a href="xgboost.html#cb35-5"></a>(<span class="dt">xgb_grid =</span> <span class="kw">expand.grid</span>(</span>
+<span id="cb35-6"><a href="xgboost.html#cb35-6"></a>  <span class="co"># Number of trees to fit, aka boosting iterations</span></span>
+<span id="cb35-7"><a href="xgboost.html#cb35-7"></a>  <span class="dt">nrounds =</span> <span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">300</span>, <span class="dv">500</span>, <span class="dv">700</span>, <span class="dv">900</span>),</span>
+<span id="cb35-8"><a href="xgboost.html#cb35-8"></a>  <span class="co"># Depth of the decision tree (how many levels of splits).</span></span>
+<span id="cb35-9"><a href="xgboost.html#cb35-9"></a>	<span class="dt">max_depth =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">6</span>), </span>
+<span id="cb35-10"><a href="xgboost.html#cb35-10"></a>  <span class="co"># Learning rate: lower means the ensemble will adapt more slowly.</span></span>
+<span id="cb35-11"><a href="xgboost.html#cb35-11"></a>	<span class="dt">eta =</span> <span class="kw">c</span>(<span class="fl">0.0001</span>, <span class="fl">0.01</span>, <span class="fl">0.2</span>),</span>
+<span id="cb35-12"><a href="xgboost.html#cb35-12"></a>  <span class="co"># Make this larger and xgboost will tend to make smaller trees</span></span>
+<span id="cb35-13"><a href="xgboost.html#cb35-13"></a>  <span class="dt">gamma =</span> <span class="dv">0</span>,</span>
+<span id="cb35-14"><a href="xgboost.html#cb35-14"></a>  <span class="dt">colsample_bytree =</span> <span class="fl">1.0</span>,</span>
+<span id="cb35-15"><a href="xgboost.html#cb35-15"></a>  <span class="dt">subsample =</span> <span class="fl">1.0</span>,</span>
+<span id="cb35-16"><a href="xgboost.html#cb35-16"></a>  <span class="co"># Stop splitting a tree if we only have this many obs in a tree node.</span></span>
+<span id="cb35-17"><a href="xgboost.html#cb35-17"></a>	<span class="dt">min_child_weight =</span> 10L))</span></code></pre></div>
+<pre><code>##    nrounds max_depth    eta gamma colsample_bytree subsample min_child_weight
+## 1      100         1 0.0001     0                1         1               10
+## 2      300         1 0.0001     0                1         1               10
+## 3      500         1 0.0001     0                1         1               10
+## 4      700         1 0.0001     0                1         1               10
+## 5      900         1 0.0001     0                1         1               10
+## 6      100         6 0.0001     0                1         1               10
+## 7      300         6 0.0001     0                1         1               10
+## 8      500         6 0.0001     0                1         1               10
+## 9      700         6 0.0001     0                1         1               10
+## 10     900         6 0.0001     0                1         1               10
+## 11     100         1 0.0100     0                1         1               10
+## 12     300         1 0.0100     0                1         1               10
+## 13     500         1 0.0100     0                1         1               10
+## 14     700         1 0.0100     0                1         1               10
+## 15     900         1 0.0100     0                1         1               10
+## 16     100         6 0.0100     0                1         1               10
+## 17     300         6 0.0100     0                1         1               10
+## 18     500         6 0.0100     0                1         1               10
+## 19     700         6 0.0100     0                1         1               10
+## 20     900         6 0.0100     0                1         1               10
+## 21     100         1 0.2000     0                1         1               10
+## 22     300         1 0.2000     0                1         1               10
+## 23     500         1 0.2000     0                1         1               10
+## 24     700         1 0.2000     0                1         1               10
+## 25     900         1 0.2000     0                1         1               10
+## 26     100         6 0.2000     0                1         1               10
+## 27     300         6 0.2000     0                1         1               10
+## 28     500         6 0.2000     0                1         1               10
+## 29     700         6 0.2000     0                1         1               10
+## 30     900         6 0.2000     0                1         1               10</code></pre>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="xgboost.html#cb37-1"></a><span class="co"># Other hyperparameters: gamma, column sampling, row sampling</span></span>
+<span id="cb37-2"><a href="xgboost.html#cb37-2"></a></span>
+<span id="cb37-3"><a href="xgboost.html#cb37-3"></a><span class="co"># How many combinations of settings do we end up with?</span></span>
+<span id="cb37-4"><a href="xgboost.html#cb37-4"></a><span class="kw">nrow</span>(xgb_grid)</span></code></pre></div>
+<pre><code>## [1] 30</code></pre>
+</div>
+<div id="fit-model" class="section level3" number="7.4.3">
+<h3><span class="header-section-number">7.4.3</span> Fit model</h3>
+<p>Note that we will now use <em>A</em>rea <em>U</em>nder the ROC <em>C</em>urve (called “AUC”) as our performance metric, which relates the number of true positives (sensitivity) to the number of true negatives (specificity).</p>
+<p>However, xgboost is expecting character strings as the factor level names so our integer 1s and 0s will not do. Let’s quickly recode the 1s as “yes” and 0s as “no”.</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="xgboost.html#cb39-1"></a>xgb_train_y_class &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">ifelse</span>(train_y_class <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;no&quot;</span>))</span>
+<span id="cb39-2"><a href="xgboost.html#cb39-2"></a>xgb_test_y_class &lt;-<span class="st"> </span><span class="kw">as.factor</span>(<span class="kw">ifelse</span>(test_y_class <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;no&quot;</span>))</span>
+<span id="cb39-3"><a href="xgboost.html#cb39-3"></a></span>
+<span id="cb39-4"><a href="xgboost.html#cb39-4"></a><span class="kw">table</span>(train_y_class, xgb_train_y_class) </span></code></pre></div>
+<pre><code>##              xgb_train_y_class
+## train_y_class  no yes
+##             0  97   0
+##             1   0 116</code></pre>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="xgboost.html#cb41-1"></a><span class="kw">table</span>(test_y_class, xgb_test_y_class)</span></code></pre></div>
+<pre><code>##             xgb_test_y_class
+## test_y_class no yes
+##            0 41   0
+##            1  0  49</code></pre>
+<blockquote>
+<p>NOTE: This will take a few minutes to complete!</p>
+</blockquote>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="xgboost.html#cb43-1"></a><span class="kw">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb43-2"><a href="xgboost.html#cb43-2"></a></span>
+<span id="cb43-3"><a href="xgboost.html#cb43-3"></a><span class="co"># cbind: caret expects the Y response and X predictors to be part of the same dataframe</span></span>
+<span id="cb43-4"><a href="xgboost.html#cb43-4"></a>model &lt;-<span class="st"> </span>caret<span class="op">::</span><span class="kw">train</span>(xgb_train_y_class <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> <span class="kw">cbind</span>(xgb_train_y_class, train_x_class), </span>
+<span id="cb43-5"><a href="xgboost.html#cb43-5"></a>             <span class="co"># Use xgboost&#39;s tree-based algorithm (i.e. gbm)</span></span>
+<span id="cb43-6"><a href="xgboost.html#cb43-6"></a>             <span class="dt">method =</span> <span class="st">&quot;xgbTree&quot;</span>,</span>
+<span id="cb43-7"><a href="xgboost.html#cb43-7"></a>             <span class="co"># Use &quot;AUC&quot; as our performance metric, which caret incorrectly calls &quot;ROC&quot;</span></span>
+<span id="cb43-8"><a href="xgboost.html#cb43-8"></a>             <span class="dt">metric =</span> <span class="st">&quot;ROC&quot;</span>,</span>
+<span id="cb43-9"><a href="xgboost.html#cb43-9"></a>             <span class="co"># Specify our cross-validation settings</span></span>
+<span id="cb43-10"><a href="xgboost.html#cb43-10"></a>             <span class="dt">trControl =</span> cv_control,</span>
+<span id="cb43-11"><a href="xgboost.html#cb43-11"></a>             <span class="co"># Test multiple configurations of the xgboost algorithm</span></span>
+<span id="cb43-12"><a href="xgboost.html#cb43-12"></a>             <span class="dt">tuneGrid =</span> xgb_grid,</span>
+<span id="cb43-13"><a href="xgboost.html#cb43-13"></a>             <span class="co"># Hide detailed output (setting to TRUE will print that output)</span></span>
+<span id="cb43-14"><a href="xgboost.html#cb43-14"></a>             <span class="dt">verbose =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb43-15"><a href="xgboost.html#cb43-15"></a></span>
+<span id="cb43-16"><a href="xgboost.html#cb43-16"></a><span class="co"># See how long this algorithm took to complete (from ?proc.time)</span></span>
+<span id="cb43-17"><a href="xgboost.html#cb43-17"></a><span class="co"># user time = the CPU time charged for the execution of user instructions of the calling process</span></span>
+<span id="cb43-18"><a href="xgboost.html#cb43-18"></a><span class="co"># system time = the CPU time charged for execution by the system on behalf of the calling  process</span></span>
+<span id="cb43-19"><a href="xgboost.html#cb43-19"></a><span class="co"># elapsed time = real time since the process was started</span></span>
+<span id="cb43-20"><a href="xgboost.html#cb43-20"></a></span>
+<span id="cb43-21"><a href="xgboost.html#cb43-21"></a>model<span class="op">$</span>times </span></code></pre></div>
+<pre><code>## $everything
+##    user  system elapsed 
+##  84.838   0.343  11.431 
+## 
+## $final
+##    user  system elapsed 
+##   0.303   0.004   0.043 
+## 
+## $prediction
+## [1] NA NA NA</code></pre>
+<ul>
+<li>Review model summary table</li>
+</ul>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="xgboost.html#cb45-1"></a>model</span></code></pre></div>
+<pre><code>## eXtreme Gradient Boosting 
+## 
+## 213 samples
+##  21 predictor
+##   2 classes: &#39;no&#39;, &#39;yes&#39; 
+## 
+## No pre-processing
+## Resampling: Cross-Validated (5 fold, repeated 2 times) 
+## Summary of sample sizes: 171, 171, 170, 170, 170, 171, ... 
+## Resampling results across tuning parameters:
+## 
+##   eta     max_depth  nrounds  ROC        Sens       Spec     
+##   0.0001  1          100      0.7784849  0.7723684  0.7846014
+##   0.0001  1          300      0.7784849  0.7723684  0.7846014
+##   0.0001  1          500      0.7784849  0.7723684  0.7846014
+##   0.0001  1          700      0.7784849  0.7723684  0.7846014
+##   0.0001  1          900      0.7784849  0.7723684  0.7846014
+##   0.0001  6          100      0.8083438  0.7723684  0.7846014
+##   0.0001  6          300      0.8083438  0.7723684  0.7846014
+##   0.0001  6          500      0.8088873  0.7723684  0.7846014
+##   0.0001  6          700      0.8088873  0.7723684  0.7846014
+##   0.0001  6          900      0.8088873  0.7723684  0.7846014
+##   0.0100  1          100      0.8533648  0.7673684  0.7672101
+##   0.0100  1          300      0.8602136  0.7107895  0.7934783
+##   0.0100  1          500      0.8597273  0.7218421  0.8195652
+##   0.0100  1          700      0.8583886  0.7376316  0.8110507
+##   0.0100  1          900      0.8547540  0.7478947  0.8110507
+##   0.0100  6          100      0.8567916  0.7571053  0.7500000
+##   0.0100  6          300      0.8571091  0.7371053  0.8108696
+##   0.0100  6          500      0.8552307  0.7376316  0.8065217
+##   0.0100  6          700      0.8532532  0.7378947  0.8067029
+##   0.0100  6          900      0.8540542  0.7378947  0.8023551
+##   0.2000  1          100      0.8490027  0.7478947  0.8153986
+##   0.2000  1          300      0.8427422  0.7476316  0.8197464
+##   0.2000  1          500      0.8397979  0.7528947  0.8197464
+##   0.2000  1          700      0.8375858  0.7528947  0.8197464
+##   0.2000  1          900      0.8355416  0.7528947  0.8197464
+##   0.2000  6          100      0.8463673  0.7428947  0.8067029
+##   0.2000  6          300      0.8418040  0.7428947  0.8240942
+##   0.2000  6          500      0.8408963  0.7528947  0.8153986
+##   0.2000  6          700      0.8383867  0.7476316  0.8153986
+##   0.2000  6          900      0.8359535  0.7526316  0.8153986
+## 
+## Tuning parameter &#39;gamma&#39; was held constant at a value of 0
+## Tuning
+## 
+## Tuning parameter &#39;min_child_weight&#39; was held constant at a value of 10
+## 
+## Tuning parameter &#39;subsample&#39; was held constant at a value of 1
+## ROC was used to select the optimal model using the largest value.
+## The final values used for the model were nrounds = 300, max_depth = 1, eta
+##  = 0.01, gamma = 0, colsample_bytree = 1, min_child_weight = 10 and subsample
+##  = 1.</code></pre>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="xgboost.html#cb47-1"></a><span class="co"># model$bestTune = &quot;The final values used for the model were...&quot;</span></span></code></pre></div>
+</div>
+<div id="investigate-results" class="section level3" number="7.4.4">
+<h3><span class="header-section-number">7.4.4</span> Investigate Results</h3>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="xgboost.html#cb48-1"></a><span class="co"># Extract the hyperparameters with the best performance</span></span>
+<span id="cb48-2"><a href="xgboost.html#cb48-2"></a>model<span class="op">$</span>bestTune</span></code></pre></div>
+<pre><code>##    nrounds max_depth  eta gamma colsample_bytree min_child_weight subsample
+## 12     300         1 0.01     0                1               10         1</code></pre>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="xgboost.html#cb50-1"></a><span class="co"># And the corresponding performance metrics. </span></span>
+<span id="cb50-2"><a href="xgboost.html#cb50-2"></a></span>
+<span id="cb50-3"><a href="xgboost.html#cb50-3"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: fix </span></span>
+<span id="cb50-4"><a href="xgboost.html#cb50-4"></a></span>
+<span id="cb50-5"><a href="xgboost.html#cb50-5"></a>model<span class="op">$</span>results[<span class="kw">as.integer</span>(<span class="kw">rownames</span>(model<span class="op">$</span>bestTune)), ]</span></code></pre></div>
+<pre><code>##    eta max_depth gamma colsample_bytree min_child_weight subsample nrounds
+## 27 0.2         6     0                1               10         1     300
+##         ROC      Sens      Spec      ROCSD     SensSD     SpecSD
+## 27 0.841804 0.7428947 0.8240942 0.05281059 0.08526433 0.09171769</code></pre>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="xgboost.html#cb52-1"></a><span class="co"># Plot the performance across all hyperparameter combinations. Nice!</span></span>
+<span id="cb52-2"><a href="xgboost.html#cb52-2"></a><span class="kw">options</span>(<span class="dt">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb52-3"><a href="xgboost.html#cb52-3"></a><span class="kw">ggplot</span>(model) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>() <span class="op">+</span><span class="st"> </span><span class="kw">ggtitle</span>(<span class="st">&quot;Xgboost hyperparameter comparison&quot;</span>) </span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="xgboost.html#cb53-1"></a><span class="co"># Show variable importance (text).</span></span>
+<span id="cb53-2"><a href="xgboost.html#cb53-2"></a>caret<span class="op">::</span><span class="kw">varImp</span>(model)</span></code></pre></div>
+<pre><code>## xgbTree variable importance
+## 
+##   only 20 most important variables shown (out of 21)
+## 
+##           Overall
+## thal_X2  100.0000
+## exang     48.9606
+## thalach   20.9729
+## oldpeak   18.2120
+## thal_X3    5.5648
+## cp_X2      3.3606
+## slope_X2   1.0981
+## sex_X1     0.9987
+## chol       0.9960
+## thal_X1    0.0000
+## cp_X3      0.0000
+## fbs        0.0000
+## ca_X1      0.0000
+## restecg    0.0000
+## ca_X2      0.0000
+## ca_X4      0.0000
+## cp_X1      0.0000
+## ca_X3      0.0000
+## age        0.0000
+## slope_X1   0.0000</code></pre>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="xgboost.html#cb55-1"></a><span class="co"># This version uses the complex caret object</span></span>
+<span id="cb55-2"><a href="xgboost.html#cb55-2"></a>vip<span class="op">::</span><span class="kw">vip</span>(model)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="xgboost.html#cb56-1"></a><span class="co"># This version operates on the xgboost model within the caret object</span></span>
+<span id="cb56-2"><a href="xgboost.html#cb56-2"></a>vip<span class="op">::</span><span class="kw">vip</span>(model<span class="op">$</span>finalModel)</span></code></pre></div>
+<pre><code>## Warning: `as.tibble()` is deprecated as of tibble 2.0.0.
+## Please use `as_tibble()` instead.
+## The signature and semantics have changed, see `?as_tibble`.
+## This warning is displayed once every 8 hours.
+## Call `lifecycle::last_warnings()` to see where this warning was generated.</code></pre>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="xgboost.html#cb58-1"></a><span class="co"># Generate predicted labels.</span></span>
+<span id="cb58-2"><a href="xgboost.html#cb58-2"></a>predicted_labels =<span class="st"> </span><span class="kw">predict</span>(model, test_x_class)</span>
+<span id="cb58-3"><a href="xgboost.html#cb58-3"></a><span class="kw">table</span>(xgb_test_y_class, predicted_labels)</span></code></pre></div>
+<pre><code>##                 predicted_labels
+## xgb_test_y_class no yes
+##              no  31  10
+##              yes 12  37</code></pre>
+<div class="sourceCode" id="cb60"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb60-1"><a href="xgboost.html#cb60-1"></a><span class="co"># Generate class probabilities.</span></span>
+<span id="cb60-2"><a href="xgboost.html#cb60-2"></a>pred_probs =<span class="st"> </span><span class="kw">predict</span>(model, test_x_class, <span class="dt">type =</span> <span class="st">&quot;prob&quot;</span>)</span>
+<span id="cb60-3"><a href="xgboost.html#cb60-3"></a><span class="kw">head</span>(pred_probs)</span></code></pre></div>
+<pre><code>##          no       yes
+## 1 0.2431413 0.7568587
+## 2 0.5225858 0.4774142
+## 3 0.3271097 0.6728903
+## 4 0.4680114 0.5319886
+## 5 0.2222146 0.7777854
+## 6 0.3198714 0.6801286</code></pre>
+<div class="sourceCode" id="cb62"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb62-1"><a href="xgboost.html#cb62-1"></a><span class="co"># View final model</span></span>
+<span id="cb62-2"><a href="xgboost.html#cb62-2"></a>(<span class="dt">cm =</span> <span class="kw">confusionMatrix</span>(predicted_labels, xgb_test_y_class))</span></code></pre></div>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction no yes
+##        no  31  12
+##        yes 10  37
+##                                         
+##                Accuracy : 0.7556        
+##                  95% CI : (0.6536, 0.84)
+##     No Information Rate : 0.5444        
+##     P-Value [Acc &gt; NIR] : 0.00002879    
+##                                         
+##                   Kappa : 0.5092        
+##                                         
+##  Mcnemar&#39;s Test P-Value : 0.8312        
+##                                         
+##             Sensitivity : 0.7561        
+##             Specificity : 0.7551        
+##          Pos Pred Value : 0.7209        
+##          Neg Pred Value : 0.7872        
+##              Prevalence : 0.4556        
+##          Detection Rate : 0.3444        
+##    Detection Prevalence : 0.4778        
+##       Balanced Accuracy : 0.7556        
+##                                         
+##        &#39;Positive&#39; Class : no            
+## </code></pre>
+<div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="xgboost.html#cb64-1"></a><span class="co"># Define ROC characteristics</span></span>
+<span id="cb64-2"><a href="xgboost.html#cb64-2"></a>(<span class="dt">rocCurve =</span> pROC<span class="op">::</span><span class="kw">roc</span>(<span class="dt">response =</span> xgb_test_y_class,</span>
+<span id="cb64-3"><a href="xgboost.html#cb64-3"></a>                      <span class="dt">predictor =</span> pred_probs[, <span class="st">&quot;yes&quot;</span>],</span>
+<span id="cb64-4"><a href="xgboost.html#cb64-4"></a>                      <span class="dt">levels =</span> <span class="kw">rev</span>(<span class="kw">levels</span>(xgb_test_y_class)),</span>
+<span id="cb64-5"><a href="xgboost.html#cb64-5"></a>                      <span class="dt">auc =</span> <span class="ot">TRUE</span>, <span class="dt">ci =</span> <span class="ot">TRUE</span>))</span></code></pre></div>
+<pre><code>## Setting direction: controls &gt; cases</code></pre>
+<pre><code>## 
+## Call:
+## roc.default(response = xgb_test_y_class, predictor = pred_probs[,     &quot;yes&quot;], levels = rev(levels(xgb_test_y_class)), auc = TRUE,     ci = TRUE)
+## 
+## Data: pred_probs[, &quot;yes&quot;] in 49 controls (xgb_test_y_class yes) &gt; 41 cases (xgb_test_y_class no).
+## Area under the curve: 0.8432
+## 95% CI: 0.7609-0.9255 (DeLong)</code></pre>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="xgboost.html#cb67-1"></a><span class="co"># Plot ROC curve with optimal threshold.</span></span>
+<span id="cb67-2"><a href="xgboost.html#cb67-2"></a><span class="kw">plot</span>(rocCurve, </span>
+<span id="cb67-3"><a href="xgboost.html#cb67-3"></a>     <span class="dt">print.thres.cex =</span> <span class="dv">2</span>,</span>
+<span id="cb67-4"><a href="xgboost.html#cb67-4"></a>     <span class="dt">print.thres =</span> <span class="st">&quot;best&quot;</span>, </span>
+<span id="cb67-5"><a href="xgboost.html#cb67-5"></a>     <span class="dt">main =</span> <span class="st">&quot;XGBoost on test set&quot;</span>, <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>, <span class="dt">las =</span> <span class="dv">1</span>) </span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-6-4.png" width="672" /></p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb68-1"><a href="xgboost.html#cb68-1"></a><span class="co"># Get specificity and sensitivity at particular threshold</span></span>
+<span id="cb68-2"><a href="xgboost.html#cb68-2"></a>pROC<span class="op">::</span><span class="kw">coords</span>(rocCurve, <span class="fl">0.01</span>, <span class="dt">transpose =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>##   threshold specificity sensitivity
+## 1      0.01           1           0</code></pre>
+<div class="sourceCode" id="cb70"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb70-1"><a href="xgboost.html#cb70-1"></a>pROC<span class="op">::</span><span class="kw">coords</span>(rocCurve, <span class="fl">0.525</span>, <span class="dt">transpose =</span> <span class="ot">FALSE</span>) </span></code></pre></div>
+<pre><code>##   threshold specificity sensitivity
+## 1     0.525    0.755102   0.7560976</code></pre>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="xgboost.html#cb72-1"></a>pROC<span class="op">::</span><span class="kw">coords</span>(rocCurve, <span class="fl">0.99</span>, <span class="dt">transpose =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<pre><code>##   threshold specificity sensitivity
+## 1      0.99           0           1</code></pre>
+</div>
+</div>
+<div id="tidymodels" class="section level2" number="7.5">
+<h2><span class="header-section-number">7.5</span> Tidymodels</h2>
+<p>This tidymodels part of the workshop heavily draws on Julia Silge’s <a href="https://juliasilge.com/blog/xgboost-tune-volleyball/">tutorial</a>.</p>
+<div id="parsnip" class="section level3" number="7.5.1">
+<h3><span class="header-section-number">7.5.1</span> parsnip</h3>
+<ul>
+<li>Build a model</li>
+</ul>
+<ol style="list-style-type: decimal">
+<li>Specify a model</li>
+<li>Specify an engine</li>
+<li>Specify a mode</li>
+</ol>
+<div class="sourceCode" id="cb74"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb74-1"><a href="xgboost.html#cb74-1"></a><span class="co"># workflow </span></span>
+<span id="cb74-2"><a href="xgboost.html#cb74-2"></a>xg_wf &lt;-<span class="st"> </span><span class="kw">workflow</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_formula</span>(target<span class="op">~</span>.)</span>
+<span id="cb74-3"><a href="xgboost.html#cb74-3"></a></span>
+<span id="cb74-4"><a href="xgboost.html#cb74-4"></a><span class="co"># spec </span></span>
+<span id="cb74-5"><a href="xgboost.html#cb74-5"></a>xg_spec &lt;-<span class="st"> </span><span class="kw">boost_tree</span>(</span>
+<span id="cb74-6"><a href="xgboost.html#cb74-6"></a>  </span>
+<span id="cb74-7"><a href="xgboost.html#cb74-7"></a>           <span class="co"># Mode </span></span>
+<span id="cb74-8"><a href="xgboost.html#cb74-8"></a>           <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>,</span>
+<span id="cb74-9"><a href="xgboost.html#cb74-9"></a>           </span>
+<span id="cb74-10"><a href="xgboost.html#cb74-10"></a>           <span class="co"># Tuning parameters</span></span>
+<span id="cb74-11"><a href="xgboost.html#cb74-11"></a>           </span>
+<span id="cb74-12"><a href="xgboost.html#cb74-12"></a>           <span class="co"># The number of trees to fit, aka boosting iterations</span></span>
+<span id="cb74-13"><a href="xgboost.html#cb74-13"></a>           <span class="dt">trees =</span> <span class="kw">c</span>(<span class="dv">100</span>, <span class="dv">300</span>, <span class="dv">500</span>, <span class="dv">700</span>, <span class="dv">900</span>),</span>
+<span id="cb74-14"><a href="xgboost.html#cb74-14"></a>           <span class="co"># The depth of the decision tree (how many levels of splits).</span></span>
+<span id="cb74-15"><a href="xgboost.html#cb74-15"></a>	         <span class="dt">tree_depth =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">6</span>), </span>
+<span id="cb74-16"><a href="xgboost.html#cb74-16"></a>           <span class="co"># Learning rate: lower means the ensemble will adapt more slowly.</span></span>
+<span id="cb74-17"><a href="xgboost.html#cb74-17"></a>           <span class="dt">learn_rate =</span> <span class="kw">c</span>(<span class="fl">0.0001</span>, <span class="fl">0.01</span>, <span class="fl">0.2</span>),</span>
+<span id="cb74-18"><a href="xgboost.html#cb74-18"></a>           <span class="co"># Stop splitting a tree if we only have this many obs in a tree node.</span></span>
+<span id="cb74-19"><a href="xgboost.html#cb74-19"></a>	         <span class="dt">min_n =</span> 10L</span>
+<span id="cb74-20"><a href="xgboost.html#cb74-20"></a>          ) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb74-21"><a href="xgboost.html#cb74-21"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;xgboost&quot;</span>) </span>
+<span id="cb74-22"><a href="xgboost.html#cb74-22"></a></span>
+<span id="cb74-23"><a href="xgboost.html#cb74-23"></a>xg_wf &lt;-<span class="st"> </span>xg_wf <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">add_model</span>(xg_spec)</span></code></pre></div>
+<ul>
+<li>Fit a model</li>
+</ul>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="xgboost.html#cb75-1"></a>xg_fit &lt;-<span class="st"> </span>xg_wf <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">fit</span>(train_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">target =</span> train_y_class)))</span></code></pre></div>
+<pre><code>## Warning in begin_iteration:end_iteration: numerical expression has 5 elements:
+## only the first used</code></pre>
+</div>
+<div id="yardstick" class="section level3" number="7.5.2">
+<h3><span class="header-section-number">7.5.2</span> yardstick</h3>
+<ul>
+<li>Let’s formally test prediction performance.</li>
+</ul>
+<p><strong>Metrics</strong></p>
+<ul>
+<li><p><code>accuracy</code>: The proportion of the data predicted correctly</p></li>
+<li><p><code>precision</code>: Positive predictive value</p></li>
+<li><p><code>recall</code> (specificity): True positive rate (e.g., healthy people really healthy)</p></li>
+</ul>
+<div class="figure">
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png" alt="" />
+<p class="caption">From wikipedia</p>
+</div>
+<ul>
+<li>To learn more about other metrics, check out the yardstick package <a href="https://yardstick.tidymodels.org/reference/index.html">references</a>.</li>
+</ul>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="xgboost.html#cb77-1"></a>metrics &lt;-<span class="st"> </span><span class="kw">metric_set</span>(yardstick<span class="op">::</span>accuracy, precision, recall)</span>
+<span id="cb77-2"><a href="xgboost.html#cb77-2"></a></span>
+<span id="cb77-3"><a href="xgboost.html#cb77-3"></a><span class="kw">evaluate_class</span>(xg_fit)</span></code></pre></div>
+<pre><code>## # A tibble: 3 x 3
+##   .metric   .estimator .estimate
+##   &lt;chr&gt;     &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy  binary         0.733
+## 2 precision binary         0.730
+## 3 recall    binary         0.659</code></pre>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="xgboost.html#cb79-1"></a>xg_fit_viz_metr &lt;-<span class="st"> </span><span class="kw">visualize_class_eval</span>(xg_fit)</span>
+<span id="cb79-2"><a href="xgboost.html#cb79-2"></a></span>
+<span id="cb79-3"><a href="xgboost.html#cb79-3"></a>xg_fit_viz_metr</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-10-1.png" width="672" />
+- Visualize the confusion matrix.</p>
+<ul>
+<li>The following visualization code draws on <a href="https://towardsdatascience.com/modelling-with-tidymodels-and-parsnip-bae2c01c131c">Diego Usai’s medium post</a>.</li>
+</ul>
+<div class="sourceCode" id="cb80"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb80-1"><a href="xgboost.html#cb80-1"></a>xg_fit_viz_mat &lt;-<span class="st"> </span><span class="kw">visualize_class_conf</span>(xg_fit)</span>
+<span id="cb80-2"><a href="xgboost.html#cb80-2"></a></span>
+<span id="cb80-3"><a href="xgboost.html#cb80-3"></a>xg_fit_viz_mat</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+</div>
+<div id="tune" class="section level3" number="7.5.3">
+<h3><span class="header-section-number">7.5.3</span> tune</h3>
+<div id="tune-ingredients" class="section level4" number="7.5.3.1">
+<h4><span class="header-section-number">7.5.3.1</span> tune ingredients</h4>
+<p>We focus on the following parameters: <code>trees,</code> <code>tree_depth,</code> <code>learn_rate,</code> <code>min_n,</code> <code>mtry,</code> <code>loss_reduction,</code> and <code>sample_size</code></p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="xgboost.html#cb81-1"></a>tune_spec &lt;-<span class="st"> </span></span>
+<span id="cb81-2"><a href="xgboost.html#cb81-2"></a><span class="st">  </span>xg_spec &lt;-<span class="st"> </span><span class="kw">boost_tree</span>(</span>
+<span id="cb81-3"><a href="xgboost.html#cb81-3"></a>  </span>
+<span id="cb81-4"><a href="xgboost.html#cb81-4"></a>           <span class="co"># Mode </span></span>
+<span id="cb81-5"><a href="xgboost.html#cb81-5"></a>           <span class="dt">mode =</span> <span class="st">&quot;classification&quot;</span>,</span>
+<span id="cb81-6"><a href="xgboost.html#cb81-6"></a>           </span>
+<span id="cb81-7"><a href="xgboost.html#cb81-7"></a>           <span class="co"># Tuning parameters</span></span>
+<span id="cb81-8"><a href="xgboost.html#cb81-8"></a>           </span>
+<span id="cb81-9"><a href="xgboost.html#cb81-9"></a>           <span class="co"># The number of trees to fit, aka boosting iterations</span></span>
+<span id="cb81-10"><a href="xgboost.html#cb81-10"></a>           <span class="dt">trees =</span> <span class="kw">tune</span>(),</span>
+<span id="cb81-11"><a href="xgboost.html#cb81-11"></a>           <span class="co"># The depth of the decision tree (how many levels of splits).</span></span>
+<span id="cb81-12"><a href="xgboost.html#cb81-12"></a>	         <span class="dt">tree_depth =</span> <span class="kw">tune</span>(), </span>
+<span id="cb81-13"><a href="xgboost.html#cb81-13"></a>           <span class="co"># Learning rate: lower means the ensemble will adapt more slowly.</span></span>
+<span id="cb81-14"><a href="xgboost.html#cb81-14"></a>           <span class="dt">learn_rate =</span> <span class="kw">tune</span>(),</span>
+<span id="cb81-15"><a href="xgboost.html#cb81-15"></a>           <span class="co"># Stop splitting a tree if we only have this many obs in a tree node.</span></span>
+<span id="cb81-16"><a href="xgboost.html#cb81-16"></a>	         <span class="dt">min_n =</span> <span class="kw">tune</span>(),</span>
+<span id="cb81-17"><a href="xgboost.html#cb81-17"></a>           <span class="dt">loss_reduction =</span> <span class="kw">tune</span>(),</span>
+<span id="cb81-18"><a href="xgboost.html#cb81-18"></a>           <span class="co"># The number of randomly selected parameters </span></span>
+<span id="cb81-19"><a href="xgboost.html#cb81-19"></a>           <span class="dt">mtry =</span> <span class="kw">tune</span>(), </span>
+<span id="cb81-20"><a href="xgboost.html#cb81-20"></a>           <span class="co"># The size of the data set used for modeling within an iteration</span></span>
+<span id="cb81-21"><a href="xgboost.html#cb81-21"></a>           <span class="dt">sample_size =</span> <span class="kw">tune</span>()</span>
+<span id="cb81-22"><a href="xgboost.html#cb81-22"></a>          ) <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb81-23"><a href="xgboost.html#cb81-23"></a><span class="st">  </span><span class="kw">set_engine</span>(<span class="st">&quot;xgboost&quot;</span>) </span>
+<span id="cb81-24"><a href="xgboost.html#cb81-24"></a></span>
+<span id="cb81-25"><a href="xgboost.html#cb81-25"></a><span class="co"># Space-filling parameter grids </span></span>
+<span id="cb81-26"><a href="xgboost.html#cb81-26"></a>xg_grid &lt;-<span class="st"> </span><span class="kw">grid_latin_hypercube</span>(</span>
+<span id="cb81-27"><a href="xgboost.html#cb81-27"></a>  <span class="kw">trees</span>(),</span>
+<span id="cb81-28"><a href="xgboost.html#cb81-28"></a>  <span class="kw">tree_depth</span>(),</span>
+<span id="cb81-29"><a href="xgboost.html#cb81-29"></a>  <span class="kw">learn_rate</span>(),</span>
+<span id="cb81-30"><a href="xgboost.html#cb81-30"></a>  <span class="kw">min_n</span>(),</span>
+<span id="cb81-31"><a href="xgboost.html#cb81-31"></a>  <span class="kw">loss_reduction</span>(), </span>
+<span id="cb81-32"><a href="xgboost.html#cb81-32"></a>  <span class="dt">sample_size =</span> <span class="kw">sample_prop</span>(),</span>
+<span id="cb81-33"><a href="xgboost.html#cb81-33"></a>  <span class="kw">finalize</span>(<span class="kw">mtry</span>(), train_x_class),</span>
+<span id="cb81-34"><a href="xgboost.html#cb81-34"></a>  <span class="dt">size =</span> <span class="dv">30</span></span>
+<span id="cb81-35"><a href="xgboost.html#cb81-35"></a>  )</span>
+<span id="cb81-36"><a href="xgboost.html#cb81-36"></a></span>
+<span id="cb81-37"><a href="xgboost.html#cb81-37"></a>xg_grid <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">slice</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 10 x 7
+##    trees tree_depth learn_rate min_n loss_reduction sample_size  mtry
+##    &lt;int&gt;      &lt;int&gt;      &lt;dbl&gt; &lt;int&gt;          &lt;dbl&gt;       &lt;dbl&gt; &lt;int&gt;
+##  1  1341          8   3.16e- 5     6       2.77e- 8       0.170    15
+##  2   860         15   9.77e- 6    22       3.64e-10       0.936    11
+##  3   778          2   4.64e-10    37       1.93e- 5       0.726    14
+##  4  1048         12   4.13e- 2    32       3.52e- 7       0.953     6
+##  5  1602          7   7.32e- 7     3       5.62e- 5       0.692     8
+##  6  1411         10   5.08e- 2    15       8.70e- 4       0.596    14
+##  7    80          9   7.74e- 5    10       1.45e+ 1       0.455     5
+##  8  1507          2   2.08e- 2    20       6.93e- 5       0.323    16
+##  9  1841         12   8.74e- 4    40       4.18e+ 0       0.535    12
+## 10  1324          3   8.80e- 9     8       4.38e- 9       0.236    18</code></pre>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="xgboost.html#cb83-1"></a><span class="co"># 10-fold cross-validation</span></span>
+<span id="cb83-2"><a href="xgboost.html#cb83-2"></a></span>
+<span id="cb83-3"><a href="xgboost.html#cb83-3"></a><span class="kw">set.seed</span>(<span class="dv">1234</span>) <span class="co"># for reproducibility </span></span>
+<span id="cb83-4"><a href="xgboost.html#cb83-4"></a></span>
+<span id="cb83-5"><a href="xgboost.html#cb83-5"></a>xg_folds &lt;-<span class="st"> </span><span class="kw">vfold_cv</span>(train_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">target =</span> train_y_class)),</span>
+<span id="cb83-6"><a href="xgboost.html#cb83-6"></a>                     <span class="dt">strata =</span> target)</span></code></pre></div>
+</div>
+<div id="add-these-elements-to-a-workflow" class="section level4" number="7.5.3.2">
+<h4><span class="header-section-number">7.5.3.2</span> Add these elements to a workflow</h4>
+<div class="sourceCode" id="cb84"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb84-1"><a href="xgboost.html#cb84-1"></a><span class="co"># Update workflow </span></span>
+<span id="cb84-2"><a href="xgboost.html#cb84-2"></a>xg_wf &lt;-<span class="st"> </span>xg_wf <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">update_model</span>(tune_spec)</span>
+<span id="cb84-3"><a href="xgboost.html#cb84-3"></a></span>
+<span id="cb84-4"><a href="xgboost.html#cb84-4"></a>cl &lt;-<span class="st"> </span><span class="kw">makeCluster</span>(<span class="dv">4</span>)</span>
+<span id="cb84-5"><a href="xgboost.html#cb84-5"></a><span class="kw">registerDoParallel</span>(cl)</span>
+<span id="cb84-6"><a href="xgboost.html#cb84-6"></a></span>
+<span id="cb84-7"><a href="xgboost.html#cb84-7"></a><span class="co"># Tuning results </span></span>
+<span id="cb84-8"><a href="xgboost.html#cb84-8"></a>xg_res &lt;-<span class="st"> </span>xg_wf <span class="op">%&gt;%</span></span>
+<span id="cb84-9"><a href="xgboost.html#cb84-9"></a><span class="st">  </span><span class="kw">tune_grid</span>(</span>
+<span id="cb84-10"><a href="xgboost.html#cb84-10"></a>    <span class="dt">resamples =</span> xg_folds, </span>
+<span id="cb84-11"><a href="xgboost.html#cb84-11"></a>    <span class="dt">grid =</span> xg_grid,</span>
+<span id="cb84-12"><a href="xgboost.html#cb84-12"></a>    <span class="dt">control =</span> <span class="kw">control_grid</span>(<span class="dt">save_pred =</span> <span class="ot">TRUE</span>)</span>
+<span id="cb84-13"><a href="xgboost.html#cb84-13"></a>  )</span></code></pre></div>
+</div>
+<div id="visualize" class="section level4" number="7.5.3.3">
+<h4><span class="header-section-number">7.5.3.3</span> Visualize</h4>
+<ul>
+<li>The following plot draws on the <a href="https://www.tidymodels.org/start/tuning/">vignette</a> of the tidymodels package.</li>
+</ul>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="xgboost.html#cb85-1"></a>xg_res <span class="op">%&gt;%</span></span>
+<span id="cb85-2"><a href="xgboost.html#cb85-2"></a><span class="st">  </span><span class="kw">collect_metrics</span>() <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb85-3"><a href="xgboost.html#cb85-3"></a><span class="st">  </span><span class="kw">filter</span>(.metric <span class="op">==</span><span class="st"> &quot;roc_auc&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb85-4"><a href="xgboost.html#cb85-4"></a><span class="st">  </span><span class="kw">pivot_longer</span>(mtry<span class="op">:</span>sample_size,</span>
+<span id="cb85-5"><a href="xgboost.html#cb85-5"></a>               <span class="dt">values_to =</span> <span class="st">&quot;value&quot;</span>,</span>
+<span id="cb85-6"><a href="xgboost.html#cb85-6"></a>               <span class="dt">names_to =</span> <span class="st">&quot;parameter&quot;</span>) <span class="op">%&gt;%</span></span>
+<span id="cb85-7"><a href="xgboost.html#cb85-7"></a><span class="st">  </span><span class="kw">ggplot</span>(<span class="kw">aes</span>(<span class="dt">x =</span> value, <span class="dt">y =</span> mean, <span class="dt">color =</span> parameter)) <span class="op">+</span></span>
+<span id="cb85-8"><a href="xgboost.html#cb85-8"></a><span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">alpha =</span> <span class="fl">0.8</span>, <span class="dt">show.legend =</span> <span class="ot">FALSE</span>) <span class="op">+</span></span>
+<span id="cb85-9"><a href="xgboost.html#cb85-9"></a><span class="st">    </span><span class="kw">facet_wrap</span>(<span class="op">~</span>parameter, <span class="dt">scales =</span> <span class="st">&quot;free_x&quot;</span>) <span class="op">+</span></span>
+<span id="cb85-10"><a href="xgboost.html#cb85-10"></a><span class="st">    </span><span class="kw">labs</span>(<span class="dt">y =</span> <span class="st">&quot;AUC&quot;</span>,</span>
+<span id="cb85-11"><a href="xgboost.html#cb85-11"></a>         <span class="dt">x =</span> <span class="ot">NULL</span>)</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb86-1"><a href="xgboost.html#cb86-1"></a><span class="co"># Optimal parameter</span></span>
+<span id="cb86-2"><a href="xgboost.html#cb86-2"></a>best_xg &lt;-<span class="st"> </span><span class="kw">select_best</span>(xg_res, <span class="st">&quot;roc_auc&quot;</span>)</span>
+<span id="cb86-3"><a href="xgboost.html#cb86-3"></a></span>
+<span id="cb86-4"><a href="xgboost.html#cb86-4"></a>best_xg </span></code></pre></div>
+<pre><code>## # A tibble: 1 x 8
+##    mtry trees min_n tree_depth  learn_rate loss_reduction sample_size .config
+##   &lt;int&gt; &lt;int&gt; &lt;int&gt;      &lt;int&gt;       &lt;dbl&gt;          &lt;dbl&gt;       &lt;dbl&gt; &lt;chr&gt;  
+## 1     8  1602     3          7 0.000000732      0.0000562       0.692 Model14</code></pre>
+<div class="sourceCode" id="cb88"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb88-1"><a href="xgboost.html#cb88-1"></a><span class="co"># Add the parameter to the workflow </span></span>
+<span id="cb88-2"><a href="xgboost.html#cb88-2"></a>finalize_xg &lt;-<span class="st"> </span>xg_wf <span class="op">%&gt;%</span></span>
+<span id="cb88-3"><a href="xgboost.html#cb88-3"></a><span class="st">  </span><span class="kw">finalize_workflow</span>(best_xg)</span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="xgboost.html#cb89-1"></a>xg_fit_tuned &lt;-<span class="st"> </span>finalize_xg <span class="op">%&gt;%</span><span class="st"> </span></span>
+<span id="cb89-2"><a href="xgboost.html#cb89-2"></a><span class="st">  </span><span class="kw">fit</span>(train_x_class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">bind_cols</span>(<span class="kw">tibble</span>(<span class="dt">target =</span> train_y_class)))</span>
+<span id="cb89-3"><a href="xgboost.html#cb89-3"></a></span>
+<span id="cb89-4"><a href="xgboost.html#cb89-4"></a><span class="co"># Metrics </span></span>
+<span id="cb89-5"><a href="xgboost.html#cb89-5"></a>(xg_fit_viz_metr <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Non-tuned&quot;</span>)) <span class="op">/</span><span class="st"> </span>(<span class="kw">visualize_class_eval</span>(xg_fit_tuned) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Tuned&quot;</span>))</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<div class="sourceCode" id="cb90"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb90-1"><a href="xgboost.html#cb90-1"></a><span class="co"># Confusion matrix </span></span>
+<span id="cb90-2"><a href="xgboost.html#cb90-2"></a>(xg_fit_viz_mat <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Non-tuned&quot;</span>)) <span class="op">/</span><span class="st"> </span>(<span class="kw">visualize_class_conf</span>(xg_fit_tuned) <span class="op">+</span><span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Tuned&quot;</span>))</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-16-2.png" width="672" /></p>
+<ul>
+<li>Visualize variable importance</li>
+</ul>
+<div class="sourceCode" id="cb91"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb91-1"><a href="xgboost.html#cb91-1"></a>xg_fit_tuned <span class="op">%&gt;%</span></span>
+<span id="cb91-2"><a href="xgboost.html#cb91-2"></a><span class="st">  </span><span class="kw">pull_workflow_fit</span>() <span class="op">%&gt;%</span></span>
+<span id="cb91-3"><a href="xgboost.html#cb91-3"></a><span class="st">  </span>vip<span class="op">::</span><span class="kw">vip</span>()</span></code></pre></div>
+<p><img src="machine-learning-in-r_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<ul>
+<li>Apply the tuned model to the test dataset</li>
+</ul>
+<div class="sourceCode" id="cb92"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb92-1"><a href="xgboost.html#cb92-1"></a>final_res &lt;-<span class="st"> </span><span class="kw">last_fit</span>(finalize_xg, split_class) </span>
+<span id="cb92-2"><a href="xgboost.html#cb92-2"></a></span>
+<span id="cb92-3"><a href="xgboost.html#cb92-3"></a>final_res <span class="op">%&gt;%</span></span>
+<span id="cb92-4"><a href="xgboost.html#cb92-4"></a><span class="st">  </span><span class="kw">collect_metrics</span>()</span></code></pre></div>
+<pre><code>## # A tibble: 2 x 3
+##   .metric  .estimator .estimate
+##   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+## 1 accuracy binary         0.833
+## 2 roc_auc  binary         0.938</code></pre>
+<p>TBD: Challenge 4</p>
+
+</div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="random-forests.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="ensembles.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/dlab-berkeley/Machine-Learning-in-R/edit/master/06-xgboost.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["machine-learning-in-r.pdf", "machine-learning-in-r.epub"],
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+</body>
+
+</html>
