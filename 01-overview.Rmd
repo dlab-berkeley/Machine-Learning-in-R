@@ -14,10 +14,9 @@ if (FALSE) {
                      # Tidyverse packages including dplyr and ggplot2 
                      "tidyverse",
                      # Algorithms
-                     "glmnet", "ranger", "rpart", "xgboost",
-                     "PCAmixdata", "pvclust", "mclust", 
+                     "glmnet", "ranger", "rpart", "xgboost", "pvclust", "mclust", 
                      # Visualization
-                     "rpart.plot", "vip", "ape", 
+                     "rpart.plot", "vip", "ape", "corrr", "GGally",
                      # Machine learning frameworks
                      "caret", "SuperLearner",
                      # R utility packages

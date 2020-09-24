@@ -4,7 +4,14 @@
 
 ```{r}
 library(dplyr)
-library(PCAmixdata)
+library(tidyverse) # tidyverse packages 
+library(corrr) # correlation analysis 
+library(GGally) # visualizing correlation analysis 
+library(tidymodels) # tidymodels framework 
+library(here) # reproducible way to find files 
+
+theme_set(theme_minimal())
+
 ```
 
 # Load data
@@ -12,7 +19,7 @@ library(PCAmixdata)
 Reimport the heart disease dataset. 
 
 ```{r}
-load("data/preprocessed.RData")
+load(here("data", "preprocessed.RData"))
 ```
 
 # Overview
@@ -23,210 +30,117 @@ Since we are not trying to predict the value of any target variable like in supe
 
 Principal component analysis (PCA) is a powerful linear transformation technique used to explore patterns in data and highly correlated variables. It is useful for distilling variation across many variables onto a reduced feature space, such as a two-dimensional scatterplot. 
 
-## Reclass variables
+## Correlation analysis 
 
-dplyr is essential for changing the classes of multiple features at once :^) 
+- Notice some problems? 
 
-## Scale numeric variables
-
+    - NAs 
+    
+    - Scaling issues 
+    
 ```{r}
-vars_to_scale = c("age", "trestbps", "chol", "thalach", "oldpeak")
-h = data_original %>% mutate_at(scale, .vars = vars(vars_to_scale))
-h = h %>% mutate_at(as.numeric, .vars = vars(vars_to_scale))
-head(h)
+
+data_original %>%
+  corrr::correlate()
+
 ```
 
-## Factorize categorical variables 
+# Preprocessing 
+
+`recipe` is essential for preprocesssing multiple features at once :^) 
 
 ```{r}
-# Quick rename target outcomes
-h$target = ifelse(h$target == 1, "yes", "no")
 
-vars_to_fac = c("sex", "cp", "fbs", "restecg", "exang", 
-                "slope", "ca", "thal", "target")
-
-h = h %>% mutate_at(as.factor, .vars = vars(vars_to_fac))
-
-# Awesome!
-sapply(h, class)
-
-# Create subset of numeric-only data (along with h.target)
-# Combine the scaled numeric data and the original target feature
-ml_num = data.frame(subset(h, select = vars_to_scale), h$target)
-head(ml_num)
+pca_recipe <- recipe(~., data = data_original) %>%
+  # Imputing NAs using mean 
+  step_meanimpute(all_predictors()) %>%
+  # Normalize some numeric variables 
+  step_normalize(c("age", "trestbps", "chol", "thalach", "oldpeak")) 
 ```
 
-# Fit model
+# PCA analysis 
 
 ```{r}
-split = splitmix(h)
-X1 = split$X.quanti 
-X2 = split$X.quali 
-res.pcamix = PCAmix(X.quanti = X1, 
-                    X.quali = X2,
-                    rename.level = TRUE,
-                    graph = TRUE)
 
-# Stuff to unpack
-names(res.pcamix)
-res.pcamix$eig
+pca_res <- pca_recipe %>% 
+  step_pca(all_predictors(), 
+           id = "pca") %>% # id argument identifies each PCA step 
+  prep()
+
+pca_res %>%
+  tidy(id = "pca") 
+  
 ```
 
 ## Screeplot
 
 ```{r}
-barplot(res.pcamix$eig[,2], 
-        ylim = c(0, 20), las = 2)
+pca_recipe %>%
+  step_pca(all_predictors(), 
+           id = "pca") %>% # id argument identifies each PCA step 
+  prep() %>%
+  tidy(id = "pca", type = "variance") %>%
+  filter(terms == "percent variance") %>% 
+  ggplot(aes(x = component, y = value)) +
+    geom_col() +
+    labs(x = "PCAs of heart disease",
+         y = "% of variance",
+         title = "Scree plot")
 ```
 
-## ggplot coordinates
+## View factor loadings 
 
 ```{r}
-# ?plot.PCAmix
 
-# Convert the coordinates to a dataframe, and add the original target column
-pca1 = data.frame(res.pcamix$ind$coord, h$target)
-
-ggplot(pca1, aes(x = dim.1, y = dim.2, color = h.target)) + 
-  geom_point() + 
-  theme_bw() +
-  guides(color = guide_legend(title = "Has heart \n disease?")) + 
-  ggtitle("PCA of heart disease") +
-  xlab(paste("Dimension 1", paste0("(", 
-                                   round(res.pcamix$eig[1, 2], 2), 
-                                   "%", ")"))) + 
-  ylab(paste("Dimension 2", paste0("(", 
-                                   round(res.pcamix$eig[2, 2], 2), 
-                                   "%", ")")))
+pca_recipe %>%
+  step_pca(all_predictors(), 
+           id = "pca") %>% # id argument identifies each PCA step 
+  prep() %>%
+  tidy(id = "pca") %>%
+  filter(component %in% c("PC1", "PC2")) %>%
+  ggplot(aes(x = fct_reorder(terms, value), y = value, 
+             fill = component)) +
+    geom_col(position = "dodge") +
+    coord_flip() +
+    labs(x = "Terms",
+         y = "Contribtutions",
+         fill = "PCAs") 
+       
 ```
-
-## View factor loadings
-
-```{r}
-pca2 = data.frame(res.pcamix$sqload)
-pca2
-
-# Dimension 1
-ggplot(pca2, aes(x = reorder(rownames(pca2), -dim.1), y = dim.1)) + 
-  geom_bar(stat = "identity") + 
-  theme_bw() + ggtitle("Dimension 1 loadings") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-# Dimension 2
-ggplot(pca2, aes(x = reorder(rownames(pca2), -dim.2), y = dim.2)) + 
-  geom_bar(stat = "identity") + 
-  theme_bw() + ggtitle("Dimension 2 loadings") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
-
 # PCA for Machine Learning
 
 Create a 70/30 training/test split
 
 ```{r}
+
 # Set seed for reproducibility
-set.seed(1)
+set.seed(1234)
 
-# Create a stratified random split
-training_rows = caret::createDataPartition(ml_num$h.target, 
-                                           p = 0.70, list = FALSE) 
+# Split 
+split_cluster <- initial_split(data_original, prop = 0.7)
 
-# Partition training dataset
-train_x_class = ml_num[training_rows, ] 
+# Training set 
+train_set <- training(split_cluster)
 
-# Partition test dataset
-test_x_class = ml_num[-training_rows, ] 
+# Test set 
+test_set <- testing(split_cluster)
 
-dim(train_x_class)
-dim(test_x_class)
+# Apply the recipe we created above 
+final_recipe <- recipe(~., data = train_set) %>%
+  # Imputing NAs using mean 
+  step_meanimpute(all_predictors()) %>%
+  # Normalize some numeric variables 
+  step_normalize(c("age", "trestbps", "chol", "thalach", "oldpeak")) %>%
+  step_pca(all_predictors()) # id argument identifies each PCA step 
 
-table(train_x_class$h.target)
-table(test_x_class$h.target)
+# Preprocessed training set 
+ggtrain <- final_recipe %>%
+  prep(retain = TRUE) %>%
+  juice()
+
+# Preprocessed test set 
+ggtest <- final_recipe %>%
+  prep() %>%
+  bake(test_set)
+
 ```
-
-# Fit PCA model to training set for numeric values
-```{r}
-?prcomp
-pca_ml = prcomp(subset(train_x_class, select = -h.target), 
-                       retx = TRUE, 
-                       center = FALSE, scale = FALSE)
-pca_ml
-
-# view percentage of variance explained
-summary(pca_ml)
-
-# or
-expl.var = round(pca_ml$sdev ^ 2 / sum(pca_ml$sdev ^ 2) * 100, 4) 
-expl.var
-```
-
-## Generate predicted values of PCs for test dataset
-```{r}
-predicted_values = predict(pca_ml, 
-                           newdata = subset(test_x_class, select = -h.target))
-head(predicted_values)
-```
-
-## Define plotting parameters
-```{r}
-# Assign one color to each condition
-target_colors = 1:2
-
-# Assign one shape for the training data and another shape for the test data
-target_shapes = c(1,16)
-# Squares = training data
-# Circles = test data
-
-# Which PCs to plot?
-target_PCs = 1:2
-```
-
-## Store the scores inside of dataframes
-```{r}
-# Assign the data into dataframes like before
-gg_train = data.frame(pca_ml$x[, target_PCs])
-head(gg_train)
-
-gg_test = data.frame(predicted_values[, target_PCs])
-head(gg_test)
-```
-
-# Visualize
-We can plot the training and test data on the same plot! 
-
-```{r}
-ggplot(
-  # training data
-  gg_train, aes(x = gg_train[,1], y = gg_train[,2], 
-                color = train_x_class$h.target)) + 
-  geom_point(shape = 0, alpha = .5, stroke = 1, size = 3) + 
-  stat_ellipse(show.legend = FALSE, lwd = 0.5) + 
-  labs(color = "Has heart disease?", 
-       caption = "Squares = training data \n 
-       Circles = test data \n 
-       Ellipses are 95% confidence ellipses for training data") + 
-  xlab("Dimension 1") + 
-  ylab("Dimension 2") + 
-  xlim(c(-4, 4)) + 
-  ylim(c(-4, 4)) +
-  theme_bw() + 
-  
-  # test data
-  
-  geom_point(gg_test, mapping = aes(x = gg_test[,1], y = gg_test[,2], 
-                                    color = test_x_class$h.target, 
-                                    size = 3, alpha = 0.75)) + 
-  guides(size = FALSE, alpha = FALSE) + 
-  theme(legend.position = "top") + 
-  ggtitle("Heart disease training/test data") + 
-  theme(plot.title = element_text(hjust = 0.5, size = 10),
-        legend.title = element_text(size = 10),
-        legend.text = element_text(size = 10))  
-```
-
-## Save `ml_num` for use in 09-hclust.Rmd
-```{r}
-save(ml_num, file = "data/unsupervised.RData")
-```
-
