@@ -16,6 +16,8 @@ library(glue) # glue strings and objects
 library(patchwork) # arrange ggplots 
 library(doParallel) # parallel processing 
 
+source(here("functions", "utils.R"))
+
 theme_set(theme_minimal())
 
 ```
@@ -32,7 +34,6 @@ load(here("data", "preprocessed.RData"))
 ## Overview
 
 From [Freund Y, Schapire RE. 1999. A short introduction to boosting. Journal of Japanese Society for Artificial Intelligence 14:771-780](https://cseweb.ucsd.edu/~yfreund/papers/IntroToBoosting.pdf):  
-
 "Boosting is a general method for improving the accuracy of any given learning algorithm" and evolved from AdaBoost and PAC learning (p. 1-2). Gradient boosted machines are ensembles decision tree methods of "weak" trees that are just slightly more accurate than random guessing. These are then "boosted" into "strong" learners. That is, the models don't have to be accurate over the entire feature space."  
 
 The model first tries to predict each value in a dataset - the cases that can be predicted easily are _downweighted_ so that the algorithm does not try as hard to predict them.  
@@ -98,10 +99,13 @@ Note that we will now use *A*rea *U*nder the ROC *C*urve (called "AUC") as our p
 However, xgboost is expecting character strings as the factor level names so our integer 1s and 0s will not do. Let's quickly recode the 1s as "yes" and 0s as "no". 
 
 ```{r}
+
 xgb_train_y_class <- as.factor(ifelse(train_y_class == 1, "yes", "no"))
 xgb_test_y_class <- as.factor(ifelse(test_y_class == 1, "yes", "no"))
-table(train_y_class, xgb_train_y_class)
+
+table(train_y_class, xgb_train_y_class) 
 table(test_y_class, xgb_test_y_class)
+
 ```
 
 > NOTE: This will take a few minutes to complete! 
@@ -126,8 +130,11 @@ model <- caret::train(xgb_train_y_class ~ ., data = cbind(xgb_train_y_class, tra
 # user time = the CPU time charged for the execution of user instructions of the calling process
 # system time = the CPU time charged for execution by the system on behalf of the calling  process
 # elapsed time = real time since the process was started
+
 model$times 
+
 ```
+
 - Review model summary table
 
 ```{r}
@@ -155,10 +162,10 @@ ggplot(model) + theme_bw() + ggtitle("Xgboost hyperparameter comparison")
 caret::varImp(model)
 
 # This version uses the complex caret object
-vip::vip(model) + theme_minimal()
+vip::vip(model)
 
 # This version operates on the xgboost model within the caret object
-vip::vip(model$finalModel) + theme_minimal()
+vip::vip(model$finalModel)
 
 # Generate predicted labels.
 predicted_labels = predict(model, test_x_class)
@@ -183,14 +190,16 @@ plot(rocCurve,
      print.thres = "best", 
      main = "XGBoost on test set", col = "blue", las = 1) 
 
-# Get specificiety and sensitivity at particular threshold
+# Get specificity and sensitivity at particular threshold
 pROC::coords(rocCurve, 0.01, transpose = FALSE)
 pROC::coords(rocCurve, 0.525, transpose = FALSE) 
 pROC::coords(rocCurve, 0.99, transpose = FALSE)
 
 ```
 
-## Tidy models 
+## Tidymodels 
+
+This tidymodels part of the workshop heavily draws on Julia Silge's [tutorial](https://juliasilge.com/blog/xgboost-tune-volleyball/). 
 
 ### parsnip 
 
@@ -212,6 +221,7 @@ xg_spec <- boost_tree(
            mode = "classification",
            
            # Tuning parameters
+           
            # The number of trees to fit, aka boosting iterations
            trees = c(100, 300, 500, 700, 900),
            # The depth of the decision tree (how many levels of splits).
@@ -253,32 +263,15 @@ xg_fit <- xg_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_clas
 
 ```{r}
 
-# Define performance metrics 
-metrics <- yardstick::metric_set(accuracy, precision, recall)
+metrics <- metric_set(yardstick::accuracy, precision, recall)
 
-# Build an evaluation function 
-evaluate_class <- function(model){
-  
-  # Bind ground truth and predicted values  
-  bind_cols(tibble(truth = test_y_class), # Ground truth 
-            predict(model, test_x_class)) %>% # Predicted values 
-    
-  # Calculate root mean-squared error
-  metrics(truth = truth, estimate = .pred_class) 
-}
+evaluate_class(xg_fit)
 
 ```
 
 ```{r}
 
-visualize_metrics <- function(model){
-evaluate_class(model) %>%
-  ggplot(aes(x = fct_reorder(glue("{toupper(.metric)}"), .estimate), y = .estimate)) +
-    geom_col() +
-    labs(x = "Metrics",
-         y = "Estimate")}
-
-xg_fit_viz_metr <- visualize_metrics(xg_fit)
+xg_fit_viz_metr <- visualize_class_eval(xg_fit)
 
 xg_fit_viz_metr
 
@@ -289,21 +282,7 @@ xg_fit_viz_metr
   
 ```{r}
 
-visualize_conf_mat <- function(model){
-  bind_cols(tibble(truth = test_y_class), # Ground truth 
-            predict(model, test_x_class)) %>%
-  conf_mat(truth, .pred_class) %>%
-  pluck(1) %>% # Select index 
-  as_tibble() %>% # Vector -> data.frame 
-  ggplot(aes(Prediction, Truth, alpha = n)) +
-    geom_tile(show.legend = FALSE) +
-    geom_text(aes(label = n), 
-              color = "red", 
-              alpha = 1, 
-              size = 13)
-}
-
-xg_fit_viz_mat <- visualize_conf_mat(xg_fit)
+xg_fit_viz_mat <- visualize_class_conf(xg_fit)
 
 xg_fit_viz_mat
 
@@ -313,36 +292,54 @@ xg_fit_viz_mat
 
 #### tune ingredients 
 
-We focus on the following two parameters:
-
-- `mtry`: The number of predictors to available for splitting at each node.
-
-- `min_n`: The minimum number of data points needed to keep splitting nodes. 
+We focus on the following parameters: `trees,` `tree_depth,` `learn_rate,` `min_n,` `mtry,` `loss_reduction,` and `sample_size`
 
 ```{r}
 
 tune_spec <- 
-  xg_forest(
+  xg_spec <- boost_tree(
+  
+           # Mode 
            mode = "classification",
            
            # Tuning parameters
+           
+           # The number of trees to fit, aka boosting iterations
+           trees = tune(),
+           # The depth of the decision tree (how many levels of splits).
+	         tree_depth = tune(), 
+           # Learning rate: lower means the ensemble will adapt more slowly.
+           learn_rate = tune(),
+           # Stop splitting a tree if we only have this many obs in a tree node.
+	         min_n = tune(),
+           loss_reduction = tune(),
+           # The number of randomly selected parameters 
            mtry = tune(), 
-           min_n = tune()) %>%
-  set_engine("ranger",
-             importance = "permutation")
+           # The size of the data set used for modeling within an iteration
+           sample_size = tune()
+          ) %>% 
+  set_engine("xgboost") 
 
-xg_grid <- grid_regular(mtry(range = c(1, 10)),
-                          min_n(range = c(2, 10)),
-                          levels = 5)
+# Space-filling parameter grids 
+xg_grid <- grid_latin_hypercube(
+  trees(),
+  tree_depth(),
+  learn_rate(),
+  min_n(),
+  loss_reduction(), 
+  sample_size = sample_prop(),
+  finalize(mtry(), train_x_class),
+  size = 30
+  )
 
-xg_grid %>%
-  count(min_n)
+xg_grid %>% slice(1:10)
 
 # 10-fold cross-validation
 
 set.seed(1234) # for reproducibility 
 
-xg_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+xg_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)),
+                     strata = target)
 
 ```
 
@@ -361,7 +358,7 @@ xg_res <- xg_wf %>%
   tune_grid(
     resamples = xg_folds, 
     grid = xg_grid,
-    metrics = metrics
+    control = control_grid(save_pred = TRUE)
   )
 
 ```
@@ -373,34 +370,29 @@ xg_res <- xg_wf %>%
 ```{r}
 
 xg_res %>%
-  collect_metrics() %>%
-  mutate(min_n = factor(min_n)) %>%
-  ggplot(aes(mtry, mean, color = min_n)) +
-  # Line + Point plot 
-  geom_line(size = 1.5, alpha = 0.6) +
-  geom_point(size = 2) +
-  # Subplots 
-  facet_wrap(~ .metric, 
-             scales = "free", 
-             nrow = 2) +
-  # Log scale x 
-  scale_x_log10(labels = scales::label_number()) +
-  # Discrete color scale 
-  scale_color_viridis_d(option = "plasma", begin = .9, end = 0) +
-  labs(x = "The number of predictors to be sampled",
-       col = "The minimum number of data points needed for splitting",
-       y = NULL) +
-  theme(legend.position="bottom")
+  collect_metrics() %>% 
+  filter(.metric == "roc_auc") %>%
+  pivot_longer(mtry:sample_size,
+               values_to = "value",
+               names_to = "parameter") %>%
+  ggplot(aes(x = value, y = mean, color = parameter)) +
+    geom_point(alpha = 0.8, show.legend = FALSE) +
+    facet_wrap(~parameter, scales = "free_x") +
+    labs(y = "AUC",
+         x = NULL)
 
 ```
+
 ```{r}
 
 # Optimal parameter
-best_tree <- select_best(xg_res, "accuracy")
+best_xg <- select_best(xg_res, "roc_auc")
+
+best_xg 
 
 # Add the parameter to the workflow 
 finalize_tree <- xg_wf %>%
-  finalize_workflow(best_tree)
+  finalize_workflow(best_xg)
 
 ```
 
@@ -410,10 +402,10 @@ xg_fit_tuned <- finalize_tree %>%
   fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
 
 # Metrics 
-(xg_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_metrics(xg_fit_tuned) + labs(title = "Tuned"))
+(xg_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_class_eval(xg_fit_tuned) + labs(title = "Tuned"))
 
 # Confusion matrix 
-(xg_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_conf_mat(xg_fit_tuned) + labs(title = "Tuned"))
+(xg_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_class_conf(xg_fit_tuned) + labs(title = "Tuned"))
 
 ```
 
@@ -426,6 +418,14 @@ xg_fit_tuned %>%
   vip::vip()
 
 ```
- 
+
+- Apply the tuned model to the test dataset 
+
+```{r}
+final_res <- last_fit(finalize_tree, split_class) 
+
+final_res %>%
+  collect_metrics()
+```
 
 TBD: Challenge 4
