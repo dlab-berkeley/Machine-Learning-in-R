@@ -1,6 +1,35 @@
 
 ############# REGRESSION #############
 
+visualize_fit <- function(model, names){
+  
+  # Bind ground truth and predicted values  
+  bind_cols(tibble(truth = test_y_reg), # Ground truth 
+            predict(model, test_x_reg)) %>% # Predicted values 
+    
+    # Visualize the residuals 
+    ggplot(aes(x = truth, y = .pred)) +
+    # Diagonal line 
+    geom_abline(lty = 2) +
+    geom_point(alpha = 0.5) +
+    # Make X- and Y- scale uniform 
+    coord_obs_pred() +
+    labs(title = glue::glue("{names}"))
+  
+}
+
+# Build an evaluation function 
+evaluate_reg <- function(model){
+  
+  # Bind ground truth and predicted values  
+  bind_cols(tibble(truth = test_y_reg), # Ground truth 
+            predict(model, test_x_reg)) %>% # Predicted values 
+    
+    # Calculate root mean-squared error
+    metrics(truth = truth, estimate = .pred) 
+}
+
+
 ############# CLASSIFICATION #############
 
 evaluate_class <- function(model){

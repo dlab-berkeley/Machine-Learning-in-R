@@ -12,6 +12,8 @@ library(here) # reproducible way to find files
 library(glue) # glue strings and objects 
 library(vip) # variable importance 
 
+source(here("functions", "utils.R"))
+
 theme_set(theme_minimal())
 ```
 
@@ -41,11 +43,9 @@ The lasso is useful to try and remove some of the non-associated features from t
 
 Be sure to [read the glmnet vignette](https://web.stanford.edu/~hastie/Papers/Glmnet_Vignette.pdf)
 
-## Fit and evaluate models 
+## Non-tidy 
 
-### Non-tidy 
-
-#### OLS 
+### OLS 
 
 Below is an refresher of ordinary least squares linear (OLS) regression that predicts age using the other variables as predictors.  
 ```{r}
@@ -61,7 +61,7 @@ sqrt(mean((test_y_reg - ols_predicted )^2))
 
 ```
 
-#### Lasso
+### Lasso
 
 ```{r}
 
@@ -82,7 +82,7 @@ sqrt(mean((lasso_predicted - test_y_reg)^2))
 
 ```
 
-### tidymodels 
+## tidymodels 
 
 #### parsnip 
 
@@ -129,24 +129,6 @@ lasso_fit <- lasso_spec %>%
 
 ```{r}
 
-# Visualize model fit
-visualize_fit <- function(model, names){
-  
-  # Bind ground truth and predicted values  
-  bind_cols(tibble(truth = test_y_reg), # Ground truth 
-            predict(model, test_x_reg)) %>% # Predicted values 
-  
-  # Visualize the residuals 
-  ggplot(aes(x = truth, y = .pred)) +
-    # Diagonal line 
-    geom_abline(lty = 2) +
-    geom_point(alpha = 0.5) +
-    # Make X- and Y- scale uniform 
-    coord_obs_pred() +
-    labs(title = glue::glue("{names}"))
-
-}
-
 map2(list(ols_fit, lasso_fit), c("OLS", "Lasso"), visualize_fit) 
 
 ```
@@ -168,17 +150,6 @@ map2(list(ols_fit, lasso_fit), c("OLS", "Lasso"), visualize_fit)
 # Define performance metrics 
 metrics <- yardstick::metric_set(rmse, mae, rsq)
 
-# Build an evaluation function 
-evaluate_reg <- function(model){
-  
-  # Bind ground truth and predicted values  
-  bind_cols(tibble(truth = test_y_reg), # Ground truth 
-            predict(model, test_x_reg)) %>% # Predicted values 
-    
-  # Calculate root mean-squared error
-  metrics(truth = truth, estimate = .pred) 
-  }
-
 # Evaluate many models 
 evals <- purrr::map(list(ols_fit, lasso_fit), evaluate_reg) %>%
   reduce(bind_rows) %>%
@@ -196,9 +167,9 @@ evals %>%
 
 - For more information, read [Tidy Modeling with R](https://www.tmwr.org/) by Max Kuhn and Julia Silge.
 
-## Tuning lasso parameters
+#### tune 
 
-### tune ingredients 
+##### tune ingredients 
 
 ```{r}
 
@@ -215,8 +186,6 @@ tune_spec
 
 lambda_grid <- grid_regular(penalty(), levels = 50)
 
-lambda_grid
-
 # 10-fold cross-validation
 
 set.seed(1234) # for reproducibility 
@@ -225,7 +194,7 @@ rec_folds <- vfold_cv(train_x_reg %>% bind_cols(tibble(age = train_y_reg)))
 
 ```
 
-### Add these elements to a workflow 
+##### Add these elements to a workflow 
 
 ```{r}
 
@@ -243,7 +212,7 @@ rec_res <- rec_wf %>%
 
 ```
 
-### Visualize 
+##### Visualize 
 
 - Visualize the distribution of log(lambda) vs mean-squared error. 
 
@@ -280,6 +249,8 @@ top_rmse <- show_best(rec_res, metric = "rmse")
 
 best_rmse <- select_best(rec_res, metric = "rmse")
 
+best_rmse 
+
 glue('The RMSE of the intiail model is 
      {evals %>%
   filter(type == "Lasso", .metric == "rmse") %>%
@@ -290,7 +261,7 @@ glue('The RMSE of the tuned model is {rec_res %>%
   collect_metrics() %>%
   filter(.metric == "rmse") %>%
   arrange(mean) %>%
-  slice(1) %>%
+  dplyr::slice(1) %>%
   select(mean) %>%
   round(2)}')
 
@@ -300,15 +271,26 @@ glue('The RMSE of the tuned model is {rec_res %>%
 
 ```{r}
 
-finaliz_lasso <- rec_wf %>%
+finalize_lasso <- rec_wf %>%
   finalize_workflow(best_rmse)
 
-finaliz_lasso %>%
+finalize_lasso %>%
   fit(train_x_reg %>% bind_cols(tibble(age = train_y_reg))) %>%
   pull_workflow_fit() %>%
   vip::vip()
   
 ```
+##### Test fit 
+
+- Apply the tuned model to the test dataset 
+
+```{r}
+
+test_fit <- finalize_lasso %>% 
+  fit(test_x_reg %>% bind_cols(tibble(age = test_y_reg)))
+
+evaluate_reg(test_fit)
+
+```
 
 TBD: Challenge 1
-
