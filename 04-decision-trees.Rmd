@@ -265,16 +265,17 @@ tree_fit_tuned %>%
   vip::vip()
 
 ```
-#### Last fit
+#### Test fit
 
 - Apply the tuned model to the test dataset 
 
 ```{r}
 
-test_fit<- finalize_tree %>% 
+test_fit <- finalize_tree %>% 
   fit(test_x_class %>% bind_cols(tibble(target = test_y_class)))
 
 evaluate_class(test_fit)
 
 ```
+
 TBD: Challenge 2 

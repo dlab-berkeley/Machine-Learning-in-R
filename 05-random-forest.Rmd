@@ -275,7 +275,7 @@ rand_fit_tuned %>%
 
 ```
 
-#### Last fit
+#### Test fit
 
 - Apply the tuned model to the test dataset 
 

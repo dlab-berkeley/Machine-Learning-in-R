@@ -263,7 +263,9 @@ xg_fit <- xg_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_clas
 
 ```{r}
 
-metrics <- metric_set(yardstick::accuracy, precision, recall)
+metrics <- metric_set(yardstick::accuracy, 
+                      yardstick::precision, 
+                      yardstick::recall)
 
 evaluate_class(xg_fit)
 
@@ -331,8 +333,6 @@ xg_grid <- grid_latin_hypercube(
   finalize(mtry(), train_x_class),
   size = 30
   )
-
-xg_grid %>% slice(1:10)
 
 # 10-fold cross-validation
 
@@ -419,15 +419,17 @@ xg_fit_tuned %>%
 
 ```
 
-#### Last fit
+#### Test fit
 
 - Apply the tuned model to the test dataset 
 
 ```{r}
-final_res <- last_fit(finalize_xg, split_class) 
 
-final_res %>%
-  collect_metrics()
+test_fit <- finalize_xg %>%
+  fit(test_x_class %>% bind_cols(tibble(target = test_y_class)))
+
+evaluate_class(test_fit)
+
 ```
 
 TBD: Challenge 4
