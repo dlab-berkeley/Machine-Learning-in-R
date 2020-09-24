@@ -1,38 +1,56 @@
 # Hierarchical Agglomerative Clustering
 
-# Load data
-
-Review the numeric heart dataset from 08-PCA.Rmd
-
-```{r}
-load("data/unsupervised.RData")
-str(ml_num)
-```
-
-# Overview
-
-Hierarchical agglomerative clustering is a "bottom-up" method of clustering. Each observation begins as its own cluster and forms clusters with like items as it moves up the hierarchy. That is, all leaves are their own clusters to begin with and form clusters as grouping moves up the trunk and various branches are formed.  
-
-Distance and cluster method information are usually displayed at the bottom of the graph, while the vertical axis displays the height, which refers to the distance between two clusters. We can also "cut" the dendrogram to specify a number of clusters, which is similar to defining _k_ in k-means clustering (which can also be problematic).  
+# Load packages 
 
 ```{r}
 library(ape)
 library(pvclust)
 library(mclust)
+library(rio)
+library(tidyverse) # tidyverse packages
+library(here) # reproducible way to find files
+library(glue) # glue strings and objects 
+
+theme_set(theme_minimal())
+```
+
+# Load the data
+
+Load the heart disease dataset. 
+
+```{r load_data}
+# Load the heart disease dataset using import() from the rio package.
+data_original <- import(here("data-raw", "heart.csv"))
+
+# Preserve the original copy
+data <- data_original
+```
+
+# Overview
+
+Hierarchical agglomerative clustering is a "bottom-up" method of clustering. Each observation begins as its own cluster and forms clusters with like items as it moves up the hierarchy. That is, all leaves are their own clusters to begin with and form clusters as grouping moves up the trunk and various branches are formed.  
+Distance and cluster method information are usually displayed at the bottom of the graph, while the vertical axis displays the height, which refers to the distance between two clusters. We can also "cut" the dendrogram to specify a number of clusters, which is similar to defining _k_ in k-means clustering (which can also be problematic).  
+
+# Preprocess data 
+
+```{r}
+ml_num <- data %>%
+  # Rescale
+  mutate(across(is.numeric, BBmisc::normalize)) %>%
+  # Drop target
+  select(-target)
 ```
 
 Start by using the `hclust` built-in function, which prefers a distance matrix via the `dist` function. This plots rows as opposed to columns like the methods further below. 
 
 ```{r}
-?hclust
-
 # Create distance matrix
-heart_dist = dist(ml_num[, -6], method = "euclidean")
+heart_dist <- dist(ml_num, method = "euclidean")
 
 # Fit hclust_model
 system.time({
-  hclust_model = hclust(heart_dist, method = "complete")
-  })
+  hclust_model <- hclust(heart_dist, method = "complete")
+})
 
 # Plot hclust_model dendrogram
 plot(hclust_model, hang = -1)
@@ -43,14 +61,16 @@ Data are visualized in dendrograms, or branching tree-like structures similar to
 Dissimilarity is applied not just to single observations, but to groups as well (linkage). 
 
 You can also cut the tree to see how the tree varies:
+
 ```{r}
 # If we want only 5 clusters, for example (must be a number between 1-303), since ml_num has 303 observations:
-cutree(hclust_model, 5) 
+cutree(hclust_model, 5)
 ```
 
 # The `ape` package
 
 The [`ape` package](https://cran.r-project.org/web/packages/ape/index.html) provides some great functionality for constructing and plotting clusters:
+
 ```{r}
 # Various plots
 plot(as.phylo(hclust_model))
@@ -58,8 +78,9 @@ plot(as.phylo(hclust_model), type = "cladogram")
 plot(as.phylo(hclust_model), type = "unrooted")
 
 # Radial plot
-colors = c("red", "orange", "blue", "green", "purple")
-clus5 = cutree(hclust_model, 5)
+colors <- c("red", "orange", "blue", "green", "purple")
+
+clus5 <- cutree(hclust_model, 5)
 plot(as.phylo(hclust_model), type = "fan", tip.color = colors[clus5], lwd = 2, cex = 1)
 
 # These color settings apply to the other ape plots as well
@@ -74,11 +95,12 @@ The [pvclust](http://stat.sys.i.kyoto-u.ac.jp/prog/pvclust/) package offers a st
 
 ```{r}
 system.time({
-  pvclust_model_ward = pvclust(ml_num[,-6],
-                          method.hclust = "ward.D",
-                          method.dist = "euclidean",
-                          nboot = 1000, parallel = T)
-  })
+  pvclust_model_ward <- pvclust(ml_num,
+    method.hclust = "ward.D",
+    method.dist = "euclidean",
+    nboot = 1000, parallel = T
+  )
+})
 
 plot(pvclust_model_ward)
 
@@ -89,22 +111,25 @@ pvrect(pvclust_model_ward, alpha = 0.95)
 ### Complete linkage: largest intercluster difference
 
 ```{r}
-pvclust_model_complete = pvclust(ml_num[,-6],
-                                 method.hclust = "complete",
-                                 method.dist = "euclidean",
-                                 nboot = 1000, parallel = T)
+pvclust_model_complete <- pvclust(ml_num,
+  method.hclust = "complete",
+  method.dist = "euclidean",
+  nboot = 1000, parallel = T
+)
 
 plot(pvclust_model_complete)
+
 pvrect(pvclust_model_complete, alpha = 0.95)
 ```
 
 ### Single linkage: smallest intercluster difference
 
 ```{r}
-pvclust_model_single = pvclust(ml_num[,-6],
-                               method.hclust = "single",
-                               method.dist = "euclidean",
-                               nboot = 1000, parallel = T)
+pvclust_model_single <- pvclust(ml_num[, -6],
+  method.hclust = "single",
+  method.dist = "euclidean",
+  nboot = 1000, parallel = T
+)
 
 plot(pvclust_model_single)
 pvrect(pvclust_model_single, alpha = 0.95)
@@ -113,10 +138,11 @@ pvrect(pvclust_model_single, alpha = 0.95)
 ### Average linkage: mean intercluster difference
 
 ```{r}
-pvclust_model_average = pvclust(ml_num[,-6],
-                                method.hclust = "average",
-                                 method.dist = "euclidean",
-                                nboot = 1000, parallel = T)
+pvclust_model_average <- pvclust(ml_num[, -6],
+  method.hclust = "average",
+  method.dist = "euclidean",
+  nboot = 1000, parallel = T
+)
 
 plot(pvclust_model_complete)
 pvrect(pvclust_model_complete, alpha = 0.95)
@@ -125,16 +151,18 @@ pvrect(pvclust_model_complete, alpha = 0.95)
 ### View summaries
 
 ```{r}
-(clust_sum =  list("Ward" = pvclust_model_ward$edges,
-                  "Complete" = pvclust_model_complete$edges,
-                  "Single" = pvclust_model_single$edges,
-                  "Average" = pvclust_model_average$edges))
+(clust_sum <- list(
+  "Ward" = pvclust_model_ward$edges,
+  "Complete" = pvclust_model_complete$edges,
+  "Single" = pvclust_model_single$edges,
+  "Average" = pvclust_model_average$edges
+))
 ```
 
 ### Plot Euclidean distance linkages
 
 ```{r}
-par(mfrow = c(2,2))
+par(mfrow = c(2, 2))
 plot(pvclust_model_ward, main = "Ward", xlab = "", sub = "")
 pvrect(pvclust_model_ward, alpha = 0.95)
 plot(pvclust_model_complete, main = "Complete", xlab = "", sub = "")
@@ -143,17 +171,17 @@ plot(pvclust_model_single, main = "Single", xlab = "", sub = "")
 pvrect(pvclust_model_single, alpha = 0.95)
 plot(pvclust_model_average, main = "Average", xlab = "", sub = "")
 pvrect(pvclust_model_average, alpha = 0.95)
-par(mfrow = c(1,1))
+par(mfrow = c(1, 1))
 ```
 
 ### View standard error plots:
 ```{r}
-par(mfrow=c(2,2))
+par(mfrow = c(2, 2))
 seplot(pvclust_model_ward, main = "Ward")
 seplot(pvclust_model_complete, main = "Complete")
 seplot(pvclust_model_single, main = "Single")
 seplot(pvclust_model_average, main = "Average")
-par(mfrow=c(1,1))
+par(mfrow = c(1, 1))
 ```
 
 # Going further - the `mclust` package
@@ -161,10 +189,10 @@ The [`mclust`](https://cran.r-project.org/web/packages/mclust/index.html) packag
 
 ```{r}
 # Fit model
-mclust_model = Mclust(ml_num)
+mclust_model <- Mclust(ml_num)
 
 # View various plots
-plot(mclust_model, what = "BIC") 
+plot(mclust_model, what = "BIC")
 plot(mclust_model, what = "classification")
 plot(mclust_model, what = "uncertainty")
 plot(mclust_model, what = "density")
@@ -178,28 +206,33 @@ summary(mclust_model)
 ### Cross-validated mclust
 ```{r}
 # sort age in decreasing order
-ml_num = ml_num[order(-ml_num$age),]
+ml_num <- ml_num %>% arrange(desc(age))
+  
 head(ml_num)
 
 # create a binary factor variable from age: "less than 0" and "greater than/equal to 0"
-ml_num$class = cut(ml_num$age, 
-                   breaks = c(min(ml_num$age), 
-                              0, 
-                              max(ml_num$age)),
-                   levels = c(1, 2),
-                   labels = c("less than 0", "greater than/equal to 0"))
+ml_num$class <- cut(ml_num$age,
+  breaks = c(
+    min(ml_num$age),
+    0,
+    max(ml_num$age)
+  ),
+  levels = c(1, 2),
+  labels = c("less than 0", "greater than/equal to 0")
+)
 ml_num
 
 # Define our predictors (X) and class labels (class)
-X = subset(ml_num, select = -c(h.target, class))
-class = ml_num$h.target
+X <- subset(ml_num, select = -c(class))
+
+class <- data_original$target
 
 # Fit the model (EEE covariance structure, basically the same as linear discriminant analysis)
-mclust_model2 = MclustDA(X, class = class, modelType = "EDDA", modelNames = "EEE")
+mclust_model2 <- MclustDA(X, class = class, modelType = "EDDA", modelNames = "EEE")
 
 # Cross-validate!
 set.seed(1)
-cv_mclust = cvMclustDA(mclust_model2, nfold = 20)
+cv_mclust <- cvMclustDA(mclust_model2, nfold = 20)
 
 # View cross-validation error and standard error of the cv error
 cv_mclust[c("error", "se")]
