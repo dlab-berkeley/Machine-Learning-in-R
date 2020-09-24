@@ -14,6 +14,8 @@ library(glue) # glue strings and objects
 library(patchwork) # arrange ggplots 
 library(doParallel) # parallel processing 
 
+source(here("functions", "utils.R"))
+
 theme_set(theme_minimal())
 ```
 
@@ -51,6 +53,7 @@ set.seed(1234)
                    probability = TRUE,
                    # We want the importance of predictors to be assessed.
                    importance = "permutation"))
+
 
 ```
 
@@ -97,6 +100,7 @@ rand_spec <- rand_forest(
            trees = 500) %>% # The number of trees
   set_engine("ranger", 
              # We want the importance of predictors to be assessed.
+             seed = 1234, 
              importance = "permutation") 
 
 rand_wf <- rand_wf %>% add_model(rand_spec)
@@ -132,54 +136,17 @@ rand_fit <- rand_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_
 # Define performance metrics 
 metrics <- yardstick::metric_set(accuracy, precision, recall)
 
-# Build an evaluation function 
-evaluate_class <- function(model){
-  
-  # Bind ground truth and predicted values  
-  bind_cols(tibble(truth = test_y_class), # Ground truth 
-            predict(model, test_x_class)) %>% # Predicted values 
-    
-  # Calculate root mean-squared error
-  metrics(truth = truth, estimate = .pred_class) 
-}
-
-```
-
-```{r}
-
-visualize_metrics <- function(model){
-evaluate_class(model) %>%
-  ggplot(aes(x = fct_reorder(glue("{toupper(.metric)}"), .estimate), y = .estimate)) +
-    geom_col() +
-    labs(x = "Metrics",
-         y = "Estimate")}
-
-rand_fit_viz_metr <- visualize_metrics(rand_fit)
+rand_fit_viz_metr <- visualize_class_eval(rand_fit)
 
 rand_fit_viz_metr
 
 ```
-- Visualize the confusion matrix. 
 
-  - The following visualization code draws on [Diego Usai's medium post](https://towardsdatascience.com/modelling-with-tidymodels-and-parsnip-bae2c01c131c).
+- Visualize the confusion matrix. 
   
 ```{r}
 
-visualize_conf_mat <- function(model){
-  bind_cols(tibble(truth = test_y_class), # Ground truth 
-            predict(model, test_x_class)) %>%
-  conf_mat(truth, .pred_class) %>%
-  pluck(1) %>% # Select index 
-  as_tibble() %>% # Vector -> data.frame 
-  ggplot(aes(Prediction, Truth, alpha = n)) +
-    geom_tile(show.legend = FALSE) +
-    geom_text(aes(label = n), 
-              color = "red", 
-              alpha = 1, 
-              size = 13)
-}
-
-rand_fit_viz_mat <- visualize_conf_mat(rand_fit)
+rand_fit_viz_mat <- visualize_class_conf(rand_fit)
 
 rand_fit_viz_mat
 
@@ -205,6 +172,7 @@ tune_spec <-
            mtry = tune(), 
            min_n = tune()) %>%
   set_engine("ranger",
+             seed = 1234, 
              importance = "permutation")
 
 rand_grid <- grid_regular(mtry(range = c(1, 10)),
@@ -218,7 +186,9 @@ rand_grid %>%
 
 set.seed(1234) # for reproducibility 
 
-rand_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+rand_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)),
+                       strata = target)
+
 
 ```
 
@@ -274,6 +244,8 @@ rand_res %>%
 # Optimal parameter
 best_tree <- select_best(rand_res, "accuracy")
 
+best_tree
+
 # Add the parameter to the workflow 
 finalize_tree <- rand_wf %>%
   finalize_workflow(best_tree)
@@ -286,10 +258,10 @@ rand_fit_tuned <- finalize_tree %>%
   fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
 
 # Metrics 
-(rand_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_metrics(rand_fit_tuned) + labs(title = "Tuned"))
+(rand_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_class_eval(rand_fit_tuned) + labs(title = "Tuned"))
 
 # Confusion matrix 
-(rand_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_conf_mat(rand_fit_tuned) + labs(title = "Tuned"))
+(rand_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_class_conf(rand_fit_tuned) + labs(title = "Tuned"))
 
 ```
 
@@ -302,4 +274,18 @@ rand_fit_tuned %>%
   vip::vip()
 
 ```
+
+#### Last fit
+
+- Apply the tuned model to the test dataset 
+
+```{r}
+
+test_fit <- finalize_tree %>%
+  fit(test_x_class %>% bind_cols(tibble(target = test_y_class)))
+
+evaluate_class(test_fit)
+
+```
+
 TBD: Challenge 3 

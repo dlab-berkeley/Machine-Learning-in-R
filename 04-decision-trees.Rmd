@@ -15,6 +15,8 @@ library(glue) # glue strings and objects
 library(patchwork) # arrange ggplots 
 library(doParallel) # parallel processing 
 
+source(here("functions", "utils.R"))
+
 theme_set(theme_minimal())
 
 ```
@@ -135,56 +137,16 @@ tree_fit <- tree_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_
 ```{r}
 
 # Define performance metrics 
+
 metrics <- yardstick::metric_set(accuracy, precision, recall)
 
-# Build an evaluation function 
-evaluate_class <- function(model){
-  
-  # Bind ground truth and predicted values  
-  bind_cols(tibble(truth = test_y_class), # Ground truth 
-            predict(model, test_x_class)) %>% # Predicted values 
-    
-  # Calculate root mean-squared error
-  metrics(truth = truth, estimate = .pred_class) 
-}
+# Visualize
 
-```
-
-```{r}
-
-visualize_metrics <- function(model){
-evaluate_class(model) %>%
-  ggplot(aes(x = fct_reorder(glue("{toupper(.metric)}"), .estimate), y = .estimate)) +
-    geom_col() +
-    labs(x = "Metrics",
-         y = "Estimate")}
-
-tree_fit_viz_metr <- visualize_metrics(tree_fit)
+tree_fit_viz_metr <- visualize_class_eval(tree_fit)
 
 tree_fit_viz_metr
 
-```
-- Visualize the confusion matrix. 
-
-  - The following visualization code draws on [Diego Usai's medium post](https://towardsdatascience.com/modelling-with-tidymodels-and-parsnip-bae2c01c131c).
-  
-```{r}
-
-visualize_conf_mat <- function(model){
-  bind_cols(tibble(truth = test_y_class), # Ground truth 
-            predict(model, test_x_class)) %>%
-  conf_mat(truth, .pred_class) %>%
-  pluck(1) %>% # Select index 
-  as_tibble() %>% # Vector -> data.frame 
-  ggplot(aes(Prediction, Truth, alpha = n)) +
-    geom_tile(show.legend = FALSE) +
-    geom_text(aes(label = n), 
-              color = "red", 
-              alpha = 1, 
-              size = 13)
-}
-
-tree_fit_viz_mat <- visualize_conf_mat(tree_fit)
+tree_fit_viz_mat <- visualize_class_conf(tree_fit)
 
 tree_fit_viz_mat
 
@@ -219,7 +181,8 @@ tree_grid %>%
 
 set.seed(1234) # for reproducibility 
 
-tree_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+tree_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)),
+                       strata = target)
 
 ```
 
@@ -273,6 +236,8 @@ tree_res %>%
 # Optimal parameter
 best_tree <- select_best(tree_res, "recall")
 
+best_tree
+
 # Add the parameter to the workflow 
 finalize_tree <- tree_wf %>%
   finalize_workflow(best_tree)
@@ -284,10 +249,10 @@ tree_fit_tuned <- finalize_tree %>%
   fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
 
 # Metrics 
-(tree_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_metrics(tree_fit_tuned) + labs(title = "Tuned"))
+(tree_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_class_eval(tree_fit_tuned) + labs(title = "Tuned"))
 
 # Confusion matrix 
-(tree_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_conf_mat(tree_fit_tuned) + labs(title = "Tuned"))
+(tree_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_class_conf(tree_fit_tuned) + labs(title = "Tuned"))
 
 ```
 
@@ -300,6 +265,16 @@ tree_fit_tuned %>%
   vip::vip()
 
 ```
+#### Last fit
 
+- Apply the tuned model to the test dataset 
 
+```{r}
+
+test_fit<- finalize_tree %>% 
+  fit(test_x_class %>% bind_cols(tibble(target = test_y_class)))
+
+evaluate_class(test_fit)
+
+```
 TBD: Challenge 2 

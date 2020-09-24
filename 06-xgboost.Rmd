@@ -391,14 +391,14 @@ best_xg <- select_best(xg_res, "roc_auc")
 best_xg 
 
 # Add the parameter to the workflow 
-finalize_tree <- xg_wf %>%
+finalize_xg <- xg_wf %>%
   finalize_workflow(best_xg)
 
 ```
 
 ```{r}
 
-xg_fit_tuned <- finalize_tree %>% 
+xg_fit_tuned <- finalize_xg %>% 
   fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
 
 # Metrics 
@@ -419,10 +419,12 @@ xg_fit_tuned %>%
 
 ```
 
+#### Last fit
+
 - Apply the tuned model to the test dataset 
 
 ```{r}
-final_res <- last_fit(finalize_tree, split_class) 
+final_res <- last_fit(finalize_xg, split_class) 
 
 final_res %>%
   collect_metrics()
