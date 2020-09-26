@@ -5,39 +5,38 @@
 The following packages are required to run the code in this workshop:
 
 ```{r setup}
-if (FALSE) {
-  # Run these lines manually (once) to install the necessary packages.
+
+# Install packages 
+if (!require("pacman")) install.packages("pacman")
+
+install.packages("tidyverse")
+
+pacman::p_load(# Tidymodels framework 
+               tidymodels,
+               # Tidyverse packages including dplyr and ggplot2 
+               tidyverse,
+               # Algorithms
+               glmnet, ranger, rpart, xgboost, pvclust, mclust, 
+               # Visualization
+               rpart.plot, vip, ape, corrr, GGally,
+               # Machine learning frameworks
+               caret, SuperLearner,
+               # R utility packages
+               remotes, here, glue, patchwork, doParallel,
+               # Import/export of any filetype.
+               rio,
+               # Misc
+               pROC, bookdown)
   
-  # Install packages from CRAN.
-  install.packages(c(# Tidymodels framework 
-                     "tidymodels",
-                     # Algorithms
-                     "glmnet", "ranger", "rpart", "xgboost",
-                     "PCAmixdata", "pvclust", "mclust", 
-                     # Visualization
-                     "ggplot2", "rpart.plot", "vip", "ape", 
-                     # Machine learning frameworks
-                     "caret", "SuperLearner",
-                     # R utility packages
-                     "remotes", "dplyr", "purrr",
-                     # Import/export of any filetype.
-                     "rio",
-                     # Misc
-                     "pROC", "bookdown"))
-  
-  # Install packages not on CRAN or with old version on CRAN.
-  remotes::install_github("ck37/ck37r")
-}
+# Install packages not on CRAN or with old version on CRAN.
+remotes::install_github("ck37/ck37r")
 
 # Hide the many messages and possible warnings from loading all these packages.
 suppressMessages(suppressWarnings({  
   library(ape)          # Cluster visualizations
   library(caret)        # createDataPartition creates a stratified random split 
   library(ck37r)        # impute_missing_values, standardize, SuperLearner helpers
-  library(dplyr)        # Data cleaning
   library(glmnet)       # Lasso 
-  library(ggplot2)      # Graphics 
-  library(magrittr)     # Pipes %>% for data cleaning, installed by dplyr
   library(mclust)       # Model-based clustering
   library(PCAmixdata)   # PCA
   library(pROC)         # Compute and plot AUC 
@@ -51,4 +50,5 @@ suppressMessages(suppressWarnings({
   library(xgboost)      # Boosting method
   library(vip)          # Variable importance plots
 }))
+
 ```
