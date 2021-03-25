@@ -1,3 +1,6 @@
+# See the Fall 2020 tidymodels update!
+https://github.com/dlab-berkeley/Machine-Learning-with-tidymodels
+
 # Machine Learning in R
 
 This is the repository for D-Lab’s Introduction to Machine Learning in R workshop. [View the associated slides here](https://dlab-berkeley.github.io/Machine-Learning-in-R/slides.html#1).
